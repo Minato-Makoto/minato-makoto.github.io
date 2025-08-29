@@ -15,7 +15,7 @@ let MEMORY;
 async function loadMemory() {
   const response = await fetch('data/memory.json');
   MEMORY = await response.json();
-}
+};
 // =======================================================
 // ===== BẢNG ĐIỀU KHIỂN TRUNG TÂM =====
 // =======================================================
