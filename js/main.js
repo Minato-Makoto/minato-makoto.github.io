@@ -456,4 +456,9 @@ function boot(){
   });
 }
 
-window.addEventListener('DOMContentLoaded', boot);
+async function init(){
+  await loadMemory();
+  boot();
+}
+
+window.addEventListener('DOMContentLoaded', init);
