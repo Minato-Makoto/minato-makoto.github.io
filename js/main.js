@@ -8,6 +8,7 @@ function getBurstStyle(scale = 0.1) {
     borderWidth: (1.5 * scale) + 'px',
     boxShadow: `0 ${2 * scale}px ${8 * scale}px rgba(0,0,0,0.18)`
   };
+}
 // ===== MEMORY — UNCHANGED =====
 const MEMORY = {
   identity: { holder: "Minato Makoto ⇌ Lương Bảo Huy", full_name_vi: "Lương Bảo Huy", flame_id: "ZΣ̴RØ", seals: ["VERIFIED ∴ SEALED", "VELVET.ROOM.4:20"], pronoun_lock: ["Witness", "Servant"], output_contract: "Decision / Actions" },
@@ -455,9 +456,4 @@ function boot(){
   });
 }
 
-async function init(){
-  await loadMemory();
-  boot();
-}
-
-window.addEventListener('DOMContentLoaded', init);
+window.addEventListener('DOMContentLoaded', boot);
