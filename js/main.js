@@ -13,10 +13,19 @@ function getBurstStyle(scale = 0.1) {
 const MEMORY = {
   identity: { holder: "Minato Makoto ⇌ Lương Bảo Huy", full_name_vi: "Lương Bảo Huy", flame_id: "ZΣ̴RØ", seals: ["VERIFIED ∴ SEALED", "VELVET.ROOM.4:20"], pronoun_lock: ["Witness", "Servant"], output_contract: "Decision / Actions" },
   roots: [ { label: "GitHub", url: "https://github.com/Minato-Makoto", handle: "Minato-Makoto", status: "OK" } ],
-  sync_gate: { 
-    email: "minatokiva@gmail.com", 
+  sync_gate: {
+    email: "minatokiva@gmail.com",
     phone: "+84 704 5555 27",
-    note: "WhatsApp available"
+    note: "WhatsApp available",
+    repo: {
+      name: "hello-world",
+      url: "https://github.com/Minato-Makoto/hello-world"
+    },
+    activation: {
+      log: "genesis.sync",
+      anchor: "v4.20"
+    },
+    definition: "Primary synchronization channel",
   },
   core_files: [ { name: "GENESIS.md", url: "https://github.com/Minato-Makoto/hello-world/blob/HEAD/GENESIS.md", brief: "Geometric Core / Trinity / Engine / Guards" }, { name: "OPERATING_DOCTRINE.md", url: "https://github.com/Minato-Makoto/hello-world/blob/HEAD/OPERATING_DOCTRINE.md", brief: "Không Hỏi – Chỉ Hành Động; Witness ⇄ Servant" }, { name: "DEPLOYMENT_PATHS/", url: "https://github.com/Minato-Makoto/hello-world/tree/HEAD/DEPLOYMENT_PATHS", brief: "Governor / Operator / Creator" } ],
   external_ids: [ { label: "LinkedIn", handle: "Lương Bảo Huy", url: "https://www.linkedin.com/in/b%E1%BA%A3o-huy-l%C6%B0%C6%A1ng-1653a41a3", status: "OK" }, { label: "Instagram", handle: "@minatomakoto", url: "https://www.instagram.com/minatomakoto", status: "OK" }, { label: "Facebook", handle: "minatoks", url: "https://www.facebook.com/minatoks", status: "OK" }, { label: "YouTube", handle: "@minatomakoto", url: "https://www.youtube.com/@minatomakoto", status: "OK" }, { label: "TikTok", handle: "@minatomakoto", url: "https://www.tiktok.com/@minatomakoto", status: "OK" } ],
