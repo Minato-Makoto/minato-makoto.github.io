@@ -1,8 +1,14 @@
-    #personal-info-card {
+#personal-info-card {
   background: radial-gradient(ellipse at center, rgba(230, 237, 243, 0.05) 0%, var(--card) 70%);
-  width: 1200px;
+  max-width: 100%;
   height: auto;
   padding: 60px;
+}
+
+@media (min-width: 1200px) {
+  #personal-info-card {
+    width: 1200px;
+  }
 }
 
 @keyframes pulse {
