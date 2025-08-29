@@ -18,7 +18,16 @@
   "sync_gate": {
     "email": "minatokiva@gmail.com",
     "phone": "+84 704 5555 27",
-    "note": "WhatsApp available"
+    "note": "WhatsApp available",
+    "repo": {
+      "name": "hello-world",
+      "url": "https://github.com/Minato-Makoto/hello-world"
+    },
+    "activation": {
+      "log": "genesis.sync",
+      "anchor": "v4.20"
+    },
+    "definition": "Primary synchronization channel"
   },
   "core_files": [
     {
