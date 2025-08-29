@@ -13,9 +13,17 @@
 <style>
     #personal-info-card {
   background: radial-gradient(ellipse at center, rgba(230, 237, 243, 0.05) 0%, var(--card) 70%);
-  width: 1200px;
+  width: 100%;
+  max-width: 100%;
   height: auto;
   padding: 60px;
+}
+
+@media (max-width: 600px) {
+  #personal-info-card {
+    padding: 20px;
+    margin: 20px;
+  }
 }
 
 @keyframes pulse {
