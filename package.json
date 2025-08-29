@@ -1,0 +1,13 @@
+{
+  "name": "minato-makoto.github.io",
+  "version": "1.0.0",
+  "description": "This repository hosts the source for Minato Makoto's personal website, served through GitHub Pages. It consists of static HTML/CSS files.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"No tests specified\" && exit 0"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs"
+}
