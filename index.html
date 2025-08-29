@@ -590,17 +590,20 @@ function interactions(state){
 // --- animation loop (fps meter + adaptive DPR) ---
 function startLoop(state){
   const {controls, gl, css, scene, camera} = state; let last=performance.now(), acc=0, frames=0; let lowAcc=0, hiAcc=0; const fpsEl=$('#fps');
+  const clock = new THREE.Clock();
+  const starSpeed = 0.006; // rotation speed in radians per second
   const fluidTilt=()=>{ const {mx,my,root,autoRotate}=state; root.rotation.y += (mx*0.35 - root.rotation.y)*0.04; root.rotation.x += (-my*0.25 - root.rotation.x)*0.04; if(autoRotate){ root.rotation.y += 0.002; } };
 
   (function animate(){
+    const delta = clock.getDelta();
     state._raf=requestAnimationFrame(animate);
     if(document.hidden) return;
     controls.update();
     fluidTilt();
     // Particles Motion
     if (state.stars) {
-      state.stars.rotation.x += 0.0001;
-      state.stars.rotation.y -= 0.0001;
+      state.stars.rotation.x += starSpeed * delta;
+      state.stars.rotation.y -= starSpeed * delta;
     }
 
     // Card luôn hướng chính diện về camera
