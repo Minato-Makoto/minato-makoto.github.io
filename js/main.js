@@ -456,6 +456,17 @@ function boot(){
   });
 }
 
+async function loadMemory(){
+  try{
+    const res = await fetch('data/memory.json');
+    if(!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    Object.assign(MEMORY, data);
+  }catch(err){
+    console.warn('loadMemory failed', err);
+  }
+}
+
 async function init(){
   await loadMemory();
   boot();
