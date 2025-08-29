@@ -11,7 +11,3 @@ This repository hosts the source for Minato Makoto's personal website, served th
    python3 -m http.server 8000
    ```
 
-## Contributing
-
-Contributions are welcome! Please fork the repository, create a new branch for your changes, and submit a pull request for review.
-
