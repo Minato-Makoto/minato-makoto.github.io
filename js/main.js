@@ -477,8 +477,8 @@ async function loadMemory(){
 }
 
 async function init(){
-  await loadMemory();
-  boot();
+  boot();          // gắn sự kiện click ngay lập tức
+  loadMemory();    // tải JSON song song, không chặn UI
 }
 
 window.addEventListener('DOMContentLoaded', init);
