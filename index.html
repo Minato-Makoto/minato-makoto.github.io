@@ -310,15 +310,26 @@ function typewriter(element, text, speed = 24) {
   element.innerHTML = ''; // Xóa nội dung cũ để bắt đầu gõ
   element.style.visibility = 'visible'; // Đảm bảo text có thể thấy được
 
-  const timer = setInterval(function() {
-    if (i < text.length) {
+  let last = performance.now();
+  let acc = 0;
+  let rafId;
+
+  function frame(now) {
+    acc += now - last;
+    last = now;
+    while (acc >= speed && i < text.length) {
       // Dùng innerHTML để ký tự ⇌ hiển thị đúng
       element.innerHTML += text.charAt(i);
       i++;
-    } else {
-      clearInterval(timer);
+      acc -= speed;
     }
-  }, speed);
+    if (i < text.length) {
+      rafId = requestAnimationFrame(frame);
+    }
+  }
+
+  rafId = requestAnimationFrame(frame);
+  return () => cancelAnimationFrame(rafId);
 }
 
 // ===== Fallback 2D (kept) =====
@@ -685,7 +696,7 @@ function boot(){
   if(t) {
   t.style.visibility = 'hidden'; // Tạm ẩn tiêu đề để tránh bị giật
   setTimeout(() => { // Thêm một độ trễ nhỏ để hiệu ứng mượt hơn
-    typewriter(t, 'Welcome to the Generalist World', 70);
+    t._cancelTyping = typewriter(t, 'Welcome to the Generalist World', 70);
   }, 0);
 }
   const kao=$('#kao-veiled');
