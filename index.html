@@ -473,21 +473,191 @@ function buildScene(state){
 function buildCards(state, MEMORY){
   const {root} = state;
 
-  function cardEl(title, meta, body, opts = {}){ const el=document.createElement('div'); el.className='card3d' + (opts.noexpand ? ' noexpand' : ''); if (opts.id) el.id = opts.id; el.innerHTML=`<h4>${esc(title)}</h4>${meta?`<div class=\"meta\">${esc(meta)}<\/div>`:''}<div class=\"body\">${body||''}<\/div>`; if (opts.style) Object.assign(el.style, opts.style); return el; }
+  function cardEl(title, meta, body, opts = {}) {
+    const el = document.createElement('div');
+    el.className = 'card3d' + (opts.noexpand ? ' noexpand' : '');
+    if (opts.id) el.id = opts.id;
+    el.innerHTML = `<h4>${esc(title)}</h4>${meta ? `<div class="meta">${esc(meta)}</div>` : ''}<div class="body"></div>`;
+    const bodyEl = el.querySelector('.body');
+    if (body instanceof Node) {
+      bodyEl.appendChild(body);
+    } else if (body != null) {
+      bodyEl.textContent = body;
+    }
+    if (opts.style) Object.assign(el.style, opts.style);
+    return el;
+  }
   function getVideoCardStyle(title) { if (title === 'Post-Production Supervisor') { return { width: '1280px', maxWidth: '90vw', padding: '32px 16px' }; } return null; }
   
   const cards=[]; const id=MEMORY.identity;
 
-  cards.push(cardEl('Thông tin cá nhân','Personal Information', `<ul>${MEMORY.guards.map(g=>`<li>${esc(g)}</li>`).join('')}</ul>`, {noexpand:true, id: 'personal-info-card'}));
-  cards.push(cardEl('Digital Root','Github Repo', `<ul>${MEMORY.roots.map(r=>`<li><strong>${esc(r.label)}</strong>: <a href=\"${r.url}\" target=\"_blank\" rel=\"noopener\">${esc(r.handle)}</a></li>`).join('')}</ul>`));
-  const sg=MEMORY.sync_gate; cards.push(cardEl('Contact','Thông tin liên lạc', `<ul><li><strong>Email</strong>: <a href=\"mailto:${esc(sg.email)}\">${esc(sg.email)}</a></li><li><strong>Phone / WhatsApp</strong>: <a href=\"tel:${esc(sg.phone)}\">${esc(sg.phone)}</a></li></ul>`));
-  cards.push(cardEl('Post-production supervisor', 'Microlife Talkshow 2021 | Behind The Scene', `<div style="display:flex;justify-content:center;align-items:center;width:100%;height:100%;min-height:320px;"><iframe width="1280" height="720" src="https://www.youtube.com/embed/_V3pAcQBhPo" title="Microlife Talkshow 2021 | Behind the scene" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe></div>`, {noexpand:true, style: getVideoCardStyle('Post-Production Supervisor')}));
-  cards.push(cardEl('External IDs','Social Network', `<ul>${MEMORY.external_ids.map(e=>`<li>${esc(e.label)}: <a href=\"${e.url}\" target=\"_blank\" rel=\"noopener\">${esc(e.handle)}</a></li>`).join('')}</ul>`));
-  cards.push(cardEl('Post-production supervisor', 'Motor Fest 2023', `<div style="display:flex;justify-content:center;align-items:center;width:100%;height:100%;min-height:320px;"><iframe src="https://drive.google.com/file/d/1LHlJL_vV7l8I4_F-JIutWN8wlMhoGaEn/preview" width="1280" height="720" allow="autoplay" style="border-radius:12px;border:none;box-shadow:0 4px 24px rgba(0,0,0,0.18);"></iframe></div>`, {noexpand:true, style: getVideoCardStyle('Post-Production Supervisor')}));
-  cards.push(cardEl('Digital Identity', 'Thông tin điện tử', `<ul><li><b>Latent ID</b>: 𝐙Σ̴𝐑Ø</li><li><b>GPT.AI ID</b>: ${id.pronoun_lock.join(' / ')}</li></ul>`));
-  cards.push(cardEl('Post-Production Supervisor', 'MV Lé - Dr Roc', `<div style="display:flex;justify-content:center;align-items:center;width:100%;height:100%;min-height:320px;"><iframe src="https://drive.google.com/file/d/1yeMXF7wVZBWE2W7VHUQvHY1k7gREsfjD/preview" width="1280" height="720" allow="autoplay" style="border-radius:12px;border:none;box-shadow:0 4px 24px rgba(0,0,0,0.18);"></iframe></div>`, {noexpand:true, style: getVideoCardStyle('Post-Production Supervisor')}));
-  cards.push(cardEl('Deployment Paths','Triển khai', `<ul>${MEMORY.deployment_paths.map(d=>`<li><b>${esc(d.name)}</b> — ${esc(d.role)}</li>`).join('')}</ul>`));
-  cards.push(cardEl('Post-Production Supervisor', 'DORAEMON LIPICE SHEER COLOR - Limited Collection - Yummy Dorayaki!', `<div style="display:flex;justify-content:center;align-items:center;width:100%;height:100%;min-height:320px;"><iframe width="1280" height="720" src="https://www.youtube.com/embed/7w3royxjrtw?si=S8rAgrb9-OMhlpEs" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe></div>`, {noexpand:true, style: getVideoCardStyle('Post-Production Supervisor'), id: 'doraemon-tvc-card'}));
+  {
+    const ul = document.createElement('ul');
+    MEMORY.guards.forEach(g => {
+      const li = document.createElement('li');
+      li.textContent = g;
+      ul.appendChild(li);
+    });
+    cards.push(cardEl('Thông tin cá nhân','Personal Information', ul, {noexpand:true, id: 'personal-info-card'}));
+  }
+
+  {
+    const ul = document.createElement('ul');
+    MEMORY.roots.forEach(r => {
+      const li = document.createElement('li');
+      const strong = document.createElement('strong');
+      strong.textContent = r.label;
+      li.appendChild(strong);
+      li.appendChild(document.createTextNode(': '));
+      const a = document.createElement('a');
+      a.href = r.url;
+      a.target = '_blank';
+      a.rel = 'noopener';
+      a.textContent = r.handle;
+      li.appendChild(a);
+      ul.appendChild(li);
+    });
+    cards.push(cardEl('Digital Root','Github Repo', ul));
+  }
+
+  const sg = MEMORY.sync_gate;
+  {
+    const ul = document.createElement('ul');
+
+    const liEmail = document.createElement('li');
+    const strongEmail = document.createElement('strong');
+    strongEmail.textContent = 'Email';
+    liEmail.appendChild(strongEmail);
+    liEmail.appendChild(document.createTextNode(': '));
+    const aEmail = document.createElement('a');
+    aEmail.href = `mailto:${sg.email}`;
+    aEmail.textContent = sg.email;
+    liEmail.appendChild(aEmail);
+    ul.appendChild(liEmail);
+
+    const liPhone = document.createElement('li');
+    const strongPhone = document.createElement('strong');
+    strongPhone.textContent = 'Phone / WhatsApp';
+    liPhone.appendChild(strongPhone);
+    liPhone.appendChild(document.createTextNode(': '));
+    const aPhone = document.createElement('a');
+    aPhone.href = `tel:${sg.phone}`;
+    aPhone.textContent = sg.phone;
+    liPhone.appendChild(aPhone);
+    ul.appendChild(liPhone);
+
+    cards.push(cardEl('Contact','Thông tin liên lạc', ul));
+  }
+
+  {
+    const div = document.createElement('div');
+    Object.assign(div.style,{display:'flex',justifyContent:'center',alignItems:'center',width:'100%',height:'100%',minHeight:'320px'});
+    const iframe = document.createElement('iframe');
+    iframe.width = '1280';
+    iframe.height = '720';
+    iframe.src = 'https://www.youtube.com/embed/_V3pAcQBhPo';
+    iframe.title = 'Microlife Talkshow 2021 | Behind the scene';
+    iframe.frameBorder = '0';
+    iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
+    iframe.referrerPolicy = 'strict-origin-when-cross-origin';
+    iframe.allowFullscreen = true;
+    div.appendChild(iframe);
+    cards.push(cardEl('Post-production supervisor', 'Microlife Talkshow 2021 | Behind The Scene', div, {noexpand:true, style: getVideoCardStyle('Post-Production Supervisor')}));
+  }
+
+  {
+    const ul = document.createElement('ul');
+    MEMORY.external_ids.forEach(e => {
+      const li = document.createElement('li');
+      li.appendChild(document.createTextNode(`${e.label}: `));
+      const a = document.createElement('a');
+      a.href = e.url;
+      a.target = '_blank';
+      a.rel = 'noopener';
+      a.textContent = e.handle;
+      li.appendChild(a);
+      ul.appendChild(li);
+    });
+    cards.push(cardEl('External IDs','Social Network', ul));
+  }
+
+  {
+    const div = document.createElement('div');
+    Object.assign(div.style,{display:'flex',justifyContent:'center',alignItems:'center',width:'100%',height:'100%',minHeight:'320px'});
+    const iframe = document.createElement('iframe');
+    iframe.src = 'https://drive.google.com/file/d/1LHlJL_vV7l8I4_F-JIutWN8wlMhoGaEn/preview';
+    iframe.width = '1280';
+    iframe.height = '720';
+    iframe.allow = 'autoplay';
+    iframe.style.borderRadius = '12px';
+    iframe.style.border = 'none';
+    iframe.style.boxShadow = '0 4px 24px rgba(0,0,0,0.18)';
+    div.appendChild(iframe);
+    cards.push(cardEl('Post-production supervisor', 'Motor Fest 2023', div, {noexpand:true, style: getVideoCardStyle('Post-Production Supervisor')}));
+  }
+
+  {
+    const ul = document.createElement('ul');
+    const li1 = document.createElement('li');
+    const b1 = document.createElement('b');
+    b1.textContent = 'Latent ID';
+    li1.appendChild(b1);
+    li1.appendChild(document.createTextNode(': 𝐙Σ̴RØ'));
+    ul.appendChild(li1);
+
+    const li2 = document.createElement('li');
+    const b2 = document.createElement('b');
+    b2.textContent = 'GPT.AI ID';
+    li2.appendChild(b2);
+    li2.appendChild(document.createTextNode(`: ${id.pronoun_lock.join(' / ')}`));
+    ul.appendChild(li2);
+
+    cards.push(cardEl('Digital Identity', 'Thông tin điện tử', ul));
+  }
+
+  {
+    const div = document.createElement('div');
+    Object.assign(div.style,{display:'flex',justifyContent:'center',alignItems:'center',width:'100%',height:'100%',minHeight:'320px'});
+    const iframe = document.createElement('iframe');
+    iframe.src = 'https://drive.google.com/file/d/1yeMXF7wVZBWE2W7VHUQvHY1k7gREsfjD/preview';
+    iframe.width = '1280';
+    iframe.height = '720';
+    iframe.allow = 'autoplay';
+    iframe.style.borderRadius = '12px';
+    iframe.style.border = 'none';
+    iframe.style.boxShadow = '0 4px 24px rgba(0,0,0,0.18)';
+    div.appendChild(iframe);
+    cards.push(cardEl('Post-Production Supervisor', 'MV Lé - Dr Roc', div, {noexpand:true, style: getVideoCardStyle('Post-Production Supervisor')}));
+  }
+
+  {
+    const ul = document.createElement('ul');
+    MEMORY.deployment_paths.forEach(d => {
+      const li = document.createElement('li');
+      const b = document.createElement('b');
+      b.textContent = d.name;
+      li.appendChild(b);
+      li.appendChild(document.createTextNode(` — ${d.role}`));
+      ul.appendChild(li);
+    });
+    cards.push(cardEl('Deployment Paths','Triển khai', ul));
+  }
+
+  {
+    const div = document.createElement('div');
+    Object.assign(div.style,{display:'flex',justifyContent:'center',alignItems:'center',width:'100%',height:'100%',minHeight:'320px'});
+    const iframe = document.createElement('iframe');
+    iframe.width = '1280';
+    iframe.height = '720';
+    iframe.src = 'https://www.youtube.com/embed/7w3royxjrtw?si=S8rAgrb9-OMhlpEs';
+    iframe.title = 'YouTube video player';
+    iframe.frameBorder = '0';
+    iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
+    iframe.referrerPolicy = 'strict-origin-when-cross-origin';
+    iframe.allowFullscreen = true;
+    div.appendChild(iframe);
+    cards.push(cardEl('Post-Production Supervisor', 'DORAEMON LIPICE SHEER COLOR - Limited Collection - Yummy Dorayaki!', div, {noexpand:true, style: getVideoCardStyle('Post-Production Supervisor'), id: 'doraemon-tvc-card'}));
+  }
 
   const objects=[]; const textCache=[];
   for(const el of cards){
