@@ -247,7 +247,7 @@ export class AppComponent implements AfterViewInit, OnDestroy {
     if (this.router.url !== '/') return;
     this.boot();
     this.spawnFormula();
-    this.formulaInterval = setInterval(() => this.spawnFormula(), 4000);
+    this.formulaInterval = setInterval(() => this.spawnFormula(), 1800);
   }
 
   ngOnDestroy(): void {
@@ -305,7 +305,12 @@ export class AppComponent implements AfterViewInit, OnDestroy {
     const formula = this.nextFormula();
     await this.typeFormula(span, formula, 40);
 
-    this.renderer2.addClass(span, 'fading-out');
+    const fadeTimer = setTimeout(() => {
+      this.renderer2.addClass(span, 'fading-out');
+      this.typingTimers.delete(fadeTimer);
+    }, 700);
+    this.typingTimers.add(fadeTimer);
+
     const unlisten = this.renderer2.listen(span, 'transitionend', () => {
       unlisten();
       if (span.parentNode) {
