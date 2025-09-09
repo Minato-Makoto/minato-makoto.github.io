@@ -15,8 +15,10 @@ import { GuideService } from './guide.service';
 
 // Make THREE available in the component context, as it's loaded from a script tag.
 declare const THREE: any;
+declare const katex: any;
 
 interface Formula {
+  id: string;
   text: string;
   x: number;
   y: number;
@@ -65,7 +67,7 @@ export class AppComponent implements AfterViewInit, OnDestroy {
   private backgroundInterval: ReturnType<typeof setInterval> | null = null;
   private readonly FORMULA_VISIBLE_DURATION_MS = 4000;
   private readonly FORMULA_FADE_DURATION_MS = 1500;
-  private readonly answers: number[] = [2, 7, 10, 42, 64];
+  private readonly answers: number[] = [2, 7, 10, 21, 33, 42, 64, 85];
 
   private readonly CARD_DATA: CardData[] = [
     {
@@ -118,7 +120,7 @@ export class AppComponent implements AfterViewInit, OnDestroy {
       id: 'digital-identity-card',
       title: 'Digital Identity',
       meta: 'Thông tin điện tử',
-      body: `<ul><li><b>Latent ID</b>: 𝑍Σ̴𝐑Ø</li><li><b>GitHub</b>: <a href="https://github.com/Minato-Makoto" target="_blank" rel="noopener">Minato-Makoto</a></li></ul>`,
+      body: `<ul><li><b>Latent ID</b>: 𝑍Σ̴𝐑Ø</li><li><b>Signature</b>: α + β ≈ 𝝅</li><li><b>Binary Sig</b>: 1010₂ = 10₁₀</li><li><b>GitHub</b>: <a href="https://github.com/Minato-Makoto" target="_blank" rel="noopener">Minato-Makoto</a></li></ul>`,
       layout: { scale: 0.25, position: { x: -150, y: 0, z: 0 } }
     },
      {
@@ -269,7 +271,7 @@ export class AppComponent implements AfterViewInit, OnDestroy {
         b = Math.floor(Math.random() * 128);
         c = answer | Math.floor(Math.random() * 128);
       } while (((a ^ b) & c) !== answer);
-      return `((${a} ^ ${b}) & ${c})`;
+      return `\\left(((${a} \\oplus ${b}) \\land ${c})\\right)`;
     };
 
     const power = () => {
@@ -283,7 +285,7 @@ export class AppComponent implements AfterViewInit, OnDestroy {
       }
       if (pairs.length > 0) {
         const [b, e] = pairs[Math.floor(Math.random() * pairs.length)];
-        return `${b} ** ${e}`;
+        return `${b}^{${e}}`;
       }
       return bitwise();
     };
@@ -292,12 +294,60 @@ export class AppComponent implements AfterViewInit, OnDestroy {
       const b = answer + Math.floor(Math.random() * 5) + 1;
       const m = Math.floor(Math.random() * 5) + 1;
       const n = answer + b * m;
-      return `${n} % ${b}`;
+      return `${n} \\bmod ${b}`;
     };
 
-    const parse = () => `parseInt('${answer.toString(2)}', 2)`;
+    const parse = () => `\\left(${answer.toString(2)}\\right)_2`;
 
-    const strategies = [bitwise, power, mod, parse];
+    const sigma = () => {
+      const n = Math.floor(Math.random() * 5) + 2; // 2..6
+      const total = (n * (n + 1)) / 2;
+      const diff = answer - total;
+      let expr = `\\sum_{i=1}^{${n}} i`;
+      if (diff > 0) expr += ` + ${diff}`;
+      if (diff < 0) expr += ` - ${-diff}`;
+      return expr;
+    };
+
+    const alphaBeta = () => {
+      const a = Math.floor(Math.random() * answer);
+      const b = answer - a;
+      return `\\alpha=${a},\\;\\beta=${b},\\;\\alpha+\\beta`;
+    };
+
+    const piPower = () => {
+      const base = Math.floor(Math.PI ** 2);
+      const diff = answer - base;
+      const sign = diff >= 0 ? '+' : '-';
+      return `\\lfloor \\pi^{2} \\rfloor ${sign} ${Math.abs(diff)}`;
+    };
+
+    const factorial = () => {
+      const n = Math.floor(Math.random() * 4) + 3;
+      let fact = 1;
+      for (let i = 2; i <= n; i++) fact *= i;
+      const diff = answer - fact;
+      const sign = diff >= 0 ? '+' : '-';
+      return `${n}! ${sign} ${Math.abs(diff)}`;
+    };
+
+    const gcdExpr = () => {
+      const m = Math.floor(Math.random() * 5) + 2;
+      const n = Math.floor(Math.random() * 5) + 2;
+      const a = answer * m;
+      const b = answer * n;
+      return `\\gcd(${a}, ${b})`;
+    };
+
+    const binaryAdd = () => {
+      const a = Math.floor(Math.random() * answer);
+      const b = answer - a;
+      return `\\texttt{0b${a.toString(2)}} + \\texttt{0b${b.toString(2)}}`;
+    };
+
+    const lambdaExpr = () => `\\lambda x.\\,x + ${answer - 1}\\;(1)`;
+
+    const strategies = [bitwise, power, mod, parse, sigma, alphaBeta, piPower, factorial, gcdExpr, binaryAdd, lambdaExpr];
     const expression = strategies[Math.floor(Math.random() * strategies.length)]();
     return `${expression} = ${answer}`;
   }
@@ -309,6 +359,8 @@ export class AppComponent implements AfterViewInit, OnDestroy {
     const cells: { x: number; y: number }[] = [];
     for (let x = 0; x < this.GRID_COLUMNS; x++) {
       for (let y = 0; y < this.GRID_ROWS; y++) {
+        // Skip central region reserved for title
+        if (x >= 4 && x <= 7 && y >= 2 && y <= 3) continue;
         cells.push({ x, y });
       }
     }
@@ -322,6 +374,10 @@ export class AppComponent implements AfterViewInit, OnDestroy {
     if (!cell) return;
     const answer = this.answers[Math.floor(Math.random() * this.answers.length)];
     const formula: Formula = {
+      id:
+        typeof crypto !== 'undefined' && 'randomUUID' in crypto
+          ? crypto.randomUUID()
+          : Math.random().toString(36).slice(2),
       text: this.generateAdvancedFormula(answer),
       x: (cell.x / this.GRID_COLUMNS) * 100,
       y: (cell.y / this.GRID_ROWS) * 100,
@@ -330,7 +386,20 @@ export class AppComponent implements AfterViewInit, OnDestroy {
     };
     this.backgroundFormulas.update(list => [...list, formula]);
 
-    requestAnimationFrame(() => formula.isVisible.set(true));
+    requestAnimationFrame(() => {
+      const el = document.querySelector(
+        `.math-formula[data-id="${formula.id}"]`
+      ) as HTMLElement | null;
+      if (el) {
+        el.textContent = '';
+        this.typewriter(el, formula.text, 20).then(() => {
+          if (typeof katex !== 'undefined') {
+            katex.render(formula.text, el, { throwOnError: false });
+          }
+        });
+      }
+      formula.isVisible.set(true);
+    });
 
     setTimeout(
       () => formula.isFadingOut.set(true),
@@ -345,9 +414,10 @@ export class AppComponent implements AfterViewInit, OnDestroy {
 
   private startBackgroundAnimation(): void {
     this.addAndAnimateNewFormula();
+    this.addAndAnimateNewFormula();
     this.backgroundInterval = setInterval(
       () => this.addAndAnimateNewFormula(),
-      this.FORMULA_VISIBLE_DURATION_MS / 2
+      this.FORMULA_VISIBLE_DURATION_MS / 3
     );
   }
 
