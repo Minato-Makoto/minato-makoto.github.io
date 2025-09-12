@@ -8,7 +8,6 @@ if (!process.env.VITEST) {
 }
 
 export default defineConfig({
-  base: '/test/',
   plugins,
   test: {
     environment: 'jsdom',
