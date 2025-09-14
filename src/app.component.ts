@@ -55,6 +55,16 @@ export class AppComponent implements AfterViewInit, OnDestroy {
   isActivating = signal(false);
   backgroundFormulas = this.backgroundService.backgroundFormulas;
 
+  // Open Mobile Version page
+  openMobile(): void {
+    try {
+      // Use relative path to work both locally and on GitHub Pages
+      window.location.href = 'mobile.html';
+    } catch {
+      // no-op fallback
+    }
+  }
+
   private readonly CARD_DATA: CardData[] = [
     {
       id: 'personal-info-card',

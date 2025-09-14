@@ -23,7 +23,8 @@
               "robots.txt",
               "sitemap.xml",
               "src/assets",
-              "styles.css"
+              "styles.css",
+              "mobile.html"
             ]
           },
           "configurations": {
