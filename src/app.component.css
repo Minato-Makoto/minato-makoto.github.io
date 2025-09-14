@@ -326,9 +326,9 @@
   }
 }
 
-@media (max-width: 46px) {
+@media (max-width: 480px) {
   :host .title-veiled {
-    font-size: 48px;
+    font-size: 46px;
     min-height: 110px;
   }
 
