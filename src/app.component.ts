@@ -251,49 +251,6 @@ export class AppComponent implements AfterViewInit, OnDestroy {
     return { width: '1280px', padding: '32px 16px' };
   }
 
-            if (this.threeState.focused && this.threeState.witnessCard) {
-                this.threeState.witnessCard.rotation.copy(this.threeState.focused.rotation);
-            }
-        }
-        
-        if (particles) {
-          particles.rotation.y += 0.0001;
-        
-          // Particle blinking animation
-          const time = performance.now() * 0.0008; // Slower time for gentle blink
-          const colors = particles.geometry.attributes.color;
-          const blinkParams = particles.geometry.attributes.blinkParam;
-          const baseColor = new THREE.Color(0x999999);
-          const count = colors.count;
-
-          for (let i = 0; i < count; i++) {
-              const offset = blinkParams.getX(i);
-              // Sine wave for brightness, mapped to a wider range of [0.2, 1.8] for more pop
-              const brightness = (Math.sin(time + offset) + 1) / 2 * 1.6 + 0.2;
-              const finalColor = baseColor.clone().multiplyScalar(brightness);
-              colors.setXYZ(i, finalColor.r, finalColor.g, finalColor.b);
-          }
-          colors.needsUpdate = true;
-        }
-
-        if (this.threeState.tweens.length) {
-            const now = performance.now();
-            this.threeState.tweens = this.threeState.tweens.filter((fn: Function) => fn(now));
-        }
-
-        gl.render(scene, camera);
-        css.render(scene, camera);
-        
-        const now = performance.now(); acc += now - last; last = now; frames++;
-        if (acc > 500) {
-          const fps = Math.round(1000 / (acc / frames));
-          const fpsEl = this.fpsEl()?.nativeElement;
-          if (fpsEl) fpsEl.textContent = 'fps: ' + fps;
-          acc = 0; frames = 0;
-        }
-    };
-    animate();
-  }
   
   private async focusObject(o: any): Promise<void> {
     const animationDuration = 700;
