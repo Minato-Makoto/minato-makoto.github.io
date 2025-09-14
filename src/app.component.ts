@@ -49,20 +49,38 @@ export class AppComponent implements AfterViewInit, OnDestroy {
   titleVeiled = viewChild<ElementRef<HTMLDivElement>>('titleVeiled');
   kaoVeiled = viewChild<ElementRef<HTMLSpanElement>>('kaoVeiled');
   btnActivate = viewChild<ElementRef<HTMLButtonElement>>('btnActivate');
+  btnMobile = viewChild<ElementRef<HTMLButtonElement>>('btnMobile');
   stage3d = viewChild<ElementRef<HTMLDivElement>>('stage3d');
   fpsEl = viewChild<ElementRef<HTMLDivElement>>('fps');
 
   isActivating = signal(false);
+  isMobileActivating = signal(false);
   backgroundFormulas = this.backgroundService.backgroundFormulas;
 
   // Open Mobile Version page
   openMobile(): void {
+    if (this.isMobileActivating()) return;
+    this.isMobileActivating.set(true);
+    // Spin the symbol like PC flow
     try {
-      // Use relative path to work both locally and on GitHub Pages
-      window.location.href = 'mobile.html';
-    } catch {
-      // no-op fallback
-    }
+      const kao = this.kaoVeiled()?.nativeElement;
+      if (kao) this.renderer2.addClass(kao, 'spinning');
+      const veiled = this.veiledContainer()?.nativeElement;
+      if (veiled) this.renderer2.addClass(veiled, 'mobile-activating');
+    } catch {}
+    // Give UI a moment to show CONNECTING... then navigate
+    setTimeout(() => {
+      try {
+        window.location.href = 'mobile.html';
+      } catch {
+        // If navigation fails for any reason, release state and stop spin
+        this.isMobileActivating.set(false);
+        try {
+          const kao = this.kaoVeiled()?.nativeElement;
+          if (kao) this.renderer2.removeClass(kao, 'spinning');
+        } catch {}
+      }
+    }, 500);
   }
 
   private readonly CARD_DATA: CardData[] = [
@@ -276,6 +294,13 @@ export class AppComponent implements AfterViewInit, OnDestroy {
             this.renderer2.listen(activateBtn, 'click', () => { this.activatePortfolio(); })
         );
     }
+
+    const mobileBtn = this.btnMobile()?.nativeElement;
+    if (mobileBtn) {
+      this._listeners.push(
+        this.renderer2.listen(mobileBtn, 'click', () => { this.openMobile(); })
+      );
+    }
   }
   
   private activatePortfolio(): void {
@@ -284,8 +309,7 @@ export class AppComponent implements AfterViewInit, OnDestroy {
     if (!veiled || !wrap || this.isActivating()) return;
 
     this.isActivating.set(true);
-    
-    this.renderer2.addClass(veiled, 'hidden');
+    // Keep veiled container visible so only siblings fade, not the ⛧ symbol
     setTimeout(() => {
       this.renderer2.setStyle(veiled, 'display', 'none');
       this.renderer2.removeClass(wrap, 'hidden');

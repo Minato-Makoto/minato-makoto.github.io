@@ -155,13 +155,13 @@
 
 :host #btn-activate:hover::before,
 :host #btn-mobile:hover::before {
-  content: '🞂';
+  content: '▸';
   opacity: 1;
 }
 
 :host #btn-activate:hover::after,
 :host #btn-mobile:hover::after {
-  content: '🞀';
+  content: '◂';
   opacity: 1;
 }
 :host #btn-activate:disabled,
@@ -184,7 +184,12 @@
 }
 
 @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+/* Generic spinning utility used by [class.spinning] binding */
 :host .spinning { animation: spin 1s linear infinite; }
+
+/* Fallback: spin when mobile flow toggles container class */
+:host #veiled-container.mobile-activating #kao-veiled.kao { animation: spin 1s linear infinite; }
 
 /* --- Activated State Base --- */
 :host .wrap { width:100%; height:100%; margin:0 auto; padding:0; position:relative; }
@@ -338,3 +343,4 @@
     padding: 10px 20px;
   }
 }
+
