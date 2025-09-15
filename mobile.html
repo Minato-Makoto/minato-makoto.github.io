@@ -23,6 +23,7 @@
       --hot:#f43f5e;             /* danger */
       --border:#1f2937;          /* base border */
       --border-strong:#334155;   /* elevated border */
+      --btn-bg:#121212;
       /* Background gradient stops (synced to --bg) */
       --bg-grad1: var(--bg);
       --bg-grad2: var(--bg);
@@ -40,6 +41,7 @@
     html,body { margin:0; padding:0; background:var(--bg); color:var(--ink); font:16px/1.6 ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Ubuntu; }
     a { color:var(--accent); text-decoration:none; }
     a:hover { text-decoration:underline; }
+    .btn-primary { background-color: var(--btn-bg) !important; color:#fff; }
 
     /* Veiled UI removed for mobile-only 3D */
 
@@ -120,8 +122,8 @@
 
         <div id="fps" class="fps">fps: --</div>
         <div class="nav-buttons">
-          <a class="win98-btn" href="/index.html">Home</a>
-          <a class="win98-btn" href="/blog/index.html">Blog</a>
+          <a class="win98-btn btn-primary" href="/index.html">Home</a>
+          <a class="win98-btn btn-primary" href="/blog/index.html">Blog</a>
         </div>
       </div>
     </div>
