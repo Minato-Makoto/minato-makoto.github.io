@@ -202,9 +202,9 @@
 :host .stage3d .css3d { position:absolute; inset:0; z-index:0; touch-action:none; }
 :host .hud { position:absolute; inset:0; pointer-events:none; z-index:10; }
 :host .hud .brand { position:absolute; top:12px; left:16px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size:12px; letter-spacing:2px; text-transform:uppercase; color:#9aa4b2; }
-:host .hud .nav-buttons { position:absolute; top:12px; right:16px; display:flex; gap:8px; pointer-events:auto; }
-:host .hud .win98-btn { background:#c0c0c0; border:2px solid; border-top-color:#fff; border-left-color:#fff; border-bottom-color:#808080; border-right-color:#808080; color:#000; padding:2px 8px; text-decoration:none; font-family:'Tahoma',sans-serif; }
-:host .hud .win98-btn:active { border-top-color:#808080; border-left-color:#808080; border-bottom-color:#fff; border-right-color:#fff; position:relative; top:1px; }
+:host .nav-buttons { position:absolute; top:12px; right:16px; display:flex; gap:8px; pointer-events:auto; }
+:host .win98-btn { background:#c0c0c0; border:2px solid; border-top-color:#fff; border-left-color:#fff; border-bottom-color:#808080; border-right-color:#808080; color:#000; padding:2px 8px; text-decoration:none; font-family:'Tahoma',sans-serif; }
+:host .win98-btn:active { border-top-color:#808080; border-left-color:#808080; border-bottom-color:#fff; border-right-color:#fff; position:relative; top:1px; }
 :host #fps { position: absolute; bottom: 12px; left: 16px; color: #9aa4b8; font-family: ui-monospace, Menlo, monospace; font-size: 12px; }
 
 /* CSS cards used by CSS3DRenderer */
