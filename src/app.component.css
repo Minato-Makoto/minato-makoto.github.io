@@ -202,7 +202,7 @@
 :host .stage3d .css3d { position:absolute; inset:0; z-index:0; touch-action:none; }
 :host .hud { position:absolute; inset:0; pointer-events:none; z-index:10; }
 :host .hud .brand { position:absolute; top:12px; left:16px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size:12px; letter-spacing:2px; text-transform:uppercase; color:#9aa4b2; }
-:host #fps { position: absolute; top: 12px; right: 16px; color: #9aa4b8; font-family: ui-monospace, Menlo, monospace; font-size: 12px; }
+:host #fps { position: absolute; bottom: 12px; left: 16px; color: #9aa4b8; font-family: ui-monospace, Menlo, monospace; font-size: 12px; }
 
 /* CSS cards used by CSS3DRenderer */
 :host ::ng-deep .card3d {
