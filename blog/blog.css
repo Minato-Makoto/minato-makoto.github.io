@@ -118,13 +118,6 @@ a:hover {
   top: 1px;
 }
 
-.win98-btn.active,
-.win98-btn[aria-current="page"] {
-  border-color: var(--accent);
-  color: var(--accent);
-  box-shadow: 0 0 12px rgba(125, 211, 252, 0.45);
-}
-
 .fps {
   position: absolute;
   bottom: 12px;

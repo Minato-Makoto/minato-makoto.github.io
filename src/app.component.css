@@ -215,12 +215,6 @@
   text-decoration: none;
   font-family: 'Tahoma', sans-serif;
 }
-:host .win98-btn.active,
-:host .win98-btn[aria-current="page"] {
-  border-color: var(--accent);
-  color: var(--accent);
-  box-shadow: 0 0 12px rgba(125, 211, 252, 0.45);
-}
 :host .win98-btn:active {
   border-top-color: var(--border);
   border-left-color: var(--border);
