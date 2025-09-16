@@ -24,7 +24,8 @@
               "sitemap.xml",
               "src/assets",
               "styles.css",
-              "mobile.html"
+              "mobile.html",
+              "blog"
             ]
           },
           "configurations": {
