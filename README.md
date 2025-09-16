@@ -82,6 +82,23 @@ Toàn bộ bảng màu và font cơ bản được đặt trong `index.html`.
 
 ---
 
+## Blog page
+
+Trang blog được phục vụ từ tệp tĩnh `blog/index.html`. Đường dẫn này sẽ tương ứng với URL `/blog/index.html` (hoặc `/blog/` nếu máy chủ hỗ trợ tự động ánh xạ), vì vậy chỉ cần deploy thư mục `blog/` là đã có thể truy cập trang blog.
+
+Toàn bộ nội dung và tài nguyên liên quan đến blog nên đặt trong thư mục `blog/`. Cấu trúc đề xuất:
+
+- `blog/index.html`: trang chủ blog, liệt kê các bài viết và liên kết điều hướng.
+- `blog/posts/`: thư mục con (tùy chọn) chứa từng bài viết, ví dụ `blog/posts/first-post.html`.
+- `blog/assets/`: nơi đặt ảnh hoặc CSS/JS riêng cho blog nếu cần.
+
+Quy trình tạo hoặc cập nhật trang blog:
+
+1. Tạo thư mục `blog/` ở gốc repo nếu chưa tồn tại.
+2. Thêm `blog/index.html` với phần liệt kê bài viết, mỗi bài liên kết tới tệp HTML tương ứng trong `blog/` hoặc các thư mục con.
+3. Tạo một tệp HTML cho mỗi bài viết (ví dụ `blog/2024-hello-world.html` hoặc `blog/posts/2024-hello-world.html`) và cập nhật liên kết từ `blog/index.html`.
+4. Khi thêm tài nguyên tĩnh (ảnh, CSS, JS) cho blog, đặt chúng trong `blog/assets/` và tham chiếu bằng đường dẫn tương đối.
+
 ## Các cập nhật trong tương lai
 
 - Mobile Version tối ưu cho màn hình nhỏ.
