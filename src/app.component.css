@@ -80,8 +80,6 @@
   font-size: 125px;
   letter-spacing: 1px;
   line-height: 0.9;
-  display: flex;
-  align-items: flex-end;
   min-height: 200px;
   text-transform: uppercase;
 }
@@ -304,7 +302,6 @@
               box-shadow 1.5s ease-out;
 }
 
-
 :host ::ng-deep .witness-card .body {
   max-height: none !important;
   transition: none !important;
@@ -336,8 +333,6 @@
 @media (max-width: 768px) {
   :host .title-veiled {
     font-size: 72px;
-    display: flex;
-    align-items: flex-end;
     min-height: 160px;
   }
 
@@ -359,11 +354,9 @@
     min-height: 110px;
   }
 
-
   :host .badge-veiled {
     font-size: 18px;
     padding: 5px 10px;
-    letter-spacing: 0;     /* thêm để badge không bị giãn */
   }
 
   :host #btn-activate,
