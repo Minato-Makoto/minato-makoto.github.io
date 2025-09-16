@@ -15,6 +15,7 @@ import { BackgroundService } from './background.service';
 import { WitnessCardComponent } from './components/witness-card/witness-card.component';
 import { CardListComponent } from './components/card-list/card-list.component';
 import { Stage3dComponent } from './components/stage3d/stage3d.component';
+import { escapeHtml } from './utils/escape';
 
 // Make THREE available in the component context, as it's loaded from a script tag.
 declare const THREE: any;
@@ -190,31 +191,30 @@ export class AppComponent implements AfterViewInit, OnDestroy {
   }
 
   // --- Utilities ---
-  private esc(s: any): string { return String(s).replace(/[&<>"']/g, m => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;", "'": "&#39;" }[m as keyof typeof m]!)); }
-  
   private typewriter(element: HTMLElement, text: string, speed = 24): Promise<void> {
+    const safeText = escapeHtml(text).replace(/&lt;br\s*\/?>/gi, '<br>');
     return new Promise(resolve => {
         let i = 0;
         element.innerHTML = '';
         this.renderer2.setStyle(element, 'visibility', 'visible');
         const timer = setInterval(() => {
-          if (i < text.length) {
+          if (i < safeText.length) {
             // Check for an HTML tag
-            if (text.charAt(i) === '<') {
-              const closingTagIndex = text.indexOf('>', i);
+            if (safeText.charAt(i) === '<') {
+              const closingTagIndex = safeText.indexOf('>', i);
               if (closingTagIndex !== -1) {
                 // It's a tag, append the whole thing
-                const tag = text.substring(i, closingTagIndex + 1);
+                const tag = safeText.substring(i, closingTagIndex + 1);
                 element.innerHTML += tag;
                 i = closingTagIndex + 1; // Jump index past the tag
               } else {
                 // It's an unclosed '<', just print it
-                element.innerHTML += text.charAt(i);
+                element.innerHTML += safeText.charAt(i);
                 i++;
               }
             } else {
               // It's a normal character
-              element.innerHTML += text.charAt(i);
+              element.innerHTML += safeText.charAt(i);
               i++;
             }
           } else {

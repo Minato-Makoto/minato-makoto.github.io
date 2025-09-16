@@ -1,4 +1,5 @@
 import { Renderer2 } from '@angular/core';
+import { escapeHtml } from '../../utils/escape';
 
 declare const THREE: any;
 
@@ -18,10 +19,6 @@ export interface CardData {
 export class CardListComponent {
   constructor(private renderer2: Renderer2) {}
 
-  private esc(s: any): string {
-    return String(s).replace(/[&<>"']/g, m => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;", "'": "&#39;" }[m as keyof typeof m]!));
-  }
-
   getVideoCardStyle(): any {
     return { width: '1280px', padding: '32px 16px' };
   }
@@ -31,7 +28,7 @@ export class CardListComponent {
       id: 'personal-info-card',
       title: 'Thông tin cá nhân',
       meta: 'Personal Information',
-      body: `<ul>${["Name: Lương Bảo Huy", "Titles: Video Producer · Graphic Designer · Photographer", "Role: Generalist", "AI Title Generation: Director of Artificial Intelligence"].map(g => `<li>${this.esc(g)}</li>`).join('')}</ul>`,
+      body: `<ul>${["Name: Lương Bảo Huy", "Titles: Video Producer · Graphic Designer · Photographer", "Role: Generalist", "AI Title Generation: Director of Artificial Intelligence"].map(g => `<li>${escapeHtml(g)}</li>`).join('')}</ul>`,
       opts: { noexpand: true, style: { width: '960px' } },
       layout: { scale: 0.6, position: { x: 0, y: 0, z: 0 } }
     },
@@ -62,7 +59,7 @@ export class CardListComponent {
       id: 'external-ids-card',
       title: 'External IDs',
       meta: 'Social Network',
-      body: `<ul>${[{ label: "LinkedIn", handle: "Lương Bảo Huy", url: "https://www.linkedin.com/in/b%E1%BA%A3o-huy-l%C6%B0%C6%A1ng-1653a41a3", status: "OK" }, { label: "Instagram", handle: "@minatomakoto", url: "https://www.instagram.com/minatomakoto", status: "OK" }, { label: "Facebook", handle: "Minato Makoto", url: "https://www.facebook.com/MinatoMakoto/", status: "OK" }, { label: "YouTube", handle: "@minatomakoto", url: "https://www.youtube.com/@minatomakoto", status: "OK" }, { label: "TikTok", handle: "@minatomakoto", url: "https://www.tiktok.com/@minatomakoto", status: "OK" }].map(e => `<li>${this.esc(e.label)}: <a href=\"${e.url}\" target=\"_blank\" rel=\"noopener\">${this.esc(e.handle)}</a></li>`).join('')}</ul>`,
+      body: `<ul>${[{ label: "LinkedIn", handle: "Lương Bảo Huy", url: "https://www.linkedin.com/in/b%E1%BA%A3o-huy-l%C6%B0%C6%A1ng-1653a41a3", status: "OK" }, { label: "Instagram", handle: "@minatomakoto", url: "https://www.instagram.com/minatomakoto", status: "OK" }, { label: "Facebook", handle: "Minato Makoto", url: "https://www.facebook.com/MinatoMakoto/", status: "OK" }, { label: "YouTube", handle: "@minatomakoto", url: "https://www.youtube.com/@minatomakoto", status: "OK" }, { label: "TikTok", handle: "@minatomakoto", url: "https://www.tiktok.com/@minatomakoto", status: "OK" }].map(e => `<li>${escapeHtml(e.label)}: <a href=\"${e.url}\" target=\"_blank\" rel=\"noopener\">${escapeHtml(e.handle)}</a></li>`).join('')}</ul>`,
       layout: { scale: 0.25, position: { x: 50, y: 100, z: 0 } }
     },
     {
@@ -155,7 +152,7 @@ export class CardListComponent {
     const el = this.renderer2.createElement('div');
     this.renderer2.addClass(el, 'card3d');
     if (opts.noexpand) this.renderer2.addClass(el, 'noexpand');
-    el.innerHTML = `<h4>${this.esc(title)}</h4>${meta ? `<div class="meta">${this.esc(meta)}</div>` : ''}<div class="body">${body || ''}</div>`;
+    el.innerHTML = `<h4>${escapeHtml(title)}</h4>${meta ? `<div class="meta">${escapeHtml(meta)}</div>` : ''}<div class="body">${body || ''}</div>`;
     if (opts.style) Object.keys(opts.style).forEach(key => this.renderer2.setStyle(el, key, opts.style[key]));
     return el;
   }
