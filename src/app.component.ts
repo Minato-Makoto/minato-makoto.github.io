@@ -58,18 +58,23 @@ export class AppComponent implements AfterViewInit, OnDestroy {
       if (kao) this.renderer2.addClass(kao, 'spinning');
       const veiled = this.veiledContainer()?.nativeElement;
       if (veiled) this.renderer2.addClass(veiled, 'mobile-activating');
-    } catch {}
+    } catch (err) {
+      console.error(err);
+    }
     // Give UI a moment to show CONNECTING... then navigate
     setTimeout(() => {
       try {
         window.location.href = 'mobile.html';
-      } catch {
+      } catch (err) {
+        console.error(err);
         // If navigation fails for any reason, release state and stop spin
         this.isMobileActivating.set(false);
         try {
           const kao = this.kaoVeiled()?.nativeElement;
           if (kao) this.renderer2.removeClass(kao, 'spinning');
-        } catch {}
+        } catch (innerErr) {
+          console.error(innerErr);
+        }
       }
     }, 500);
   }
