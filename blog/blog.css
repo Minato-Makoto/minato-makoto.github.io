@@ -1,0 +1,316 @@
+:root {
+  --bg:#060606;
+  --card:rgba(17, 17, 23, 0.78);
+  --card-bg:var(--card);
+  --ink:#e6edf3;
+  --muted:#9aa4b2;
+  --accent:#7dd3fc;
+  --ok:#22c55e;
+  --warn:#f59e0b;
+  --hot:#f43f5e;
+  --border:#1f2937;
+  --border-strong:#334155;
+  --btn-bg:#121212;
+  --bgx:50%;
+  --bgy:45%;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  min-height: 100%;
+  background: var(--bg);
+  color: var(--ink);
+  font: 16px/1.6 ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu;
+}
+
+body {
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+.stage3d {
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+  overflow: hidden;
+  background: radial-gradient(1200px 600px at var(--bgx) var(--bgy), #080808 0%, #060606 60%, #040404 100%);
+  touch-action: none;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+
+.stage3d canvas {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.stage3d .css3d {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.hud {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 5;
+}
+
+.hud .brand {
+  position: absolute;
+  top: 12px;
+  left: 16px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.nav-buttons {
+  position: absolute;
+  top: 12px;
+  right: 16px;
+  display: flex;
+  gap: 8px;
+  pointer-events: auto;
+}
+
+.win98-btn {
+  background: var(--card-bg);
+  border: 2px solid var(--ok);
+  border-top-color: var(--ok);
+  border-left-color: var(--ok);
+  border-bottom-color: var(--border);
+  border-right-color: var(--border);
+  color: var(--ink);
+  padding: 2px 8px;
+  text-decoration: none;
+  font-family: 'Tahoma', sans-serif;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, color 0.2s ease;
+}
+
+.win98-btn:active {
+  border-top-color: var(--border);
+  border-left-color: var(--border);
+  border-bottom-color: var(--border-strong);
+  border-right-color: var(--border-strong);
+  position: relative;
+  top: 1px;
+}
+
+.win98-btn.active,
+.win98-btn[aria-current="page"] {
+  border-color: var(--accent);
+  color: var(--accent);
+  box-shadow: 0 0 12px rgba(125, 211, 252, 0.45);
+}
+
+.fps {
+  position: absolute;
+  bottom: 12px;
+  left: 16px;
+  color: var(--muted);
+  font-family: ui-monospace, Menlo, monospace;
+  font-size: 12px;
+}
+
+.content {
+  position: relative;
+  z-index: 4;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 120px 32px 96px;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.placeholder-panel {
+  background: rgba(17, 24, 39, 0.68);
+  border: 1px solid rgba(148, 163, 184, 0.3);
+  border-radius: 18px;
+  padding: 32px;
+  box-shadow: 0 28px 60px rgba(0, 0, 0, 0.42);
+  backdrop-filter: blur(10px);
+}
+
+.banner-slot {
+  min-height: 180px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-transform: uppercase;
+  letter-spacing: 0.28em;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.banner-slot span {
+  color: var(--accent);
+}
+
+.main-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 320px;
+  gap: 32px;
+}
+
+.article-slot {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.article-slot header {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.article-slot h1 {
+  margin: 0;
+  font-size: clamp(2rem, 3vw + 1rem, 3.25rem);
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+}
+
+.article-slot p {
+  margin: 0;
+  color: var(--muted);
+}
+
+.article-slot .mono {
+  font-family: ui-monospace, Menlo, monospace;
+  font-size: 0.85rem;
+  letter-spacing: 0.28em;
+  color: var(--accent);
+  text-transform: uppercase;
+}
+
+.eyebrow {
+  opacity: 0.8;
+  letter-spacing: 0.32em;
+}
+
+.interstitial-slot {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  min-height: 140px;
+  border-radius: 16px;
+  background: rgba(125, 211, 252, 0.1);
+  border: 1px dashed rgba(125, 211, 252, 0.6);
+  color: var(--accent);
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+}
+
+.sidebar-slot {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-height: 320px;
+  position: sticky;
+  top: 120px;
+}
+
+.footer {
+  margin: 0;
+  padding: 16px 24px;
+  color: var(--muted);
+  font-size: 12px;
+  text-align: right;
+}
+
+@media (max-width: 1200px) {
+  .content {
+    padding: 112px 24px 88px;
+  }
+}
+
+@media (max-width: 1024px) {
+  .main-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .sidebar-slot {
+    display: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .stage3d {
+    min-height: 100svh;
+  }
+
+  .content {
+    padding: 104px 16px 72px;
+    gap: 24px;
+  }
+
+  .banner-slot {
+    min-height: 140px;
+    font-size: 1.25rem;
+    letter-spacing: 0.2em;
+  }
+
+  .placeholder-panel {
+    padding: 24px;
+    border-radius: 14px;
+  }
+
+  .article-slot {
+    gap: 16px;
+  }
+
+  .interstitial-slot {
+    min-height: 120px;
+    letter-spacing: 0.16em;
+  }
+
+  .hud .brand {
+    font-size: 11px;
+    left: 12px;
+  }
+
+  .nav-buttons {
+    right: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .banner-slot {
+    font-size: 1.1rem;
+    letter-spacing: 0.14em;
+  }
+
+  .article-slot h1 {
+    letter-spacing: 0.12em;
+  }
+
+  .interstitial-slot {
+    font-size: 0.75rem;
+  }
+}
