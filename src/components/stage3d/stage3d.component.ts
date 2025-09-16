@@ -81,7 +81,7 @@ export class Stage3dComponent {
 
     const particleTexture = this.createCircleTexture();
     const particlesMaterial = new THREE.PointsMaterial({
-      size: 1,
+      size: 2,
       vertexColors: true,
       map: particleTexture,
       transparent: true,
