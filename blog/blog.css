@@ -48,7 +48,7 @@ a:hover {
   min-height: 100vh;
   overflow: hidden;
   background: radial-gradient(1200px 600px at var(--bgx) var(--bgy), #080808 0%, #060606 60%, #040404 100%);
-  touch-action: none;
+  touch-action: pan-y;
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
