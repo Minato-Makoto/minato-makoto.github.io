@@ -165,7 +165,7 @@ a:hover {
 .banner-text {
   position: relative;
   display: inline-block;
-  font-family: 'VT323', monospace;
+  font-family: 'Jersey 25', cursive;
   font-size: clamp(3rem, 12vw, 7rem);
   letter-spacing: 0.12em;
   text-transform: uppercase;

@@ -74,7 +74,7 @@
 }
 
 :host .title-veiled {
-  font-family: 'VT323', monospace;
+  font-family: 'Jersey 25', cursive;
   color: var(--terminal-white);
   font-weight: 400;
   font-size: 125px;
