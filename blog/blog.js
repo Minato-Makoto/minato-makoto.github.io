@@ -133,6 +133,28 @@
   const fpsElement = document.getElementById('fps');
   const positionAttribute = geometry.getAttribute('position');
   const colorAttribute = geometry.getAttribute('color');
+  const staticIntensity = 0.55;
+  let needsStaticSync = !allowMotion;
+
+  const syncStaticState = () => {
+    const positionArray = positionAttribute.array;
+    positionArray.set(basePositions);
+    positionAttribute.needsUpdate = true;
+
+    particles.rotation.set(0, 0, 0);
+
+    const colorsArr = colorAttribute.array;
+    for (let i = 0; i < particleTotal; i++) {
+      const i3 = i * 3;
+      colorsArr[i3] = colorsArr[i3 + 1] = colorsArr[i3 + 2] = staticIntensity;
+    }
+    colorAttribute.needsUpdate = true;
+  };
+
+  if (!allowMotion) {
+    syncStaticState();
+    needsStaticSync = false;
+  }
 
   function animate() {
     const delta = clock.getDelta();
@@ -152,21 +174,23 @@
       positionAttribute.needsUpdate = true;
       particles.rotation.y += delta * 0.12;
       particles.rotation.x = Math.sin(elapsed * 0.18) * 0.06;
-    } else {
-      particles.rotation.y += delta * 0.04;
-      particles.rotation.x *= 0.96;
+    } else if (needsStaticSync) {
+      syncStaticState();
+      needsStaticSync = false;
     }
 
-    const colorsArr = colorAttribute.array;
-    const flickerBase = allowMotion ? 0.46 : 0.35;
-    const flickerRange = allowMotion ? 0.52 : 0.2;
-    for (let i = 0; i < particleTotal; i++) {
-      const i3 = i * 3;
-      const phase = (elapsed * flickerSpeeds[i]) + flickerOffsets[i];
-      const intensity = THREE.MathUtils.clamp(flickerBase + Math.sin(phase) * flickerRange, 0.2, 1.05);
-      colorsArr[i3] = colorsArr[i3 + 1] = colorsArr[i3 + 2] = intensity;
+    if (allowMotion) {
+      const colorsArr = colorAttribute.array;
+      const flickerBase = 0.46;
+      const flickerRange = 0.52;
+      for (let i = 0; i < particleTotal; i++) {
+        const i3 = i * 3;
+        const phase = (elapsed * flickerSpeeds[i]) + flickerOffsets[i];
+        const intensity = THREE.MathUtils.clamp(flickerBase + Math.sin(phase) * flickerRange, 0.2, 1.05);
+        colorsArr[i3] = colorsArr[i3 + 1] = colorsArr[i3 + 2] = intensity;
+      }
+      colorAttribute.needsUpdate = true;
     }
-    colorAttribute.needsUpdate = true;
 
     renderer.render(scene, camera);
     if (cssRenderer && cssScene) {
@@ -226,8 +250,7 @@
   addMediaListener(prefersReducedMotion, (event) => {
     allowMotion = !event.matches;
     if (!allowMotion) {
-      geometry.attributes.position.array.set(basePositions);
-      geometry.attributes.position.needsUpdate = true;
+      needsStaticSync = true;
     }
   });
 })();
