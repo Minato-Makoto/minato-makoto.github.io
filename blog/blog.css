@@ -293,6 +293,7 @@ a:hover {
   align-items: center;
   gap: 16px;
   min-height: 320px;
+  padding: 24px 0;
   position: sticky;
   top: 120px;
 }
