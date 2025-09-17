@@ -72,7 +72,7 @@
     basePositions[i3 + 1] = y;
     basePositions[i3 + 2] = z;
 
-    driftSpeeds[i] = 0.35 + Math.random() * 1.15;
+    driftSpeeds[i] = 0.25 + Math.random() * 1.15;
     flickerSpeeds[i] = 0.6 + Math.random() * 1.4;
     flickerOffsets[i] = Math.random() * Math.PI * 2;
     colors[i3] = colors[i3 + 1] = colors[i3 + 2] = 1;
