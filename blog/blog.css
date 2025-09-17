@@ -207,7 +207,7 @@ a:hover {
   margin-block: 12px;
   padding: 0;
   background: transparent;
-  border: 1px dashed color-mix(in srgb, var(--accent) 55%, transparent);
+  outline: 1px dashed color-mix(in srgb, var(--accent) 55%, transparent);
   color: color-mix(in srgb, var(--accent) 85%, #f8fafc 15%);
   letter-spacing: 0.28em;
   text-transform: uppercase;
