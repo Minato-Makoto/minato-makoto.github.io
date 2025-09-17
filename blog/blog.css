@@ -1,18 +1,18 @@
 :root {
-  --bg:#060606;
-  --card:rgba(17, 17, 23, 0.78);
+  --bg:#020302;
+  --card:rgba(4, 12, 6, 0.82);
   --card-bg:var(--card);
-  --ink:#e6edf3;
-  --muted:#9aa4b2;
-  --accent:#7dd3fc;
-  --ok:#22c55e;
-  --warn:#f59e0b;
-  --hot:#f43f5e;
-  --border:#1f2937;
-  --border-strong:#334155;
-  --btn-bg:#121212;
+  --ink:#f5f7f5;
+  --muted:rgba(198, 255, 220, 0.76);
+  --accent:#2cff9b;
+  --ok:#2cff9b;
+  --warn:#7ef6ff;
+  --hot:#6ef9c5;
+  --border:#07381e;
+  --border-strong:#0d5a2d;
+  --btn-bg:#050f07;
   --bgx:50%;
-  --bgy:45%;
+  --bgy:42%;
 }
 
 * {
@@ -47,7 +47,7 @@ a:hover {
   width: 100%;
   min-height: 100vh;
   overflow: hidden;
-  background: radial-gradient(1200px 600px at var(--bgx) var(--bgy), #080808 0%, #060606 60%, #040404 100%);
+  background: radial-gradient(1200px 600px at var(--bgx) var(--bgy), rgba(44, 255, 155, 0.12) 0%, #020302 55%, #000 100%);
   touch-action: pan-y;
   display: flex;
   flex-direction: column;
@@ -83,7 +83,7 @@ a:hover {
   font-size: 12px;
   letter-spacing: 2px;
   text-transform: uppercase;
-  color: var(--muted);
+  color: var(--accent);
 }
 
 .nav-buttons {
@@ -96,13 +96,13 @@ a:hover {
 }
 
 .win98-btn {
-  background: var(--card-bg);
-  border: 2px solid var(--ok);
-  border-top-color: var(--ok);
-  border-left-color: var(--ok);
+  background: var(--btn-bg);
+  border: 2px solid var(--border-strong);
+  border-top-color: var(--accent);
+  border-left-color: var(--accent);
   border-bottom-color: var(--border);
   border-right-color: var(--border);
-  color: var(--ink);
+  color: var(--accent);
   padding: 2px 8px;
   text-decoration: none;
   font-family: 'Tahoma', sans-serif;
@@ -122,7 +122,7 @@ a:hover {
   position: absolute;
   bottom: 12px;
   left: 16px;
-  color: var(--muted);
+  color: var(--accent);
   font-family: ui-monospace, Menlo, monospace;
   font-size: 12px;
 }
@@ -140,12 +140,12 @@ a:hover {
 }
 
 .placeholder-panel {
-  background: rgba(17, 24, 39, 0.68);
-  border: 1px solid rgba(148, 163, 184, 0.3);
+  background: rgba(6, 22, 10, 0.82);
+  border: 1px solid rgba(44, 255, 155, 0.24);
   border-radius: 18px;
   padding: 32px;
   box-shadow: 0 28px 60px rgba(0, 0, 0, 0.42);
-  backdrop-filter: blur(10px);
+  backdrop-filter: blur(12px);
 }
 
 .banner-slot {
@@ -213,8 +213,8 @@ a:hover {
   padding: 24px;
   min-height: 140px;
   border-radius: 16px;
-  background: rgba(125, 211, 252, 0.1);
-  border: 1px dashed rgba(125, 211, 252, 0.6);
+  background: rgba(44, 255, 155, 0.12);
+  border: 1px dashed rgba(44, 255, 155, 0.65);
   color: var(--accent);
   letter-spacing: 0.24em;
   text-transform: uppercase;

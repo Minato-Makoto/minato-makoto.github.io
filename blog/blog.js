@@ -9,7 +9,7 @@
   let allowMotion = !prefersReducedMotion.matches;
 
   const scene = new THREE.Scene();
-  scene.fog = new THREE.FogExp2(0x030406, 0.0009);
+  scene.fog = new THREE.FogExp2(0x010202, 0.0012);
 
   const camera = new THREE.PerspectiveCamera(60, stage.clientWidth / stage.clientHeight, 1, 5000);
   camera.position.set(0, 0, isMobile.matches ? 900 : 1200);
@@ -44,15 +44,18 @@
     }
   }
 
-  const particleTotal = prefersReducedMotion.matches ? 280 : (isMobile.matches ? 900 : 1600);
+  const particleTotal = prefersReducedMotion.matches ? 240 : (isMobile.matches ? 880 : 1500);
   const geometry = new THREE.BufferGeometry();
   const positions = new Float32Array(particleTotal * 3);
   const basePositions = new Float32Array(particleTotal * 3);
   const driftSpeeds = new Float32Array(particleTotal);
+  const flickerSpeeds = new Float32Array(particleTotal);
+  const flickerOffsets = new Float32Array(particleTotal);
+  const colors = new Float32Array(particleTotal * 3);
 
   for (let i = 0; i < particleTotal; i++) {
     const i3 = i * 3;
-    const radius = 280 + Math.pow(Math.random(), 0.55) * 1400;
+    const radius = 240 + Math.pow(Math.random(), 0.55) * 1500;
     const theta = Math.random() * Math.PI * 2;
     const phi = Math.acos(Math.random() * 2 - 1);
     const sinPhi = Math.sin(phi);
@@ -69,89 +72,101 @@
     basePositions[i3 + 1] = y;
     basePositions[i3 + 2] = z;
 
-    driftSpeeds[i] = 0.3 + Math.random() * 0.8;
+    driftSpeeds[i] = 0.35 + Math.random() * 1.15;
+    flickerSpeeds[i] = 0.6 + Math.random() * 1.4;
+    flickerOffsets[i] = Math.random() * Math.PI * 2;
+    colors[i3] = colors[i3 + 1] = colors[i3 + 2] = 1;
   }
 
   geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+  geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+
+  const createParticleTexture = () => {
+    const size = 64;
+    const canvas = document.createElement('canvas');
+    canvas.width = canvas.height = size;
+    const ctx = canvas.getContext('2d');
+    const gradient = ctx.createRadialGradient(size / 2, size / 2, 0, size / 2, size / 2, size / 2);
+    gradient.addColorStop(0, 'rgba(255,255,255,1)');
+    gradient.addColorStop(0.32, 'rgba(255,255,255,0.88)');
+    gradient.addColorStop(0.72, 'rgba(255,255,255,0.32)');
+    gradient.addColorStop(1, 'rgba(255,255,255,0)');
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, size, size);
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.minFilter = THREE.LinearFilter;
+    texture.magFilter = THREE.LinearFilter;
+    texture.generateMipmaps = false;
+    const capabilities = renderer.capabilities;
+    if (capabilities && typeof capabilities.getMaxAnisotropy === 'function') {
+      texture.anisotropy = Math.min(8, capabilities.getMaxAnisotropy());
+    }
+    texture.needsUpdate = true;
+    return texture;
+  };
+
+  const particleTexture = createParticleTexture();
 
   const material = new THREE.PointsMaterial({
-    color: 0x7dd3fc,
-    size: isMobile.matches ? 2.6 : 3.4,
+    color: 0xffffff,
+    size: isMobile.matches ? 2.8 : 3.8,
     transparent: true,
-    opacity: 0.85,
+    opacity: 0.98,
     depthWrite: false,
-    blending: THREE.AdditiveBlending
+    blending: THREE.AdditiveBlending,
+    map: particleTexture,
+    vertexColors: true,
+    sizeAttenuation: true
   });
+  material.alphaTest = 0.02;
 
   const particles = new THREE.Points(geometry, material);
   scene.add(particles);
 
-  const ambient = new THREE.AmbientLight(0xffffff, 0.12);
+  const ambient = new THREE.AmbientLight(0xffffff, 0.18);
   scene.add(ambient);
-
-  const targetParallax = new THREE.Vector2(0, 0);
-  const currentParallax = new THREE.Vector2(0, 0);
-
-  function updateGradient() {
-    const x = (currentParallax.x * 12) + 50;
-    const y = 45 - (currentParallax.y * 10);
-    stage.style.setProperty('--bgx', `${x.toFixed(2)}%`);
-    stage.style.setProperty('--bgy', `${y.toFixed(2)}%`);
-  }
-
-  const pointerHandler = (event) => {
-    const rect = stage.getBoundingClientRect();
-    const x = (event.clientX - rect.left) / rect.width;
-    const y = (event.clientY - rect.top) / rect.height;
-    targetParallax.set(x * 2 - 1, (y * 2 - 1) * -1);
-  };
-
-  const leaveHandler = () => {
-    targetParallax.set(0, 0);
-  };
-
-  stage.addEventListener('pointermove', pointerHandler);
-  stage.addEventListener('pointerleave', leaveHandler);
-  stage.addEventListener('touchmove', (event) => {
-    if (!event.touches || event.touches.length === 0) return;
-    const rect = stage.getBoundingClientRect();
-    const touch = event.touches[0];
-    const x = (touch.clientX - rect.left) / rect.width;
-    const y = (touch.clientY - rect.top) / rect.height;
-    targetParallax.set(x * 2 - 1, (y * 2 - 1) * -1);
-  }, { passive: true });
-  stage.addEventListener('touchend', leaveHandler);
-  stage.addEventListener('touchcancel', leaveHandler);
 
   const clock = new THREE.Clock();
   let elapsed = 0;
   let frames = 0;
   let fpsStart = performance.now();
   const fpsElement = document.getElementById('fps');
+  const positionAttribute = geometry.getAttribute('position');
+  const colorAttribute = geometry.getAttribute('color');
 
   function animate() {
     const delta = clock.getDelta();
     elapsed += delta;
 
-    currentParallax.lerp(targetParallax, 0.08);
-    camera.position.x = currentParallax.x * 70;
-    camera.position.y = currentParallax.y * 48;
     camera.lookAt(0, 0, 0);
-    updateGradient();
 
     if (allowMotion) {
-      const arr = geometry.attributes.position.array;
+      const arr = positionAttribute.array;
       for (let i = 0; i < particleTotal; i++) {
         const i3 = i * 3;
         const speed = driftSpeeds[i];
-        arr[i3] = basePositions[i3] + Math.sin(elapsed * speed * 0.6 + i * 0.12) * 18;
-        arr[i3 + 1] = basePositions[i3 + 1] + Math.cos(elapsed * speed * 0.45 + i * 0.08) * 22;
-        arr[i3 + 2] = basePositions[i3 + 2] + Math.sin(elapsed * speed * 0.5 + i * 0.15) * 18;
+        arr[i3] = basePositions[i3] + Math.sin(elapsed * speed * 0.58 + i * 0.12) * 26;
+        arr[i3 + 1] = basePositions[i3 + 1] + Math.cos(elapsed * speed * 0.42 + i * 0.08) * 32;
+        arr[i3 + 2] = basePositions[i3 + 2] + Math.sin(elapsed * speed * 0.52 + i * 0.15) * 24;
       }
-      geometry.attributes.position.needsUpdate = true;
-      particles.rotation.y += delta * 0.18;
-      particles.rotation.x = Math.sin(elapsed * 0.22) * 0.08;
+      positionAttribute.needsUpdate = true;
+      particles.rotation.y += delta * 0.12;
+      particles.rotation.x = Math.sin(elapsed * 0.18) * 0.06;
+    } else {
+      particles.rotation.y += delta * 0.04;
+      particles.rotation.x *= 0.96;
     }
+
+    const colorsArr = colorAttribute.array;
+    const flickerBase = allowMotion ? 0.46 : 0.35;
+    const flickerRange = allowMotion ? 0.52 : 0.2;
+    for (let i = 0; i < particleTotal; i++) {
+      const i3 = i * 3;
+      const phase = (elapsed * flickerSpeeds[i]) + flickerOffsets[i];
+      const intensity = THREE.MathUtils.clamp(flickerBase + Math.sin(phase) * flickerRange, 0.2, 1.05);
+      colorsArr[i3] = colorsArr[i3 + 1] = colorsArr[i3 + 2] = intensity;
+    }
+    colorAttribute.needsUpdate = true;
 
     renderer.render(scene, camera);
     if (cssRenderer && cssScene) {
