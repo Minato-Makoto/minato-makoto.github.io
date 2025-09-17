@@ -180,7 +180,7 @@ a:hover {
   content: attr(data-text);
   position: absolute;
   inset: 0;
-  color: rgba(255, 255, 255, 0.75);
+  color: color-mix(in srgb, var(--terminal-green) 75%, transparent);
   transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
   will-change: transform;
   pointer-events: none;
@@ -195,7 +195,7 @@ a:hover {
 
 .banner-text::after {
   transform: translate3d(3px, 2px, 0);
-  color: rgba(255, 255, 255, 0.85);
+  color: color-mix(in srgb, var(--terminal-green) 85%, transparent);
   opacity: 0.8;
   z-index: -1;
 }
