@@ -194,32 +194,51 @@ export class AppComponent implements AfterViewInit, OnDestroy {
   // --- Utilities ---
   private typewriter(element: HTMLElement, text: string, speed = 24): Promise<void> {
     const sanitized = escapeHtml(text).replace(/&lt;br\s*\/?&gt;/gi, '<br>');
+    const cursorChar = '▌';
+
     return new Promise(resolve => {
         let i = 0;
         element.innerHTML = '';
         this.renderer2.setStyle(element, 'visibility', 'visible');
+
+        const cursor = this.renderer2.createElement('span') as HTMLElement;
+        this.renderer2.addClass(cursor, 'title-cursor');
+        this.renderer2.setProperty(cursor, 'textContent', cursorChar);
+        this.renderer2.appendChild(element, cursor);
+
+        this.renderer2.setAttribute(element, 'data-text', '');
+
+        const syncDataText = () => {
+          const currentText = element.textContent || '';
+          const withoutCursor = currentText.endsWith(cursorChar)
+            ? currentText.slice(0, -cursorChar.length)
+            : currentText;
+          this.renderer2.setAttribute(element, 'data-text', withoutCursor);
+        };
+
+        syncDataText();
+
         const timer = setInterval(() => {
           if (i < sanitized.length) {
-            // Check for an HTML tag
             if (sanitized.charAt(i) === '<') {
               const closingTagIndex = sanitized.indexOf('>', i);
               if (closingTagIndex !== -1) {
-                // It's a tag, append the whole thing
                 const tag = sanitized.substring(i, closingTagIndex + 1);
-                element.innerHTML += tag;
-                i = closingTagIndex + 1; // Jump index past the tag
+                (cursor as HTMLElement).insertAdjacentHTML('beforebegin', tag);
+                i = closingTagIndex + 1;
               } else {
-                // It's an unclosed '<', just print it
-                element.innerHTML += sanitized.charAt(i);
+                (cursor as HTMLElement).insertAdjacentHTML('beforebegin', sanitized.charAt(i));
                 i++;
               }
             } else {
-              // It's a normal character
-              element.innerHTML += sanitized.charAt(i);
+              (cursor as HTMLElement).insertAdjacentHTML('beforebegin', sanitized.charAt(i));
               i++;
             }
+
+            syncDataText();
           } else {
             clearInterval(timer);
+            syncDataText();
             resolve();
           }
         }, speed);
