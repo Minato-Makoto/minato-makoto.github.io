@@ -1,16 +1,17 @@
 :root {
-  --bg:#020302;
-  --card:rgba(4, 12, 6, 0.82);
+  --bg:#060606;
+  --card:#111826;
   --card-bg:var(--card);
-  --ink:#f5f7f5;
-  --muted:rgba(198, 255, 220, 0.76);
-  --accent:#2cff9b;
-  --ok:#2cff9b;
-  --warn:#7ef6ff;
-  --hot:#6ef9c5;
-  --border:#07381e;
-  --border-strong:#0d5a2d;
-  --btn-bg:#050f07;
+  --ink:#e6edf3;
+  --muted:#9aa4b2;
+  --accent:#7dd3fc;
+  --ok:#22c55e;
+  --warn:#f59e0b;
+  --hot:#f43f5e;
+  --border:#1f2937;
+  --border-strong:#334155;
+  --btn-bg:#121212;
+  --terminal-green:#39FF14;
   --bgx:50%;
   --bgy:42%;
 }
@@ -47,7 +48,12 @@ a:hover {
   width: 100%;
   min-height: 100vh;
   overflow: hidden;
-  background: radial-gradient(1200px 600px at var(--bgx) var(--bgy), rgba(44, 255, 155, 0.12) 0%, #020302 55%, #000 100%);
+  background: radial-gradient(
+    1200px 600px at var(--bgx) var(--bgy),
+    color-mix(in srgb, var(--accent) 20%, transparent) 0%,
+    var(--bg) 55%,
+    color-mix(in srgb, var(--bg) 40%, #000 60%) 100%
+  );
   touch-action: pan-y;
   display: flex;
   flex-direction: column;
@@ -96,13 +102,11 @@ a:hover {
 }
 
 .win98-btn {
-  background: var(--btn-bg);
-  border: 2px solid var(--border-strong);
-  border-top-color: var(--accent);
-  border-left-color: var(--accent);
+  background: var(--card-bg, var(--card));
+  border: 2px solid var(--terminal-green);
   border-bottom-color: var(--border);
   border-right-color: var(--border);
-  color: var(--accent);
+  color: var(--ink);
   padding: 2px 8px;
   text-decoration: none;
   font-family: 'Tahoma', sans-serif;
@@ -140,8 +144,8 @@ a:hover {
 }
 
 .placeholder-panel {
-  background: rgba(6, 22, 10, 0.82);
-  border: 1px solid rgba(44, 255, 155, 0.24);
+  background: color-mix(in srgb, var(--card-bg, var(--card)) 94%, transparent);
+  border: 1px solid color-mix(in srgb, var(--accent) 35%, transparent);
   border-radius: 18px;
   padding: 32px;
   box-shadow: 0 28px 60px rgba(0, 0, 0, 0.42);
@@ -213,8 +217,8 @@ a:hover {
   padding: 24px;
   min-height: 140px;
   border-radius: 16px;
-  background: rgba(44, 255, 155, 0.12);
-  border: 1px dashed rgba(44, 255, 155, 0.65);
+  background: color-mix(in srgb, var(--accent) 14%, transparent);
+  border: 1px dashed color-mix(in srgb, var(--accent) 65%, transparent);
   color: var(--accent);
   letter-spacing: 0.24em;
   text-transform: uppercase;
