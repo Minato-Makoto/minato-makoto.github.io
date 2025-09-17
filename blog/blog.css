@@ -270,10 +270,17 @@ a:hover {
 .sidebar-slot {
   display: flex;
   flex-direction: column;
+  align-items: center;
   gap: 16px;
   min-height: 320px;
   position: sticky;
   top: 120px;
+}
+
+.ad-skyscraper {
+  width: 160px;
+  height: 600px;
+  text-align: center;
 }
 
 .footer {
