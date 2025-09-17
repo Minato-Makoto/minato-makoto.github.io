@@ -153,18 +153,50 @@ a:hover {
 }
 
 .banner-slot {
+  position: relative;
   min-height: 180px;
   display: flex;
   align-items: center;
   justify-content: center;
-  text-transform: uppercase;
-  letter-spacing: 0.28em;
-  font-size: 1.5rem;
-  font-weight: 600;
+  padding: 24px 16px;
+  text-align: center;
 }
 
-.banner-slot span {
-  color: var(--accent);
+.banner-text {
+  position: relative;
+  display: inline-block;
+  font-family: 'VT323', monospace;
+  font-size: clamp(3rem, 12vw, 7rem);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #fff;
+  line-height: 1;
+  text-shadow: 0 8px 22px rgba(0, 0, 0, 0.55);
+  z-index: 0;
+}
+
+.banner-text::before,
+.banner-text::after {
+  content: attr(data-text);
+  position: absolute;
+  inset: 0;
+  color: color-mix(in srgb, var(--accent) 88%, #1aefb2 12%);
+  transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: transform;
+  pointer-events: none;
+}
+
+.banner-text::before {
+  transform: translate3d(12px, 10px, 0);
+  filter: blur(1px);
+  opacity: 0.65;
+  z-index: -2;
+}
+
+.banner-text::after {
+  transform: translate3d(6px, 6px, 0);
+  opacity: 0.85;
+  z-index: -1;
 }
 
 .ad-slot {
