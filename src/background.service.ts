@@ -3,7 +3,7 @@ import { Injectable, signal, WritableSignal } from '@angular/core';
 export interface Formula {
   id: number;
   fullText: string;
-  typedText: string;
+  typedText: WritableSignal<string>;
   top: string;
   left: string;
   isVisible: WritableSignal<boolean>;
@@ -78,7 +78,7 @@ export class BackgroundService {
       id: this.formulaIdCounter++,
       fullText:
         this.FORMULA_EXAMPLES[Math.floor(Math.random() * this.FORMULA_EXAMPLES.length)],
-      typedText: '',
+      typedText: signal(''),
       top: `${(cell.row / this.GRID_ROWS) * 100}%`,
       left: `${(cell.col / this.GRID_COLS) * 100}%`,
       isVisible: signal(false),
@@ -91,7 +91,8 @@ export class BackgroundService {
 
     const typingSpeed = 50 + Math.random() * 50;
     for (let i = 0; i < newFormula.fullText.length; i++) {
-      newFormula.typedText += newFormula.fullText[i];
+      const nextChar = newFormula.fullText[i];
+      newFormula.typedText.update((text) => text + nextChar);
       await new Promise((res) => setTimeout(res, typingSpeed));
     }
 
