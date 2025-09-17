@@ -4,7 +4,7 @@
   --card-bg:var(--card);
   --ink:#e6edf3;
   --muted:#9aa4b2;
-  --accent:#7dd3fc;
+  --accent:#92fc7d;
   --ok:#22c55e;
   --warn:#f59e0b;
   --hot:#f43f5e;
@@ -89,7 +89,7 @@ a:hover {
   font-size: 12px;
   letter-spacing: 2px;
   text-transform: uppercase;
-  color: var(--accent);
+  color: var(--ink);
 }
 
 .nav-buttons {
@@ -126,7 +126,7 @@ a:hover {
   position: absolute;
   bottom: 12px;
   left: 16px;
-  color: var(--accent);
+  color: var(--ink);
   font-family: ui-monospace, Menlo, monospace;
   font-size: 12px;
 }
