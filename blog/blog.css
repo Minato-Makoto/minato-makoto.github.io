@@ -144,7 +144,7 @@ a:hover {
 }
 
 .placeholder-panel {
-  background: color-mix(in srgb, var(--card-bg, var(--card)) 94%, transparent);
+  background: color-mix(in srgb, var(--card-bg, var(--card)) 60%, transparent);
   border: 1px solid color-mix(in srgb, var(--accent) 35%, transparent);
   border-radius: 18px;
   padding: 32px;
