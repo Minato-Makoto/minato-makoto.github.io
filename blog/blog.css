@@ -122,15 +122,6 @@ a:hover {
   top: 1px;
 }
 
-.fps {
-  position: absolute;
-  bottom: 12px;
-  left: 16px;
-  color: var(--ink);
-  font-family: ui-monospace, Menlo, monospace;
-  font-size: 12px;
-}
-
 .content {
   position: relative;
   z-index: 4;
