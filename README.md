@@ -9,6 +9,34 @@ Hầu hết mọi tùy chỉnh bạn cần sẽ chỉ tập trung ở 3 tệp ch
 
 ---
 
+## Terminal Theme Pack – Toàn bộ site
+
+### 1. Tổng quan & phạm vi
+- **Terminal Theme Pack** là lớp nhận diện chung cho mọi bề mặt của website (landing Angular, mobile stub và blog HUD). Biến thể gốc vẫn là **Terminal Green** lấy cảm hứng từ màn hình phosphor với hiệu ứng scanline nhẹ (xem `blog/README.md`).
+- `index.html` nạp bộ font Jersey 25 + VT323 để duy trì cảm giác terminal xuyên suốt và gắn Tailwind build `styles.css` cho toàn bộ layout.
+- Khối Angular chính (`<app-root>`) điều khiển Stage 3D, Witness card và hoạt ảnh HUD bằng `AppComponent`, trong khi blog giữ cấu trúc `.stage3d`/`.hud`/`.content` mô phỏng bảng điều khiển theo checklist tại `blog/README.md`.
+
+### 2. Palette & typography toàn site
+- **Biến CSS cốt lõi**: `:root` định nghĩa `--bg`, `--card`, `--ink`, `--muted`, `--accent`, `--ok`, `--warn`, `--border`, `--hot`, `--btn-bg` làm nền cho mọi module và được Tailwind pick up qua `color-scheme: dark`. Đây là snapshot Terminal Green hiện hành (nằm trong `index.html`).
+- **Tailwind build** (`styles.css`) củng cố palette qua utilities như `.text-gray-200` → `rgb(229 231 235)` và các preset opacity, đảm bảo chữ sáng trên nền tối; đồng thời thiết lập `font-sans` với stack hệ thống cho phần thân.
+- **Typography**: Jersey 25 dùng cho banner/tiêu đề, VT323 cho accent terminal; phần thân mặc định `ui-sans-serif, system-ui, Segoe UI, Roboto, Ubuntu`. Khi cần tùy biến Tailwind, mở rộng `theme.extend` trong `tailwind.config.js` (hiện để trống để giữ nguyên mặc định).
+
+### 3. Biến 3D/HUD cốt lõi
+- **Kaomoji & emoji burst**: `KAOMOJI_PARTS` và `EMOJI_RANGES` trong `AppComponent` quy định bảng ký tự, decorator và dải Unicode dùng khi kích hoạt witness card – đây là phần nhận diện động cần snapshot khi đóng băng theme.
+- **Thông số Stage 3D**: `threeState` giữ `radius: 560`, `autoRotate: true` và bộ tween quản lý camera/điểm nhìn, quyết định cảm giác quỹ đạo quanh vòng card.
+- **HUD nền toán tử**: `BackgroundService` định nghĩa lưới 20×30 ô, giới hạn tối đa 50 công thức, `FADE_DURATION` 1500ms và `FORMULA_EXAMPLES` chứa chuỗi vật lý/toán để gõ máy chữ – đây là nguồn hiệu ứng chữ xanh bay trong nền.
+
+### 4. Checklist "đóng băng" theme & bảo trì (scope global)
+1. **Snapshot biến toàn cục**: khóa commit chứa `:root` Terminal Green và xác nhận class Tailwind (`text-gray-200`, `.btn-primary`) vẫn bám các giá trị hiện thời (`index.html`, `styles.css`).
+2. **Stage 3D Angular**: đảm bảo `threeState` giữ nguyên `radius/autoRotate`, bộ tween và workflow spawn Kaomoji; không sửa `KAOMOJI_PARTS` hay `EMOJI_RANGES` nếu chưa mở version mới (`src/app.component.ts`).
+3. **HUD nền**: giữ nguyên kích thước lưới, `FADE_DURATION` và danh sách công thức để tránh lệch pattern Terminal Green (`src/background.service.ts`).
+4. **Blog HUD vs module khác**: blog phải duy trì cấu trúc `.stage3d` + `.hud` + slot quảng cáo giả như checklist gốc (`blog/README.md`); phần Angular chỉ render `<app-root>` nên mọi thay đổi HUD phải phản ánh đồng bộ ở cả blog và Stage 3D (ghi chú rõ khi khác biệt để tránh lệch trải nghiệm).
+
+### 5. Versioning & phát hành biến thể
+- Quy ước tên: `Terminal Theme Pack vX.Y – <Biến thể>` cho toàn bộ site, đồng bộ với changelog và tag Git (ví dụ `v1.0 – Terminal Green`) theo hướng dẫn ở `blog/README.md`.
+- Mỗi biến thể phải liệt kê: (a) giá trị custom property thay đổi; (b) ảnh hưởng tới Stage 3D (ví dụ điều chỉnh `KAOMOJI_PARTS`, `EMOJI_RANGES`) và blog HUD; (c) liên kết commit snapshot.
+- Khi blog HUD cần khác màu so với Stage 3D (ví dụ layer amber cho bài viết đặc biệt), tài liệu phải nêu rõ sự khác biệt và cách đồng bộ hoặc rollback để tránh lệch branding giữa hai module.
+
 ## Điều khiển thủ công
 
 ### Card dữ liệu (`src/app.component.ts`)
@@ -105,4 +133,9 @@ Quy trình tạo hoặc cập nhật trang blog:
 - Blog page để đăng tải bài viết.
 - AI tool page cung cấp tiện ích hỗ trợ sáng tạo.
 - Trang tương tác 3D với AI.
+
+## Ví dụ versioning Terminal Theme Pack
+
+- **Terminal Theme Pack v1.0 – Terminal Green**: sử dụng snapshot mặc định với `--bg:#060606`, `--card:#111826`, `--ink:#e6edf3`, `--accent:#7dd3fc`, đi kèm `KAOMOJI_PARTS`/`EMOJI_RANGES` như hiện tại và HUD blog màu phosphor xanh.
+- **Terminal Theme Pack v1.1 – Terminal Amber (ví dụ)**: vẫn giữ cấu trúc Stage 3D/blog nhưng chuyển `--accent` sang tông hổ phách (`--warn:#f59e0b`) và có thể cập nhật `KAOMOJI_PARTS.decorators` để tăng biểu tượng 🔥, đồng thời ghi chú sự khác màu giữa blog HUD (amber overlay) và module khác trong changelog để đảm bảo đồng bộ khi rollback.
 
