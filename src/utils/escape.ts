@@ -3,10 +3,9 @@ const map: Record<string, string> = {
   "<": "&lt;",
   ">": "&gt;",
   "\"": "&quot;",
-  "'": "&#39;",
 };
 
-const pattern = /[&<>"']/g;
+const pattern = /[&<>"]/g;
 
 export function escapeHtml(input: string): string {
   return String(input).replace(pattern, (m) => map[m] ?? m);
