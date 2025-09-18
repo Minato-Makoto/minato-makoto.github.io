@@ -128,9 +128,6 @@
 
   const clock = new THREE.Clock();
   let elapsed = 0;
-  let frames = 0;
-  let fpsStart = performance.now();
-  const fpsElement = document.getElementById('fps');
   const positionAttribute = geometry.getAttribute('position');
   const colorAttribute = geometry.getAttribute('color');
   const staticIntensity = 0.55;
@@ -195,15 +192,6 @@
     renderer.render(scene, camera);
     if (cssRenderer && cssScene) {
       cssRenderer.render(cssScene, camera);
-    }
-
-    frames += 1;
-    const now = performance.now();
-    if (fpsElement && now - fpsStart >= 500) {
-      const fps = Math.round((frames * 1000) / (now - fpsStart));
-      fpsElement.textContent = `fps: ${fps}`;
-      fpsStart = now;
-      frames = 0;
     }
 
     requestAnimationFrame(animate);
