@@ -157,8 +157,8 @@ a:hover {
   position: relative;
   display: inline-block;
   font-family: 'Jersey 25', cursive;
-  font-size: clamp(3.6rem, 13vw, 8.5rem);
-  letter-spacing: 0.12em;
+  font-size: clamp(5rem, 16vw, 11rem);
+  letter-spacing: 0.2em;
   text-transform: uppercase;
   color: #fff;
   line-height: 1;
