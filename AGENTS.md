@@ -145,3 +145,49 @@ while L(θ) > ε:
     θ = θ − η * grad
     η = autotune(η, feedback_signal)
 ```
+
+## Portfolio Hand-off — Operator Lattice
+
+### Source of truth
+
+- Remote: `Minato-Makoto/minato-makoto.github.io`.
+- Active continuation branch: `codex/operator-lattice-production-demo`.
+- Implementation baseline: commit `253be0c` (`feat: add production 3D operator lattice demo`). Always fetch and inspect the latest branch HEAD before editing.
+- Primary demo: `servant-circuit-production.html`; it is copied by the Angular build through `angular.json`.
+- Supporting references: `portfolio-directions.html` is the direction board; `servant-circuit.html` is the source-only Phase 0 archive and is intentionally not deployed.
+- `src/styles.css` is the editable Tailwind source. Regenerate tracked `styles.css` through the existing npm script; do not hand-edit generated CSS.
+
+### Product contract already approved
+
+- The experience is 3D-only. Do not add a 2D fallback or switch the overview back to a flat card grid.
+- Overview is one long, scrollable, two-column node lattice. Each node is a 16:9 media surface connected to the same graph; its project title sits below the node, not inside it, and there is no pedestal or plinth.
+- Preserve the logical `1280x720` media DOM and CSS3D scale `0.5`. Do not add iframe `width` or `height` attributes; this avoids low-resolution close views.
+- Overview shows thumbnails only. Locking a station mounts exactly one direct Drive or YouTube player; leaving or switching stations must unmount the previous iframe.
+- A locked station keeps the video above the information module. The module opens first, then a deterministic scripted presenter streams the project text through `OPENING → STREAMING → READY`. It must remain explicit that this simulates an LLM presentation and makes no remote model call.
+- Visual grammar is an original synthesis of modular action-game rails and fictional AI interfaces: blue tactical telemetry, segmented machinery and one restrained red prediction/interruption signal. Do not copy franchise art, logos or protected UI assets.
+- Mobile keeps both graph columns and must not introduce horizontal document overflow. Do not collapse it to a conventional single-column portfolio feed unless Minato-sama explicitly changes the direction.
+
+### Runtime invariants
+
+- Three.js r128 WebGL connectors and CSS3D media surfaces share one perspective camera. WebGL draws connectors only; CSS3D owns all media.
+- Camera states are `OVERVIEW`, `TRANSITIONING` and `STATION_LOCKED`. Presenter runs are generation-gated so rapid navigation cannot leak stale text.
+- Canonical hashes are `#<route>/overview` and `#<route>/<project-id>`. A project must belong to its route; invalid route/project combinations canonicalize to the first valid project, while malformed hashes return to `#all/overview`.
+- Route controls are ordinary pressed buttons, not ARIA tabs. Global station arrow shortcuts must not intercept keystrokes while an interactive control has focus.
+- Reduced-motion mode snaps camera movement, disables pointer drift and completes presenter text immediately.
+- Fonts, Three.js, thumbnails and players are network dependencies. Public Google Drive previews may emit an unauthenticated Google `401` client-model request while the public player remains usable; do not classify that third-party request alone as an application failure.
+
+### Verified acceptance baseline
+
+- `npm test -- --run`: 4 files and 5 tests passed on 2026-09-04.
+- `npm run build`: passed on 2026-09-04. The current build may emit a non-blocking absolute-stylesheet lookup warning; investigate it separately without broad unrelated homepage changes.
+- Automated browser regression covered desktop `1440x900` and mobile `390x844`: 11 nodes, two columns, no horizontal overflow, zero iframes in overview, one iframe in station, no iframe size attributes, route persistence, deep-link canonicalization, presenter lifecycle and reduced-motion behavior.
+- `dist/` and `.playwright-cli/` are generated QA/build artifacts and must not be committed.
+- Before a commit or PR, audit both personal machine paths and whether creative workflow preferences are being over-constrained. Preserve unrelated user edits.
+
+### Continuation workflow
+
+1. Resolve the actual Git root and confirm `origin`; do not assume a fixed checkout path on the next machine.
+2. Fetch and switch to `codex/operator-lattice-production-demo`, then install dependencies using the repository lockfile.
+3. Preview `servant-circuit-production.html` through a local HTTP server; do not judge CSS3D behavior from a `file://` URL.
+4. Prefer terminal-driven Playwright checks and saved screenshots for repetitive development QA. Avoid Computer Use/CUA unless Minato-sama explicitly asks for human-style UI operation or it is the only viable verification surface.
+5. After UI or Three.js changes, run `npm test -- --run`, `npm run build`, inline-script syntax validation and desktop/mobile runtime checks before pushing.
