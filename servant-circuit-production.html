@@ -1,0 +1,2169 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Minato Makoto — Operator Lattice</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%230a0b0e'/%3E%3Cpath d='M15 45V18h7l10 15 10-15h7v27h-7V29L32 44 22 29v16z' fill='%23f0eee9'/%3E%3C/svg%3E">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300..700;1,9..40,300..700&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg-void: #0a0b0e;
+      --bg-card: rgba(6, 13, 22, 0.94);
+      --border-subtle: rgba(255, 255, 255, 0.08);
+      --border-focus: rgba(255, 255, 255, 0.28);
+      --border-accent: rgba(178, 74, 59, 0.65);
+      --text-ivory: #f0eee9;
+      --text-muted: #8c939e;
+      --text-subtle: #565d68;
+      --accent-oxide: #e23333;
+      --accent-cyan: #43d8ff;
+      --accent-cobalt: #1666b0;
+      --accent-brass: #c8a95d;
+      --font-display: 'Instrument Serif', Georgia, serif;
+      --font-sans: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      --font-mono: 'JetBrains Mono', Consolas, monospace;
+      --panel-w: 1280px;
+      --panel-h: 720px;
+      --caption-h: 140px;
+      --node-chamfer: 26px;
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background-color: var(--bg-void);
+      color: var(--text-ivory);
+      font-family: var(--font-sans);
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    /* 1. STAGE & CANVAS LAYERS */
+    .stage {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+    }
+
+    #webgl-canvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 1;
+      display: block;
+      pointer-events: auto;
+    }
+
+    #css3d-container {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 2;
+      pointer-events: none;
+    }
+
+    #css3d-container > div {
+      pointer-events: none;
+    }
+
+    /* 2. CSS3D PROJECT NODES — native 1280x720 DOM, scaled to 640x360 world units */
+    .project-plane {
+      position: absolute;
+      width: var(--panel-w);
+      height: calc(var(--panel-h) + var(--caption-h));
+      margin: 0;
+      pointer-events: auto;
+      opacity: 1;
+      transform-origin: 50% 50%;
+      transition: opacity 300ms ease, filter 300ms ease;
+    }
+
+    .project-plane.is-dimmed {
+      opacity: 0.08;
+      filter: grayscale(92%) brightness(0.48);
+      pointer-events: none;
+    }
+
+    body[data-state="STATION_LOCKED"] .project-plane:not([aria-current="true"]) {
+      opacity: 0.035;
+      pointer-events: none;
+    }
+
+    .media-frame {
+      position: relative;
+      width: var(--panel-w);
+      height: var(--panel-h);
+      aspect-ratio: 16 / 9;
+      overflow: hidden;
+      background: #03070c;
+      border: 2px solid rgba(117, 218, 255, 0.22);
+      box-shadow: 0 28px 80px rgba(0, 0, 0, 0.74), inset 0 0 0 8px rgba(4, 15, 25, 0.76);
+      transition: border-color 220ms ease, box-shadow 260ms ease, filter 260ms ease;
+    }
+
+    .media-frame::before,
+    .media-frame::after {
+      content: "";
+      position: absolute;
+      z-index: 7;
+      pointer-events: none;
+    }
+
+    .media-frame::before {
+      inset: 12px;
+      border: 4px solid transparent;
+      border-top-color: rgba(222, 244, 255, 0.78);
+      border-left-color: rgba(67, 216, 255, 0.42);
+      clip-path: polygon(0 0, 32% 0, 32% 6px, 68% 6px, 68% 0, 100% 0, 100% 26%, calc(100% - 6px) 26%, calc(100% - 6px) 74%, 100% 74%, 100% 100%, 68% 100%, 68% calc(100% - 6px), 32% calc(100% - 6px), 32% 100%, 0 100%, 0 74%, 6px 74%, 6px 26%, 0 26%);
+    }
+
+    .media-frame::after {
+      top: 22px;
+      right: 22px;
+      width: 8px;
+      height: 42%;
+      background: var(--accent-cyan);
+      box-shadow: 0 0 22px rgba(67, 216, 255, 0.82), 0 318px 0 rgba(226, 51, 51, 0.8);
+    }
+
+    .project-plane:hover .media-frame,
+    .project-plane:focus-within .media-frame {
+      border-color: rgba(105, 226, 255, 0.76);
+      box-shadow: 0 30px 90px rgba(0, 0, 0, 0.82), 0 0 46px rgba(67, 216, 255, 0.18), inset 0 0 0 8px rgba(4, 15, 25, 0.82);
+    }
+
+    .project-plane[aria-current="true"] .media-frame {
+      border-color: rgba(225, 247, 255, 0.9);
+      box-shadow: 0 34px 100px rgba(0, 0, 0, 0.9), 0 0 54px rgba(67, 216, 255, 0.24), inset 0 0 0 8px rgba(4, 15, 25, 0.84);
+    }
+
+    .panel-img,
+    .panel-player,
+    .node-hit {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    .panel-img {
+      z-index: 1;
+      object-fit: cover;
+      display: block;
+    }
+
+    .panel-player {
+      z-index: 6;
+      border: 0;
+      display: block;
+      background: #000;
+      opacity: 0;
+      pointer-events: none;
+      animation: player-online 260ms ease forwards;
+    }
+
+    body[data-state="STATION_LOCKED"] .project-plane[aria-current="true"] .panel-player {
+      pointer-events: auto;
+    }
+
+    .panel-overlay {
+      position: absolute;
+      inset: 0;
+      z-index: 2;
+      background: linear-gradient(135deg, rgba(3, 10, 18, 0.04), rgba(3, 10, 18, 0.5));
+      pointer-events: none;
+    }
+
+    .node-hit {
+      z-index: 4;
+      padding: 0;
+      border: 0;
+      background: transparent;
+      color: inherit;
+      cursor: pointer;
+    }
+
+    .node-hit:focus-visible {
+      outline: 8px solid var(--accent-cyan);
+      outline-offset: -14px;
+    }
+
+    .project-plane.is-playing .node-hit,
+    .project-plane.is-playing .panel-overlay,
+    .project-plane.is-playing .panel-play {
+      display: none;
+    }
+
+    .panel-play {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      z-index: 3;
+      transform: translate(-50%, -50%);
+      display: inline-flex;
+      align-items: center;
+      gap: 18px;
+      padding: 18px 28px 18px 22px;
+      border: 3px solid rgba(196, 239, 255, 0.7);
+      background: rgba(2, 10, 18, 0.84);
+      clip-path: polygon(0 18px, 18px 0, calc(100% - 28px) 0, 100% 28px, 100% 100%, 0 100%);
+      color: var(--text-ivory);
+      font-family: var(--font-mono);
+      font-size: 22px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      opacity: 0;
+      transition: opacity 180ms ease, background 180ms ease;
+      pointer-events: none;
+    }
+
+    .project-plane:hover .panel-play,
+    .project-plane:focus-within .panel-play {
+      opacity: 1;
+    }
+
+    .node-caption {
+      position: absolute;
+      top: calc(var(--panel-h) + 28px);
+      left: 0;
+      width: 100%;
+      display: grid;
+      grid-template-columns: 74px minmax(0, 1fr) auto;
+      align-items: start;
+      column-gap: 22px;
+      background: none;
+      pointer-events: none;
+      transform-origin: top left;
+      transition: opacity 180ms ease, transform 240ms ease;
+    }
+
+    .node-caption::before {
+      content: "";
+      position: absolute;
+      top: -17px;
+      left: 0;
+      width: 34%;
+      height: 4px;
+      background: linear-gradient(90deg, var(--accent-cyan), rgba(67, 216, 255, 0));
+    }
+
+    .node-index,
+    .node-role,
+    .badge-idx {
+      font-family: var(--font-mono);
+      color: var(--text-muted);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+
+    .node-index {
+      font-size: 25px;
+      color: var(--accent-cyan);
+    }
+
+    .node-title {
+      min-width: 0;
+      font-family: var(--font-sans);
+      font-size: 31px;
+      font-weight: 600;
+      line-height: 1.13;
+      letter-spacing: -0.4px;
+      color: var(--text-ivory);
+    }
+
+    .node-role {
+      padding-top: 4px;
+      max-width: 300px;
+      font-size: 19px;
+      line-height: 1.25;
+      text-align: right;
+      color: rgba(200, 219, 229, 0.64);
+    }
+
+    body[data-state="STATION_LOCKED"] .project-plane[aria-current="true"] .node-caption {
+      opacity: 0;
+      transform: translateY(-12px);
+    }
+
+    @keyframes player-online {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    /* 3. FIXED EDITORIAL HUD LAYER */
+    .hud-layer {
+      position: fixed;
+      inset: 0;
+      z-index: 10;
+      isolation: isolate;
+      pointer-events: none;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 28px 36px;
+    }
+
+    .hud-layer::before {
+      content: "";
+      position: absolute;
+      z-index: 0;
+      inset: 0 0 auto;
+      height: 112px;
+      background: linear-gradient(180deg, #080a0e 0%, rgba(8, 10, 14, 0.97) 62%, rgba(8, 10, 14, 0) 100%);
+      pointer-events: none;
+    }
+
+    .hud-header,
+    .hud-footer {
+      position: relative;
+      z-index: 1;
+    }
+
+    .hud-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 20px;
+    }
+
+    .brand-group {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .brand-title {
+      font-family: var(--font-display);
+      font-size: 24px;
+      font-weight: 400;
+      letter-spacing: 0.5px;
+      color: var(--text-ivory);
+    }
+
+    .brand-sub {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--text-muted);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    /* Route rail: modular game-system grammar, without franchise assets */
+    .route-picker {
+      display: inline-flex;
+      background: rgba(4, 12, 21, 0.86);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(67, 216, 255, 0.2);
+      padding: 4px;
+      gap: 3px;
+      clip-path: polygon(0 10px, 10px 0, calc(100% - 18px) 0, 100% 18px, 100% 100%, 0 100%);
+      pointer-events: auto;
+    }
+
+    .route-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 500;
+      padding: 8px 14px;
+      letter-spacing: 0.7px;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: color 0.2s, background-color 0.2s;
+    }
+
+    .route-btn:hover {
+      color: var(--text-ivory);
+    }
+
+    .route-btn.is-active {
+      background: linear-gradient(90deg, rgba(22, 102, 176, 0.72), rgba(67, 216, 255, 0.12));
+      color: var(--text-ivory);
+      box-shadow: inset 3px 0 0 var(--accent-cyan);
+    }
+
+    .route-btn:focus-visible {
+      outline: 2px solid var(--accent-cyan);
+      outline-offset: 1px;
+    }
+
+    /* Bottom Section */
+    .hud-footer {
+      display: grid;
+      grid-template-columns: minmax(220px, 300px) minmax(420px, 720px) 280px;
+      justify-content: space-between;
+      align-items: flex-end;
+      gap: 22px;
+    }
+
+    /* Servant Telemetry Cue */
+    .servant-cue {
+      background: linear-gradient(135deg, rgba(5, 15, 25, 0.94), rgba(7, 18, 29, 0.82));
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(67, 216, 255, 0.2);
+      border-left: 3px solid var(--accent-cyan);
+      padding: 16px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      pointer-events: auto;
+      clip-path: polygon(0 0, calc(100% - 18px) 0, 100% 18px, 100% 100%, 0 100%);
+    }
+
+    .servant-label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--accent-cyan);
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+    }
+
+    .servant-dot {
+      width: 5px;
+      height: 5px;
+      transform: rotate(45deg);
+      background-color: var(--accent-cyan);
+      box-shadow: 0 0 8px var(--accent-cyan);
+    }
+
+    .servant-text {
+      font-size: 13px;
+      line-height: 1.5;
+      color: #c9d0dc;
+      font-weight: 400;
+    }
+
+    /* Presenter module: armored shell, blue telemetry, single Ark-red interrupt signal */
+    .project-meta {
+      --stream-progress: 0%;
+      position: relative;
+      background: linear-gradient(135deg, rgba(3, 10, 18, 0.97), rgba(8, 20, 32, 0.94));
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(115, 217, 255, 0.34);
+      border-left: 4px solid var(--accent-cyan);
+      padding: 18px 24px 20px;
+      pointer-events: none;
+      max-width: 720px;
+      margin: 0 auto;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 9px;
+      min-height: 236px;
+      opacity: 0;
+      visibility: hidden;
+      transform: translate3d(0, 20px, 0) scale(0.985);
+      clip-path: polygon(0 0, 0 0, 0 100%, 0 100%);
+      box-shadow: 18px 18px 0 rgba(7, 30, 48, 0.34), 22px 22px 0 rgba(226, 51, 51, 0.12), 0 24px 64px rgba(0, 0, 0, 0.62);
+      transition: opacity 180ms ease, transform 360ms cubic-bezier(.22,.8,.2,1), clip-path 360ms cubic-bezier(.22,.8,.2,1), visibility 0s linear 360ms;
+    }
+
+    .project-meta.is-mounted {
+      visibility: visible;
+      transition-delay: 0s;
+    }
+
+    .project-meta.is-open {
+      opacity: 1;
+      transform: none;
+      clip-path: polygon(0 14px, 14px 0, calc(100% - 30px) 0, 100% 30px, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%);
+      pointer-events: auto;
+    }
+
+    .project-meta::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      right: 30px;
+      width: 56px;
+      height: 4px;
+      background: var(--accent-oxide);
+      box-shadow: 0 0 18px rgba(226, 51, 51, 0.72);
+    }
+
+    body[data-state="OVERVIEW"] .project-meta,
+    body[data-state="TRANSITIONING"] .project-meta {
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(18px) scale(0.985);
+      pointer-events: none;
+    }
+
+    .meta-systemline {
+      display: grid;
+      grid-template-columns: auto auto minmax(84px, 1fr);
+      align-items: center;
+      gap: 10px;
+      min-height: 18px;
+      font-family: var(--font-mono);
+      font-size: 9px;
+      letter-spacing: 1.25px;
+      color: var(--accent-cyan);
+      text-transform: uppercase;
+    }
+
+    .system-core {
+      width: 8px;
+      height: 8px;
+      background: var(--accent-cyan);
+      transform: rotate(45deg);
+      box-shadow: 0 0 12px rgba(67, 216, 255, 0.9);
+    }
+
+    .system-rail {
+      position: relative;
+      height: 3px;
+      overflow: hidden;
+      background: rgba(67, 216, 255, 0.13);
+    }
+
+    .system-rail > i {
+      position: absolute;
+      inset: 0 auto 0 0;
+      width: var(--stream-progress);
+      background: linear-gradient(90deg, var(--accent-cobalt), var(--accent-cyan));
+      box-shadow: 0 0 12px rgba(67, 216, 255, 0.72);
+      transition: width 80ms linear;
+    }
+
+    .meta-kicker {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .meta-tag {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--accent-brass);
+      letter-spacing: 1.2px;
+      text-transform: uppercase;
+    }
+
+    .meta-role {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--text-muted);
+      letter-spacing: 0.8px;
+    }
+
+    .meta-title {
+      font-family: var(--font-sans);
+      font-size: 25px;
+      line-height: 1.15;
+      color: var(--text-ivory);
+      font-weight: 600;
+      letter-spacing: -0.45px;
+    }
+
+    .meta-body {
+      min-height: 62px;
+      font-size: 12px;
+      line-height: 1.48;
+      color: #b5bcc8;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 5px;
+      user-select: text;
+      -webkit-user-select: text;
+    }
+
+    .stream-label {
+      display: inline-block;
+      min-width: 104px;
+      margin-right: 8px;
+      font-family: var(--font-mono);
+      font-size: 9px;
+      letter-spacing: 1px;
+      color: var(--accent-cyan);
+      text-transform: uppercase;
+    }
+
+    .stream-caret {
+      display: none;
+      width: 7px;
+      height: 13px;
+      margin-left: 3px;
+      vertical-align: -2px;
+      background: var(--accent-cyan);
+      animation: caret-blink 720ms steps(1, end) infinite;
+    }
+
+    .project-meta.is-streaming .stream-caret {
+      display: inline-block;
+    }
+
+    .presenter-skip {
+      position: absolute;
+      top: 12px;
+      right: 98px;
+      border: 0;
+      background: transparent;
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+      font-size: 9px;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      cursor: pointer;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .project-meta.is-streaming .presenter-skip {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .presenter-skip:focus-visible {
+      outline: 2px solid var(--accent-cyan);
+      outline-offset: 3px;
+    }
+
+    .meta-actions {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      margin-top: 4px;
+      padding-top: 12px;
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+      opacity: 0.32;
+      pointer-events: none;
+      transition: opacity 180ms ease;
+    }
+
+    .project-meta.is-ready .meta-actions {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .action-link {
+      color: var(--text-ivory);
+      text-decoration: none;
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.5px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: color 0.2s;
+    }
+
+    .action-link:hover {
+      color: var(--accent-cyan);
+    }
+
+    .action-link:focus-visible {
+      outline: 2px solid var(--accent-cyan);
+      outline-offset: 2px;
+    }
+
+    /* Navigation dock */
+    .nav-dock {
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      gap: 10px;
+      pointer-events: auto;
+    }
+
+    .nav-btn {
+      background: var(--bg-card);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-ivory);
+      font-family: var(--font-mono);
+      font-size: 12px;
+      padding: 10px 18px;
+      clip-path: polygon(0 8px, 8px 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 0 100%);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: background-color 0.2s, border-color 0.2s, color 0.2s;
+    }
+
+    @keyframes caret-blink {
+      50% { opacity: 0; }
+    }
+
+    .nav-btn:hover {
+      background: rgba(255, 255, 255, 0.08);
+      border-color: var(--border-focus);
+    }
+
+    .nav-btn:focus-visible {
+      outline: 2px solid var(--accent-cyan);
+      outline-offset: 2px;
+    }
+
+    /* Provenance tag */
+    .provenance-line {
+      position: fixed;
+      bottom: 8px;
+      right: 16px;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--text-subtle);
+      letter-spacing: 0.8px;
+      pointer-events: none;
+      z-index: 10;
+    }
+
+    /* 4. ACCESSIBILITY TREE (Haoqi Model) */
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    /* 5. BOOT VEIL / ERROR NOTICE */
+    .boot-veil {
+      position: fixed;
+      inset: 0;
+      background-color: var(--bg-void);
+      z-index: 100;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      transition: opacity 0.6s ease, visibility 0.6s ease;
+    }
+
+    .boot-veil.is-hidden {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    .boot-spinner {
+      width: 28px;
+      height: 28px;
+      border: 2px solid rgba(255, 255, 255, 0.1);
+      border-top-color: var(--accent-cyan);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    .boot-title {
+      font-family: var(--font-display);
+      font-size: 26px;
+      color: var(--text-ivory);
+      letter-spacing: 0.5px;
+    }
+
+    .boot-status {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--text-muted);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    .error-dialog {
+      display: none;
+      max-width: 440px;
+      padding: 24px;
+      background: #14171f;
+      border: 1px solid var(--accent-oxide);
+      border-radius: 8px;
+      text-align: center;
+      gap: 12px;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    @keyframes spin {
+      100% { transform: rotate(360deg); }
+    }
+
+    /* 6. MOBILE PORTRAIT — same 3D lattice, compact operator HUD */
+    @media (max-width: 768px) {
+      .hud-layer {
+        padding: 16px;
+        pointer-events: none;
+      }
+
+      .hud-layer::before {
+        height: 132px;
+      }
+
+      .hud-header {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 12px;
+      }
+
+      .brand-title {
+        font-size: 20px;
+      }
+
+      .route-picker {
+        align-self: flex-start;
+        width: 100%;
+      }
+
+      .route-btn {
+        flex: 1;
+        min-width: 0;
+        font-size: 8px;
+        padding: 7px 4px;
+        letter-spacing: 0.25px;
+      }
+
+      .hud-footer {
+        grid-template-columns: 1fr;
+        gap: 9px;
+        max-height: 48vh;
+        overflow-y: auto;
+        pointer-events: auto;
+      }
+
+      .servant-cue {
+        display: none;
+      }
+
+      .servant-text {
+        font-size: 12px;
+      }
+
+      .project-meta {
+        padding: 14px 16px 15px;
+        gap: 6px;
+        min-height: 238px;
+      }
+
+      .meta-title {
+        padding-right: 24px;
+        font-size: 19px;
+      }
+
+      .meta-body {
+        min-height: 78px;
+        font-size: 11px;
+        line-height: 1.38;
+      }
+
+      .stream-label {
+        min-width: 84px;
+        font-size: 8px;
+      }
+
+      .meta-actions {
+        gap: 9px;
+        padding-top: 8px;
+      }
+
+      .presenter-skip {
+        top: 9px;
+        right: 76px;
+      }
+
+      .nav-dock {
+        justify-content: space-between;
+        width: 100%;
+      }
+
+      .nav-btn {
+        flex: 1;
+        justify-content: center;
+        padding: 8px 12px;
+        font-size: 11px;
+      }
+
+      .provenance-line {
+        display: none;
+      }
+
+      .node-caption {
+        top: calc(var(--panel-h) + 30px);
+        grid-template-columns: 112px minmax(0, 1fr);
+        column-gap: 24px;
+      }
+
+      .node-index {
+        font-size: 44px;
+      }
+
+      .node-title {
+        font-size: 56px;
+        line-height: 1.08;
+      }
+
+      .node-role {
+        display: none;
+      }
+    }
+
+    @media (max-width: 520px) {
+      .brand-title { font-size: 18px; }
+      .brand-sub { font-size: 9px; }
+      .node-caption {
+        grid-template-columns: 138px minmax(0, 1fr);
+        column-gap: 28px;
+      }
+      .node-index { font-size: 58px; }
+      .node-title { font-size: 84px; }
+      .meta-role { max-width: 48%; text-align: right; }
+      .action-link { font-size: 10px; }
+      .badge-idx { font-size: 9px; }
+    }
+
+    /* 7. REDUCED MOTION (Cut interpolation duration only, keep 3D) */
+    @media (prefers-reduced-motion: reduce) {
+      * {
+        animation-duration: 0.001ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.001ms !important;
+      }
+
+      .stream-caret {
+        display: none !important;
+      }
+    }
+  </style>
+</head>
+<body data-active-index="0" data-state="STATION_LOCKED" data-route="all">
+
+  <!-- A11y Semantic Tree (Haoqi Model) -->
+  <div class="sr-only" id="a11y-live-region" role="status" aria-live="polite" aria-atomic="true"></div>
+
+  <!-- Stage: WebGL + CSS3DRenderer -->
+  <div class="stage" data-qa="stage">
+    <canvas id="webgl-canvas" data-qa="webgl"></canvas>
+    <div id="css3d-container" data-qa="css3d"></div>
+  </div>
+
+  <!-- Fixed DOM Editorial UI -->
+  <div class="hud-layer">
+    <header class="hud-header">
+      <div class="brand-group">
+        <h1 class="brand-title">Minato Makoto</h1>
+        <span class="brand-sub">Selected work · Producer / Post</span>
+      </div>
+
+      <div class="route-picker" data-qa="route-picker" role="group" aria-label="Bộ lọc tuyến xem">
+        <button class="route-btn is-active" data-route="all" aria-pressed="true">All (11)</button>
+        <button class="route-btn" data-route="producer" aria-pressed="false">Producer</button>
+        <button class="route-btn" data-route="post" aria-pressed="false">Post-Production</button>
+        <button class="route-btn" data-route="process" aria-pressed="false">Process</button>
+      </div>
+    </header>
+
+    <footer class="hud-footer">
+      <!-- Servant Telemetry Cue -->
+      <aside class="servant-cue" data-qa="servant-cue" aria-label="Chỉ dẫn từ Servant">
+        <div class="servant-label">
+          <span class="servant-dot"></span>
+          <span>Witness π.3.14 · Guide</span>
+        </div>
+        <p class="servant-text" id="servant-text">Operator lattice online. Chọn node hoặc dùng phím mũi tên để duyệt project.</p>
+      </aside>
+
+      <!-- Scripted presenter: the simulation is explicit; no remote model call is implied -->
+      <section id="project-meta" class="project-meta" data-qa="project-meta" aria-labelledby="meta-title" aria-hidden="true" aria-busy="false" inert>
+        <div class="meta-systemline" aria-hidden="true">
+          <span class="system-core"></span>
+          <span id="presenter-state">Scripted guide / standby</span>
+          <span class="system-rail"><i id="presenter-progress"></i></span>
+        </div>
+        <div class="meta-kicker">
+          <span class="meta-tag" id="meta-tag">01 / HARMONY</span>
+          <span class="meta-role" id="meta-role">Producer · Project Manager</span>
+        </div>
+        <h2 class="meta-title" id="meta-title" tabindex="-1">Harmony 2025 – Better With You</h2>
+        <div class="meta-body" id="meta-body">
+          <p><span class="stream-label">Intent</span><span id="meta-intent"></span></p>
+          <p><span class="stream-label">System / Proof</span><span id="meta-proof"></span><span class="stream-caret" aria-hidden="true"></span></p>
+        </div>
+        <button class="presenter-skip" id="presenter-skip" type="button" hidden disabled tabindex="-1">Complete text</button>
+        <div class="meta-actions">
+          <a href="#" target="_blank" rel="noopener noreferrer" class="action-link" id="action-source">
+            <span>Open source</span>
+            <span>↗</span>
+          </a>
+          <a href="mailto:minatokiva@gmail.com" class="action-link" aria-label="Book Minato Makoto for a project">Book ↗</a>
+          <span class="badge-idx" id="station-counter">Station 01 of 11</span>
+        </div>
+      </section>
+
+      <!-- Navigation Dock -->
+      <nav class="nav-dock" data-qa="navigation" aria-label="Điều hướng camera">
+        <button class="nav-btn" data-action="prev" aria-label="Station trước">
+          <span>←</span>
+          <span>Prev</span>
+        </button>
+        <button class="nav-btn" data-action="overview" aria-label="Toàn cảnh operator lattice">
+          <span>Overview</span>
+        </button>
+        <button class="nav-btn" data-action="next" aria-label="Station kế tiếp">
+          <span>Next</span>
+          <span>→</span>
+        </button>
+      </nav>
+    </footer>
+  </div>
+
+  <div class="provenance-line">Previs / Blender 5.2 · Operator Lattice</div>
+
+  <!-- Boot Veil -->
+  <div class="boot-veil" id="boot-veil">
+    <div class="boot-spinner" id="boot-spinner"></div>
+    <div class="boot-title">Minato Makoto</div>
+    <div class="boot-status" id="boot-status">Calibrating Operator Lattice...</div>
+    <div class="error-dialog" id="error-dialog">
+      <h3 style="color:#f0eee9; font-size:16px;">WebGL Required</h3>
+      <p style="color:#8c939e; font-size:13px;" id="error-msg">Trình duyệt cần hỗ trợ WebGL để xem không gian triển lãm 3D này.</p>
+    </div>
+  </div>
+
+  <!-- CDN Dependencies: Three.js r128 and CSS3DRenderer -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/renderers/CSS3DRenderer.js"></script>
+
+  <script defer>
+    (function () {
+      'use strict';
+
+      // 1. DATA REPOSITORY: 11 Real Video Projects
+      const PROJECTS = [
+        {
+          id: 'harmony-card',
+          indexStr: '01',
+          title: 'Harmony 2025 – Better With You',
+          role: 'Producer · Project Manager',
+          routes: ['all', 'producer', 'process'],
+          thumb: 'https://drive.google.com/thumbnail?id=1X-_4rjqvc4X_ZVYo5BYFDoEBzp_DtkwZ&sz=w1280',
+          link: 'https://drive.google.com/file/d/1X-_4rjqvc4X_ZVYo5BYFDoEBzp_DtkwZ/view',
+          alt: 'Harmony 2025 – Better With You video project thumbnail',
+          cue: 'Toàn bộ tiền kỳ, on-set và hậu kỳ do Minato-sama trực tiếp phụ trách; minh chứng rõ nét vai trò Producer ∴ Project Owner.',
+          intent: 'Toàn bộ quá trình của dự án video Harmony - Better With You được Minato phụ trách: tiền kỳ (ý tưởng, kịch bản, chuẩn bị), on-set (đạo diễn sản xuất, giám sát ghi hình) và hậu kỳ (dựng phim, chỉnh màu, hoàn thiện).',
+          proof: 'Sản phẩm minh chứng năng lực tổng thể từ khâu sáng tạo đến khâu kỹ thuật thực thi.'
+        },
+        {
+          id: 'daydream-card',
+          indexStr: '02',
+          title: 'RECAP DAY DREAMS FINAL 2024!',
+          role: 'Producer · Project Manager',
+          routes: ['all', 'producer', 'process'],
+          thumb: 'https://drive.google.com/thumbnail?id=1PsYIUeHpntiBvQT1aYqrY8rd0KGJlU4B&sz=w1280',
+          link: 'https://drive.google.com/file/d/1PsYIUeHpntiBvQT1aYqrY8rd0KGJlU4B/view',
+          alt: 'RECAP DAY DREAMS FINAL 2024! video project thumbnail',
+          cue: 'Chịu trách nhiệm từ lên ý tưởng, sản xuất hiện trường đến hoàn thiện hậu kỳ.',
+          intent: 'Với dự án RECAP DAY DREAMS FINAL 2024, Minato đảm nhận vai trò Producer, chịu trách nhiệm xuyên suốt từ ý tưởng đến hoàn thiện.',
+          proof: 'Khả năng quản lý và thực thi toàn diện, truyền tải trọn vẹn năng lượng sự kiện.'
+        },
+        {
+          id: 'microlife-bts-card',
+          indexStr: '03',
+          title: 'Microlife Talkshow 2021 | BTS',
+          role: 'Post-production Supervisor · Producer Assistant',
+          routes: ['all', 'process', 'producer'],
+          thumb: 'https://img.youtube.com/vi/_V3pAcQBhPo/maxresdefault.jpg',
+          thumbFallback: 'https://img.youtube.com/vi/_V3pAcQBhPo/hqdefault.jpg',
+          link: 'https://www.youtube.com/watch?v=_V3pAcQBhPo',
+          alt: 'Microlife Talkshow 2021 Behind the Scene thumbnail',
+          cue: 'Trợ lý sản xuất kiêm ghi hình BTS, lưu trữ hình ảnh và hỗ trợ quy trình cho Executive Producer.',
+          intent: 'Hỗ trợ Executive Producer, tập trung vào quy trình sản xuất, tiền kỳ và ghi nhận các khoảnh khắc quan trọng.',
+          proof: 'Khả năng ghi nhận và chuẩn hóa quy trình sản xuất talkshow truyền thông y tế.'
+        },
+        {
+          id: 'motor-fest-card',
+          indexStr: '04',
+          title: 'Motor Fest 2023',
+          role: 'Post-production Supervisor',
+          routes: ['all', 'post'],
+          thumb: 'https://drive.google.com/thumbnail?id=1LHlJL_vV7l8I4_F-JIutWN8wlMhoGaEn&sz=w1280',
+          link: 'https://drive.google.com/file/d/1LHlJL_vV7l8I4_F-JIutWN8wlMhoGaEn/view',
+          alt: 'Motor Fest 2023 video project thumbnail',
+          cue: 'Minh chứng năng lực solo hậu kỳ dưới áp lực thời gian cao và cân đối đa dự án.',
+          intent: 'Ghi dấu khả năng solo hậu kỳ: áp lực thời gian cùng với phân chia công việc giữa Công ty và Freelance.',
+          proof: 'Biến hỗn loạn thành phản xạ, đáp ứng hoàn hảo tiêu chuẩn đối tác.'
+        },
+        {
+          id: 'hithegioi-card',
+          indexStr: '05',
+          title: 'BLACKA - Hi Thế Giới | No No No ft. ARTHUR',
+          role: 'Post-production Supervisor',
+          routes: ['all', 'post'],
+          thumb: 'https://img.youtube.com/vi/wBWQsfxG4eE/maxresdefault.jpg',
+          thumbFallback: 'https://img.youtube.com/vi/wBWQsfxG4eE/hqdefault.jpg',
+          link: 'https://www.youtube.com/watch?v=wBWQsfxG4eE',
+          alt: 'Hi Thế Giới music video thumbnail',
+          cue: 'Toàn bộ hậu kỳ one-man army: kỹ thuật dựng, nhịp điệu và hoàn thiện sáng tạo.',
+          intent: 'Toàn bộ hậu kỳ do Minato trực tiếp thực hiện, bảo đảm từ xử lý kỹ thuật đến hoàn thiện sáng tạo.',
+          proof: 'Ví dụ điển hình cho năng lực one-man army trong post-production âm nhạc.'
+        },
+        {
+          id: 'mv-le-card',
+          indexStr: '06',
+          title: 'MV Lé - Dr Roc',
+          role: 'Post-Production Supervisor',
+          routes: ['all', 'post'],
+          thumb: 'https://drive.google.com/thumbnail?id=1yeMXF7wVZBWE2W7VHUQvHY1k7gREsfjD&sz=w1280',
+          link: 'https://drive.google.com/file/d/1yeMXF7wVZBWE2W7VHUQvHY1k7gREsfjD/view',
+          alt: 'MV Lé - Dr Roc video project thumbnail',
+          cue: 'Xử lý trọn vẹn hậu kỳ từ raw footage: Editing, Color Grading và VFX.',
+          intent: 'Trong MV Lé – Dr Roc, Minato chính là toàn bộ hậu kỳ từ raw footage.',
+          proof: 'Kiểm soát hình ảnh, màu sắc và VFX liền mạch, đồng nhất với tinh thần nghệ sĩ.'
+        },
+        {
+          id: 'dong-co-lau-card',
+          indexStr: '07',
+          title: 'ĐỒNG CỎ LAU - Hành trình từ đất trời đến tổ ấm',
+          role: 'Post-Production Supervisor',
+          routes: ['all', 'post'],
+          thumb: 'https://drive.google.com/thumbnail?id=1cN1AkKCYtoxowWyVDofOIZlX4cZnrhGS&sz=w1280',
+          link: 'https://drive.google.com/file/d/1cN1AkKCYtoxowWyVDofOIZlX4cZnrhGS/view',
+          alt: 'Đồng Cỏ Lau video project thumbnail',
+          cue: 'Một mình gánh trọn hậu kỳ: dựng phim, màu sắc và dẫn dắt cảm xúc người xem.',
+          intent: 'Một mình gánh trọn hậu kỳ cho ĐỒNG CỎ LAU từ dựng phim đến cảm xúc.',
+          proof: 'Kiểm soát nhịp điệu kể chuyện tinh tế chạm đúng cảm xúc khách hàng.'
+        },
+        {
+          id: 'doraemon-tvc-card',
+          indexStr: '08',
+          title: 'Doraemon Lipice Sheer Color',
+          role: 'VFX · Producer Assistant',
+          routes: ['all', 'post', 'process', 'producer'],
+          thumb: 'https://i.ytimg.com/vi/7w3royxjrtw/hqdefault.jpg',
+          link: 'https://www.youtube.com/watch?v=7w3royxjrtw',
+          alt: 'Doraemon Lipice Sheer Color TVC VFX thumbnail',
+          cue: 'Phối hợp thực hiện VFX và giám sát hậu kỳ theo tiêu chuẩn khắt khe của nhãn hàng quốc tế.',
+          intent: 'Đảm nhận vai trò Producer Assistant, phối hợp thực hiện phần VFX (Visual Effects).',
+          proof: 'Đáp ứng chính xác tiêu chuẩn kỹ thuật thương mại của nhãn hàng Lipice.'
+        },
+        {
+          id: 'ThaiLong-card',
+          indexStr: '09',
+          title: 'Thái Long Yến Tiệc',
+          role: 'Post-Production Supervisor',
+          routes: ['all', 'post'],
+          thumb: 'https://drive.google.com/thumbnail?id=1oFDR_ff0AHRXJuIFiQy8suxvZNKuA_Bg&sz=w1280',
+          link: 'https://drive.google.com/file/d/1oFDR_ff0AHRXJuIFiQy8suxvZNKuA_Bg/view',
+          alt: 'Thái Long Yến Tiệc video project thumbnail',
+          cue: 'Mỗi khung hình và âm thanh đều đi qua bàn tay duy nhất, đảm bảo tính thẩm mỹ chuẩn mực.',
+          intent: 'Độc lập thực hiện toàn bộ khâu hoàn thiện hậu kỳ cho dự án ẩm thực cao cấp.',
+          proof: 'Sự tỉ mỉ trong xử lý ánh sáng thực phẩm và âm thanh yến tiệc.'
+        },
+        {
+          id: '2ndchance-card',
+          indexStr: '10',
+          title: 'The 2nd Chance - Hãy Thay Đổi Lối Sống',
+          role: 'BTS · Producer Assistant',
+          routes: ['all', 'process', 'producer'],
+          thumb: 'https://img.youtube.com/vi/5RVfxLfCHwg/maxresdefault.jpg',
+          thumbFallback: 'https://img.youtube.com/vi/5RVfxLfCHwg/hqdefault.jpg',
+          link: 'https://www.youtube.com/watch?v=5RVfxLfCHwg',
+          alt: 'The 2nd Chance TVC thumbnail',
+          cue: 'Dự án khởi đầu chuỗi truyền thông sức khỏe: hỗ trợ quy trình vận hành trơn tru từ tiền kỳ.',
+          intent: 'Hỗ trợ Executive Producer, ghi hình BTS và bảo đảm quy trình vận hành trơn tru từ đầu.',
+          proof: 'Nền tảng khởi động cho chuỗi TVC y tế dài hạn.'
+        },
+        {
+          id: 'PhongNguaDotQuy-card',
+          indexStr: '11',
+          title: 'Bảo Vệ Gia Đình Phòng Ngừa Đột Quỵ',
+          role: 'BTS · Producer Assistant',
+          routes: ['all', 'process'],
+          thumb: 'https://img.youtube.com/vi/PPNA0KnOrNg/maxresdefault.jpg',
+          thumbFallback: 'https://img.youtube.com/vi/PPNA0KnOrNg/hqdefault.jpg',
+          link: 'https://www.youtube.com/watch?v=PPNA0KnOrNg',
+          alt: 'Bảo Vệ Gia Đình Phòng Ngừa Đột Quỵ Talkshow thumbnail',
+          cue: 'Điều phối sản xuất và ghi hình BTS với các chuyên gia y khoa hàng đầu (NSƯT Thành Lộc, ThS.BS Trần Công Duy).',
+          intent: 'Điều phối sản xuất, ghi hình BTS và đảm bảo luồng công việc xuyên suốt với dàn cast chuyên nghiệp.',
+          proof: 'Kinh nghiệm làm việc hiệu quả với các nhân vật công chúng và bác sĩ chuyên khoa.'
+        }
+      ];
+
+      const ROUTE_ORDERS = {
+        all: PROJECTS.map(project => project.id),
+        producer: ['harmony-card', 'daydream-card', 'doraemon-tvc-card', 'microlife-bts-card', '2ndchance-card'],
+        post: ['hithegioi-card', 'motor-fest-card', 'mv-le-card', 'dong-co-lau-card', 'ThaiLong-card', 'doraemon-tvc-card'],
+        process: ['2ndchance-card', 'microlife-bts-card', 'harmony-card', 'daydream-card', 'PhongNguaDotQuy-card', 'doraemon-tvc-card']
+      };
+
+      // 2. AUTHORED TWO-COLUMN NODE LATTICE (validated in Blender previs)
+      // DOM media is native 1280x720 and scaled to a 640x360 world surface.
+      const NODE_NATIVE_W = 1280;
+      const NODE_NATIVE_H = 720;
+      const NODE_CAPTION_NATIVE_H = 140;
+      const NODE_SCALE = 0.5;
+      const NODE_WORLD_W = NODE_NATIVE_W * NODE_SCALE;
+      const NODE_WORLD_H = NODE_NATIVE_H * NODE_SCALE;
+      const NODE_WORLD_TOTAL_H = (NODE_NATIVE_H + NODE_CAPTION_NATIVE_H) * NODE_SCALE;
+      const ROW_STEP = 520;
+      const DEPTHS = [0, -28, -44, -12, -24, -56, -72, -36, -50, -84, -102];
+      const PANEL_LAYOUT = PROJECTS.map((project, idx) => ({
+        x: idx % 2 === 0 ? -380 : 380,
+        y: -Math.floor(idx / 2) * ROW_STEP,
+        z: DEPTHS[idx],
+        yaw: 0
+      }));
+
+      // 3. SYSTEM STATE
+      const state = {
+        mode: 'STATION_LOCKED', // 'OVERVIEW' | 'TRANSITIONING' | 'STATION_LOCKED'
+        currentRoute: 'all',
+        projectIndex: 0,
+        activeRouteIndices: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+        camera: {
+          pos: null,
+          target: null,
+          destPos: null,
+          destTarget: null,
+          driftYaw: 0,
+          driftPitch: 0,
+          targetDriftYaw: 0,
+          targetDriftPitch: 0
+        },
+        destinationMode: 'STATION_LOCKED',
+        overviewScrollY: -360,
+        overviewBounds: { min: -2200, max: -360, worldPerPx: 1 },
+        presentationRun: 0,
+        presentationIndex: -1,
+        presentationStatus: 'HIDDEN',
+        isSettled: false,
+        rafId: null,
+        isTabHidden: false
+      };
+
+      const reduceMotionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+      let prefersReducedMotion = reduceMotionQuery.matches;
+      const isMobile = () => window.innerWidth <= 768;
+
+      let webglRenderer, cssRenderer, scene, cssScene, camera;
+      let projectPlaneElements = [];
+      let activePlayer = null;
+      let presentationTimer = null;
+
+      // 4. BOOT INITIALIZATION
+      function init() {
+        const bootVeil = document.getElementById('boot-veil');
+        const bootStatus = document.getElementById('boot-status');
+        const bootSpinner = document.getElementById('boot-spinner');
+        const errorDialog = document.getElementById('error-dialog');
+
+        if (typeof THREE === 'undefined' || typeof THREE.CSS3DRenderer === 'undefined') {
+          bootSpinner.style.display = 'none';
+          errorDialog.style.display = 'flex';
+          bootStatus.textContent = 'Engine Load Failed';
+          return;
+        }
+
+        state.camera.pos = new THREE.Vector3(0, 0, 800);
+        state.camera.target = new THREE.Vector3(0, 0, 0);
+        state.camera.destPos = new THREE.Vector3(0, 0, 800);
+        state.camera.destTarget = new THREE.Vector3(0, 0, 0);
+
+        const webglCanvas = document.getElementById('webgl-canvas');
+        const cssContainer = document.getElementById('css3d-container');
+
+        // Shared PerspectiveCamera
+        const aspect = window.innerWidth / window.innerHeight;
+        camera = new THREE.PerspectiveCamera(45, aspect, 10, 8000);
+
+        // WebGL Renderer
+        try {
+          webglRenderer = new THREE.WebGLRenderer({
+            canvas: webglCanvas,
+            antialias: true,
+            powerPreference: 'high-performance'
+          });
+          const dpr = Math.min(window.devicePixelRatio || 1, isMobile() ? 1.25 : 1.5);
+          webglRenderer.setPixelRatio(dpr);
+          webglRenderer.setSize(window.innerWidth, window.innerHeight);
+          webglRenderer.setClearColor(0x0a0b0e, 1);
+        } catch (err) {
+          bootSpinner.style.display = 'none';
+          errorDialog.style.display = 'flex';
+          bootStatus.textContent = 'WebGL Context Error';
+          return;
+        }
+
+        // CSS3D Renderer
+        cssRenderer = new THREE.CSS3DRenderer();
+        cssRenderer.setSize(window.innerWidth, window.innerHeight);
+        cssContainer.appendChild(cssRenderer.domElement);
+
+        scene = new THREE.Scene();
+        scene.fog = new THREE.FogExp2(0x0a0b0e, 0.00042);
+        cssScene = new THREE.Scene();
+
+        buildArchitecturalWebGLScene();
+        buildCSS3DProjects();
+        setupInputHandlers();
+        prepareEditorialUI(0);
+
+        webglCanvas.addEventListener('webglcontextlost', (event) => {
+          event.preventDefault();
+          state.isTabHidden = true;
+          if (state.rafId) cancelAnimationFrame(state.rafId);
+          state.rafId = null;
+          bootVeil.classList.remove('is-hidden');
+          bootSpinner.style.display = 'none';
+          errorDialog.style.display = 'flex';
+          bootStatus.textContent = 'WebGL Context Paused';
+          document.getElementById('error-msg').textContent = 'Không gian 3D tạm dừng vì GPU context bị mất. Trang sẽ tự khôi phục khi trình duyệt sẵn sàng.';
+        });
+
+        webglCanvas.addEventListener('webglcontextrestored', () => {
+          window.location.reload();
+        });
+
+        // Check URL hash
+        handleHashChange();
+
+        // Hide Boot Veil
+        setTimeout(() => {
+          bootVeil.classList.add('is-hidden');
+        }, 350);
+
+        wakeLoop();
+      }
+
+      // 5. WEBGL NEURAL RAIL — connectors only; CSS3D owns every media surface
+      function buildArchitecturalWebGLScene() {
+        const busZ = -150;
+        const branchMaterial = new THREE.LineBasicMaterial({ color: 0x54788b, opacity: 0.28, transparent: true });
+        const bridgeMaterial = new THREE.LineBasicMaterial({ color: 0xb7dae8, opacity: 0.34, transparent: true });
+        const cyanMaterial = new THREE.MeshBasicMaterial({ color: 0x43d8ff, transparent: true, opacity: 0.9 });
+        const redMaterial = new THREE.MeshBasicMaterial({ color: 0xe23333, transparent: true, opacity: 0.92 });
+        const busMaterial = new THREE.MeshBasicMaterial({ color: 0x1666b0, transparent: true, opacity: 0.54 });
+
+        const busCurve = new THREE.CatmullRomCurve3([
+          new THREE.Vector3(0, 120, busZ),
+          new THREE.Vector3(0, -2860, busZ)
+        ]);
+        scene.add(new THREE.Mesh(new THREE.TubeGeometry(busCurve, 24, 1.7, 6, false), busMaterial));
+
+        const branchPoints = [];
+        const bridgePoints = [];
+        const rows = Math.ceil(PANEL_LAYOUT.length / 2);
+
+        for (let row = 0; row < rows; row += 1) {
+          const leftIdx = row * 2;
+          const rightIdx = leftIdx + 1;
+          const rowY = -row * ROW_STEP - 232;
+          const junction = new THREE.Vector3(0, rowY, busZ);
+
+          [leftIdx, rightIdx].forEach((idx) => {
+            if (!PANEL_LAYOUT[idx]) return;
+            const layout = PANEL_LAYOUT[idx];
+            const port = new THREE.Vector3(layout.x, rowY, layout.z - 8);
+            const elbow = new THREE.Vector3(layout.x > 0 ? 224 : -224, rowY, -86);
+            branchPoints.push(port, elbow, elbow, junction);
+
+            const ring = new THREE.Mesh(
+              new THREE.RingGeometry(10, 14, 6),
+              idx % 4 === 3 ? redMaterial : cyanMaterial
+            );
+            ring.position.copy(port);
+            scene.add(ring);
+
+            const core = new THREE.Mesh(
+              new THREE.CircleGeometry(5, 4),
+              idx % 4 === 3 ? redMaterial : cyanMaterial
+            );
+            core.position.copy(port);
+            core.position.z += 1;
+            core.rotation.z = Math.PI / 4;
+            scene.add(core);
+          });
+
+          if (rightIdx < PANEL_LAYOUT.length) {
+            bridgePoints.push(
+              new THREE.Vector3(PANEL_LAYOUT[leftIdx].x, rowY, PANEL_LAYOUT[leftIdx].z - 8),
+              new THREE.Vector3(0, rowY - 22, -118),
+              new THREE.Vector3(PANEL_LAYOUT[rightIdx].x, rowY, PANEL_LAYOUT[rightIdx].z - 8)
+            );
+          }
+        }
+
+        scene.add(new THREE.LineSegments(new THREE.BufferGeometry().setFromPoints(branchPoints), branchMaterial));
+
+        for (let i = 0; i < bridgePoints.length; i += 3) {
+          const curve = new THREE.CatmullRomCurve3(bridgePoints.slice(i, i + 3));
+          scene.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(curve.getPoints(20)), bridgeMaterial));
+        }
+      }
+
+      // 6. BUILD CSS3D SEMANTIC PROJECT PLANES
+      function buildCSS3DProjects() {
+        PROJECTS.forEach((p, idx) => {
+          const layout = PANEL_LAYOUT[idx];
+          const article = document.createElement('article');
+          article.className = 'project-plane';
+          article.setAttribute('data-qa', 'project-plane');
+          article.setAttribute('data-project-id', p.id);
+          article.setAttribute('data-world-y', layout.y);
+          article.setAttribute('data-world-z', layout.z);
+          article.setAttribute('aria-current', idx === 0 ? 'true' : 'false');
+          article.setAttribute('aria-label', `${p.indexStr}. ${p.title}. ${p.role}`);
+
+          article.innerHTML = `
+            <div class="media-frame" data-qa="media-frame">
+              <img src="${p.thumb}" alt="${p.alt}" loading="lazy" class="panel-img" />
+              <div class="panel-overlay"></div>
+              <span class="panel-play"><span aria-hidden="true">▶</span> Open station</span>
+              <button class="node-hit" type="button" aria-label="Mở station ${p.indexStr}: ${p.title}"></button>
+            </div>
+            <div class="node-caption" aria-hidden="true">
+              <span class="node-index">${p.indexStr}</span>
+              <span class="node-title">${p.title}</span>
+              <span class="node-role">${p.role}</span>
+            </div>
+          `;
+
+          // Alternate thumbnail resolution only; there is no separate presentation mode.
+          const img = article.querySelector('.panel-img');
+          img.onerror = () => {
+            if (p.thumbFallback && img.src !== p.thumbFallback) {
+              img.src = p.thumbFallback;
+            } else {
+              img.removeAttribute('src');
+            }
+          };
+
+          const nodeButton = article.querySelector('.node-hit');
+          nodeButton.addEventListener('click', (event) => {
+            event.stopPropagation();
+            if (state.mode === 'TRANSITIONING') return;
+            goToStation(idx);
+          });
+
+          // CSS3DObject
+          const cssObj = new THREE.CSS3DObject(article);
+          cssObj.position.set(layout.x, layout.y, layout.z);
+          cssObj.rotation.y = layout.yaw;
+          cssObj.scale.setScalar(NODE_SCALE);
+          cssScene.add(cssObj);
+
+          projectPlaneElements.push({ article, cssObj, nodeButton, mediaFrame: article.querySelector('.media-frame') });
+        });
+      }
+
+      // 7. CAMERA MATHEMATICS (Preserves 16:9, exact framing across desktop/mobile portrait)
+      function computeCameraStation(idx) {
+        const layout = PANEL_LAYOUT[idx];
+        const vFovRad = (camera.fov * Math.PI) / 180;
+        const aspect = window.innerWidth / window.innerHeight;
+        const vTan = Math.tan(vFovRad / 2);
+        const hTan = vTan * aspect;
+        let distance;
+        let bias;
+
+        if (aspect >= 1) {
+          distance = (NODE_WORLD_H / 2) / (vTan * 0.50);
+          bias = (2 * distance * vTan) * 0.105;
+        } else {
+          const fill = aspect < 0.60 ? 0.90 : 0.86;
+          distance = (NODE_WORLD_W / 2) / (hTan * fill);
+          bias = (2 * distance * vTan) * 0.19;
+        }
+
+        const targetY = layout.y - bias;
+        const pos = new THREE.Vector3(layout.x, targetY, layout.z + distance);
+        const target = new THREE.Vector3(layout.x, targetY, layout.z);
+        return { pos, target };
+      }
+
+      function clamp(value, min, max) {
+        return Math.min(max, Math.max(min, value));
+      }
+
+      function computeOverviewMetrics() {
+        const aspect = window.innerWidth / window.innerHeight;
+        const vTan = Math.tan((camera.fov * Math.PI / 180) / 2);
+        const hTan = vTan * aspect;
+        const contentHalfWidth = 720;
+        const fill = aspect >= 1 ? 0.80 : aspect < 0.60 ? 0.80 : 0.86;
+        const distance = Math.max(1100, contentHalfWidth / (hTan * fill));
+        const visibleH = 2 * distance * vTan;
+        const worldPerPx = visibleH / window.innerHeight;
+        const articlePx = NODE_WORLD_TOTAL_H / worldPerPx;
+        const topSafe = aspect >= 1 ? 112 : 132;
+        const bottomSafe = aspect >= 1 ? 112 : window.innerWidth <= 520 ? 94 : 110;
+        const topCenter = topSafe + articlePx / 2;
+        const bottomCenter = window.innerHeight - bottomSafe - articlePx / 2;
+        const topY = (topCenter - window.innerHeight / 2) * worldPerPx;
+        const lastY = PANEL_LAYOUT[PANEL_LAYOUT.length - 1].y;
+        const bottomY = lastY + (bottomCenter - window.innerHeight / 2) * worldPerPx;
+
+        if (bottomY >= topY) {
+          const center = lastY / 2;
+          return { distance, worldPerPx, min: center, max: center };
+        }
+        return { distance, worldPerPx, min: bottomY, max: topY };
+      }
+
+      function computeOverviewCamera() {
+        const metrics = computeOverviewMetrics();
+        state.overviewBounds = { min: metrics.min, max: metrics.max, worldPerPx: metrics.worldPerPx };
+        state.overviewScrollY = clamp(state.overviewScrollY, metrics.min, metrics.max);
+        return {
+          pos: new THREE.Vector3(0, state.overviewScrollY, metrics.distance),
+          target: new THREE.Vector3(0, state.overviewScrollY, -80)
+        };
+      }
+
+      function moveOverview(deltaWorld) {
+        const bounds = state.overviewBounds;
+        state.overviewScrollY = clamp(state.overviewScrollY + deltaWorld, bounds.min, bounds.max);
+        const ov = computeOverviewCamera();
+        state.camera.destPos.copy(ov.pos);
+        state.camera.destTarget.copy(ov.target);
+        wakeLoop();
+      }
+
+      // 9. ONE-ACTIVE-PLAYER LIFECYCLE
+      function getEmbedConfig(project) {
+        const driveMatch = project.link.match(/drive\.google\.com\/file\/d\/([^/]+)/);
+        if (driveMatch) {
+          return {
+            src: `https://drive.google.com/file/d/${driveMatch[1]}/preview`,
+            allow: 'encrypted-media; picture-in-picture'
+          };
+        }
+
+        const url = new URL(project.link);
+        const videoId = url.searchParams.get('v');
+        return {
+          src: `https://www.youtube-nocookie.com/embed/${videoId}?playsinline=1&rel=0`,
+          allow: 'accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share'
+        };
+      }
+
+      function unmountActivePlayer() {
+        if (!activePlayer) return;
+        const item = projectPlaneElements[activePlayer.index];
+        activePlayer.iframe.remove();
+        if (item) {
+          item.article.classList.remove('is-playing');
+          item.nodeButton.disabled = false;
+        }
+        activePlayer = null;
+        updatePlaneAriaAttributes(state.mode === 'STATION_LOCKED' ? state.projectIndex : -1);
+      }
+
+      function mountActivePlayer(idx) {
+        if (document.hidden || state.mode !== 'STATION_LOCKED' || idx !== state.projectIndex) return;
+        if (activePlayer && activePlayer.index === idx) return;
+        unmountActivePlayer();
+
+        const project = PROJECTS[idx];
+        const item = projectPlaneElements[idx];
+        const config = getEmbedConfig(project);
+        const iframe = document.createElement('iframe');
+        iframe.className = 'panel-player';
+        iframe.setAttribute('data-qa', 'active-player');
+        iframe.src = config.src;
+        iframe.title = `Video: ${project.title}`;
+        iframe.loading = 'eager';
+        iframe.referrerPolicy = 'strict-origin-when-cross-origin';
+        iframe.allow = config.allow;
+        iframe.allowFullscreen = true;
+        item.mediaFrame.appendChild(iframe);
+        item.article.classList.add('is-playing');
+        item.nodeButton.disabled = true;
+        item.nodeButton.tabIndex = -1;
+        activePlayer = { index: idx, iframe };
+      }
+
+      // 10. SCRIPTED PRESENTER — deterministic simulation, not a remote LLM call
+      function setMetaActionsEnabled(enabled) {
+        const actions = document.querySelector('.meta-actions');
+        actions.inert = !enabled;
+        actions.querySelectorAll('a, button').forEach((control) => {
+          if (enabled) control.removeAttribute('tabindex');
+          else control.setAttribute('tabindex', '-1');
+        });
+      }
+
+      function setPresenterSkipEnabled(enabled) {
+        const skip = document.getElementById('presenter-skip');
+        skip.hidden = !enabled;
+        skip.disabled = !enabled;
+        skip.tabIndex = enabled ? 0 : -1;
+      }
+
+      function cancelPresentation() {
+        state.presentationRun += 1;
+        state.presentationIndex = -1;
+        state.presentationStatus = 'HIDDEN';
+        presentationTimer = null;
+
+        const meta = document.getElementById('project-meta');
+        meta.classList.remove('is-mounted', 'is-open', 'is-streaming', 'is-ready');
+        meta.setAttribute('aria-hidden', 'true');
+        meta.setAttribute('aria-busy', 'false');
+        meta.inert = true;
+        meta.style.setProperty('--stream-progress', '0%');
+        document.getElementById('presenter-state').textContent = 'Scripted guide / standby';
+        document.getElementById('meta-intent').textContent = '';
+        document.getElementById('meta-proof').textContent = '';
+        setPresenterSkipEnabled(false);
+        setMetaActionsEnabled(false);
+      }
+
+      function presentationWait(ms, run) {
+        return new Promise((resolve) => {
+          presentationTimer = setTimeout(() => {
+            presentationTimer = null;
+            resolve(run === state.presentationRun);
+          }, ms);
+        });
+      }
+
+      function presentationTokens(text) {
+        return text.match(/\S+\s*/g) || [text];
+      }
+
+      function finishPresentation(idx, run, announce = true) {
+        if (run !== state.presentationRun || idx !== state.projectIndex || state.mode !== 'STATION_LOCKED') return;
+        const project = PROJECTS[idx];
+        const meta = document.getElementById('project-meta');
+        document.getElementById('meta-intent').textContent = project.intent;
+        document.getElementById('meta-proof').textContent = project.proof;
+        document.getElementById('presenter-state').textContent = 'Scripted guide / ready';
+        meta.style.setProperty('--stream-progress', '100%');
+        meta.classList.remove('is-streaming');
+        meta.classList.add('is-mounted', 'is-open', 'is-ready');
+        meta.setAttribute('aria-busy', 'false');
+        state.presentationStatus = 'READY';
+        setPresenterSkipEnabled(false);
+        setMetaActionsEnabled(true);
+
+        if (announce) {
+          document.getElementById('a11y-live-region').textContent = `Chi tiết tác phẩm ${project.title} đã sẵn sàng.`;
+        }
+      }
+
+      async function streamPresentationText(element, text, run, idx, completed, total) {
+        const tokens = presentationTokens(text);
+        for (const token of tokens) {
+          if (run !== state.presentationRun || idx !== state.projectIndex) return null;
+          element.textContent += token;
+          completed += 1;
+          document.getElementById('project-meta').style.setProperty('--stream-progress', `${Math.round((completed / total) * 100)}%`);
+          if (!(await presentationWait(34, run))) return null;
+        }
+        return completed;
+      }
+
+      async function startPresentation(idx) {
+        const project = PROJECTS[idx];
+        const meta = document.getElementById('project-meta');
+        const run = state.presentationRun + 1;
+        state.presentationRun = run;
+        state.presentationIndex = idx;
+        state.presentationStatus = 'OPENING';
+        meta.inert = false;
+        meta.setAttribute('aria-hidden', 'false');
+        meta.setAttribute('aria-busy', 'true');
+        meta.classList.remove('is-open', 'is-streaming', 'is-ready');
+        meta.classList.add('is-mounted');
+        meta.style.setProperty('--stream-progress', '0%');
+        document.getElementById('presenter-state').textContent = 'Scripted guide / opening';
+        document.getElementById('meta-intent').textContent = '';
+        document.getElementById('meta-proof').textContent = '';
+        setPresenterSkipEnabled(false);
+        setMetaActionsEnabled(false);
+
+        if (prefersReducedMotion) {
+          finishPresentation(idx, run);
+          return;
+        }
+
+        if (!(await presentationWait(24, run))) return;
+        meta.classList.add('is-open');
+        if (!(await presentationWait(360, run))) return;
+
+        state.presentationStatus = 'STREAMING';
+        meta.classList.add('is-streaming');
+        document.getElementById('presenter-state').textContent = 'Scripted guide / presenting';
+        setPresenterSkipEnabled(true);
+        const intentTokens = presentationTokens(project.intent);
+        const proofTokens = presentationTokens(project.proof);
+        const total = intentTokens.length + proofTokens.length;
+        let completed = await streamPresentationText(document.getElementById('meta-intent'), project.intent, run, idx, 0, total);
+        if (completed === null) return;
+        completed = await streamPresentationText(document.getElementById('meta-proof'), project.proof, run, idx, completed, total);
+        if (completed === null) return;
+        finishPresentation(idx, run);
+      }
+
+      // 11. STATION & ROUTE NAVIGATION
+      function goToStation(idx) {
+        if (!PROJECTS[idx] || !state.activeRouteIndices.includes(idx)) return;
+        unmountActivePlayer();
+        cancelPresentation();
+        state.mode = 'TRANSITIONING';
+        state.destinationMode = 'STATION_LOCKED';
+        state.projectIndex = idx;
+        document.body.setAttribute('data-state', 'TRANSITIONING');
+        document.body.setAttribute('data-active-index', idx);
+
+        const targetStation = computeCameraStation(idx);
+        state.camera.destPos.copy(targetStation.pos);
+        state.camera.destTarget.copy(targetStation.target);
+
+        prepareEditorialUI(idx);
+        updatePlaneAriaAttributes(idx);
+
+        // Sync URL Hash without triggering hashchange loop
+        const p = PROJECTS[idx];
+        const newHash = `#${state.currentRoute}/${p.id}`;
+        if (window.location.hash !== newHash) {
+          history.replaceState(null, '', newHash);
+        }
+
+        wakeLoop();
+      }
+
+      function goToOverview() {
+        const wasOverview = state.mode === 'OVERVIEW' || state.destinationMode === 'OVERVIEW';
+        unmountActivePlayer();
+        cancelPresentation();
+        state.mode = 'TRANSITIONING';
+        state.destinationMode = 'OVERVIEW';
+        document.body.setAttribute('data-state', 'TRANSITIONING');
+        document.body.setAttribute('data-active-index', '-1');
+
+        const metrics = computeOverviewMetrics();
+        state.overviewBounds = { min: metrics.min, max: metrics.max, worldPerPx: metrics.worldPerPx };
+        if (!wasOverview) {
+          const focusOverviewY = PANEL_LAYOUT[state.projectIndex].y + metrics.max;
+          state.overviewScrollY = clamp(focusOverviewY, metrics.min, metrics.max);
+        }
+        const ov = computeOverviewCamera();
+        state.camera.destPos.copy(ov.pos);
+        state.camera.destTarget.copy(ov.target);
+
+        updatePlaneAriaAttributes(-1);
+        document.getElementById('servant-text').textContent = 'Operator lattice online. Cuộn theo trục dọc hoặc chọn một node để khóa camera vào project.';
+        document.getElementById('station-counter').textContent = 'Overview Mode';
+
+        const overviewHash = `#${state.currentRoute}/overview`;
+        if (window.location.hash !== overviewHash) {
+          history.replaceState(null, '', overviewHash);
+        }
+
+        wakeLoop();
+      }
+
+      function stepStation(dir) {
+        const routeList = state.activeRouteIndices;
+        const currentPosInRoute = routeList.indexOf(state.projectIndex);
+        let nextPos = currentPosInRoute + dir;
+
+        if (nextPos < 0) nextPos = routeList.length - 1;
+        if (nextPos >= routeList.length) nextPos = 0;
+
+        goToStation(routeList[nextPos]);
+      }
+
+      function setRoute(routeKey, navigate = true) {
+        if (!ROUTE_ORDERS[routeKey]) return false;
+        state.currentRoute = routeKey;
+        document.body.setAttribute('data-route', routeKey);
+
+        document.querySelectorAll('.route-btn').forEach(btn => {
+          const isActive = btn.getAttribute('data-route') === routeKey;
+          btn.classList.toggle('is-active', isActive);
+          btn.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+        });
+
+        // Filter active indices
+        state.activeRouteIndices = ROUTE_ORDERS[routeKey]
+          .map(projectId => PROJECTS.findIndex(project => project.id === projectId))
+          .filter(idx => idx >= 0);
+
+        // Dim off-route planes
+        projectPlaneElements.forEach((item, idx) => {
+          const isOnRoute = state.activeRouteIndices.includes(idx);
+          item.article.classList.toggle('is-dimmed', !isOnRoute);
+        });
+
+        if (!navigate) return true;
+
+        const overviewActive = state.mode === 'OVERVIEW' || state.destinationMode === 'OVERVIEW';
+        updatePlaneAriaAttributes(overviewActive ? -1 : state.projectIndex);
+        if (overviewActive) {
+          history.replaceState(null, '', `#${routeKey}/overview`);
+          return true;
+        }
+
+        // If current project not on route, switch to first project on route
+        if (!state.activeRouteIndices.includes(state.projectIndex)) {
+          goToStation(state.activeRouteIndices[0]);
+        } else {
+          const activeProject = PROJECTS[state.projectIndex];
+          history.replaceState(null, '', `#${routeKey}/${activeProject.id}`);
+        }
+        return true;
+      }
+
+      // 12. EDITORIAL HUD & ACCESSIBILITY SYNC
+      function prepareEditorialUI(idx) {
+        const p = PROJECTS[idx];
+        document.getElementById('meta-tag').textContent = `${p.indexStr} / ${p.title.split('–')[0].split('-')[0].trim().toUpperCase()}`;
+        document.getElementById('meta-role').textContent = p.role;
+        document.getElementById('meta-title').textContent = p.title;
+        document.getElementById('meta-intent').textContent = '';
+        document.getElementById('meta-proof').textContent = '';
+        document.getElementById('action-source').href = p.link;
+        document.getElementById('station-counter').textContent = `Station ${p.indexStr} of 11`;
+        document.getElementById('servant-text').textContent = p.cue;
+      }
+
+      function updatePlaneAriaAttributes(activeIdx) {
+        const latticeInteractive = state.mode === 'OVERVIEW';
+        projectPlaneElements.forEach((item, idx) => {
+          const isActive = idx === activeIdx;
+          const isOnRoute = state.activeRouteIndices.includes(idx);
+          item.article.setAttribute('aria-current', isActive ? 'true' : 'false');
+          item.nodeButton.disabled = !isOnRoute || !latticeInteractive;
+          item.nodeButton.tabIndex = isOnRoute && latticeInteractive ? 0 : -1;
+        });
+      }
+
+      // 13. INPUT HANDLING & EVENT LISTENERS
+      function setupInputHandlers() {
+        // Route buttons
+        document.querySelectorAll('.route-btn').forEach(btn => {
+          btn.addEventListener('click', () => setRoute(btn.getAttribute('data-route')));
+        });
+
+        // Navigation dock
+        document.querySelector('[data-action="prev"]').addEventListener('click', () => stepStation(-1));
+        document.querySelector('[data-action="next"]').addEventListener('click', () => stepStation(1));
+        document.querySelector('[data-action="overview"]').addEventListener('click', () => goToOverview());
+        document.getElementById('presenter-skip').addEventListener('click', () => {
+          const run = state.presentationRun + 1;
+          state.presentationRun = run;
+          finishPresentation(state.projectIndex, run);
+        });
+
+        // Keyboard Controls
+        window.addEventListener('keydown', (e) => {
+          if (e.target.closest && e.target.closest('button, a, input, textarea, select, [contenteditable="true"]')) return;
+
+          const overviewActive = state.mode === 'OVERVIEW' || state.destinationMode === 'OVERVIEW';
+          if (overviewActive) {
+            switch (e.key) {
+              case 'ArrowDown':
+                e.preventDefault();
+                moveOverview(-390);
+                return;
+              case 'ArrowUp':
+                e.preventDefault();
+                moveOverview(390);
+                return;
+              case 'PageDown':
+                e.preventDefault();
+                moveOverview(-780);
+                return;
+              case 'PageUp':
+                e.preventDefault();
+                moveOverview(780);
+                return;
+              case 'Home':
+                e.preventDefault();
+                moveOverview(state.overviewBounds.max - state.overviewScrollY);
+                return;
+              case 'End':
+                e.preventDefault();
+                moveOverview(state.overviewBounds.min - state.overviewScrollY);
+                return;
+            }
+          }
+
+          switch (e.key) {
+            case 'ArrowRight':
+              e.preventDefault();
+              stepStation(1);
+              break;
+            case 'ArrowLeft':
+              e.preventDefault();
+              stepStation(-1);
+              break;
+            case 'Escape':
+              e.preventDefault();
+              goToOverview();
+              break;
+          }
+        });
+
+        // Pointer Parallax Drift (Lusion Invariant: <= 1.8deg yaw / 1.2deg pitch)
+        let lastPointerTime = 0;
+        window.addEventListener('pointermove', (e) => {
+          if (prefersReducedMotion) return;
+          const now = performance.now();
+          if (now - lastPointerTime < 33) return; // Throttled to ~30Hz
+          lastPointerTime = now;
+
+          const normX = (e.clientX / window.innerWidth) * 2 - 1;
+          const normY = (e.clientY / window.innerHeight) * 2 - 1;
+
+          // Yaw max 1.8deg (0.0314 rad), Pitch max 1.2deg (0.0209 rad)
+          state.camera.targetDriftYaw = -normX * 0.0314;
+          state.camera.targetDriftPitch = normY * 0.0209;
+
+          wakeLoop();
+        }, { passive: true });
+
+        // Wheel pans the long overview; focus mode retains discrete station stepping.
+        let lastWheelTime = 0;
+        window.addEventListener('wheel', (e) => {
+          if (e.target.closest('.hud-footer') || e.target.closest('.project-meta') || e.target.closest('.route-picker')) return;
+          const overviewActive = state.mode === 'OVERVIEW' || state.destinationMode === 'OVERVIEW';
+          if (overviewActive) {
+            e.preventDefault();
+            moveOverview(-e.deltaY * state.overviewBounds.worldPerPx * 0.82);
+            return;
+          }
+
+          const now = performance.now();
+          if (now - lastWheelTime < 420) return;
+          lastWheelTime = now;
+
+          if (e.deltaY > 20) stepStation(1);
+          else if (e.deltaY < -20) stepStation(-1);
+        }, { passive: false });
+
+        // Mobile Horizontal Swipe
+        let touchStartX = 0;
+        let touchStartY = 0;
+        window.addEventListener('touchstart', (e) => {
+          if (e.touches.length === 1) {
+            touchStartX = e.touches[0].clientX;
+            touchStartY = e.touches[0].clientY;
+          }
+        }, { passive: true });
+
+        window.addEventListener('touchend', (e) => {
+          if (e.changedTouches.length === 1) {
+            const dx = e.changedTouches[0].clientX - touchStartX;
+            const dy = e.changedTouches[0].clientY - touchStartY;
+            const overviewActive = state.mode === 'OVERVIEW' || state.destinationMode === 'OVERVIEW';
+            if (overviewActive && Math.abs(dy) > 34 && Math.abs(dy) > Math.abs(dx) * 1.1) {
+              moveOverview(dy * state.overviewBounds.worldPerPx);
+              return;
+            }
+            if (Math.abs(dx) > 48 && Math.abs(dx) > Math.abs(dy) * 1.4) {
+              if (dx < 0) stepStation(1);
+              else stepStation(-1);
+            }
+          }
+        }, { passive: true });
+
+        // Window Resize
+        window.addEventListener('resize', onWindowResize);
+
+        // Visibility Change / Tab Sleep
+        document.addEventListener('visibilitychange', () => {
+          state.isTabHidden = document.hidden;
+          if (state.isTabHidden) {
+            unmountActivePlayer();
+            cancelPresentation();
+            return;
+          }
+          if (state.mode === 'STATION_LOCKED') {
+            prepareEditorialUI(state.projectIndex);
+            mountActivePlayer(state.projectIndex);
+            startPresentation(state.projectIndex);
+          }
+          wakeLoop();
+        });
+
+        reduceMotionQuery.addEventListener('change', (event) => {
+          prefersReducedMotion = event.matches;
+          if (prefersReducedMotion) {
+            state.camera.driftYaw = 0;
+            state.camera.driftPitch = 0;
+            state.camera.targetDriftYaw = 0;
+            state.camera.targetDriftPitch = 0;
+          }
+          if (prefersReducedMotion && ['OPENING', 'STREAMING'].includes(state.presentationStatus)) {
+            const run = state.presentationRun + 1;
+            state.presentationRun = run;
+            finishPresentation(state.projectIndex, run);
+          }
+          wakeLoop();
+        });
+
+        // Hash change listener
+        window.addEventListener('hashchange', handleHashChange);
+      }
+
+      function handleHashChange() {
+        const hash = window.location.hash.replace('#', '').trim();
+        if (!hash || hash === 'overview') {
+          if (state.currentRoute !== 'all') setRoute('all', false);
+          goToOverview();
+          return;
+        }
+
+        const parts = hash.split('/');
+        if (parts.length === 2) {
+          const route = parts[0];
+          const projectId = parts[1];
+          if (ROUTE_ORDERS[route] && projectId === 'overview') {
+            if (route !== state.currentRoute) setRoute(route, false);
+            goToOverview();
+            return;
+          }
+          const foundIdx = PROJECTS.findIndex(p => p.id === projectId);
+          if (ROUTE_ORDERS[route] && foundIdx !== -1) {
+            if (route !== state.currentRoute) setRoute(route, false);
+            const targetIdx = state.activeRouteIndices.includes(foundIdx)
+              ? foundIdx
+              : state.activeRouteIndices[0];
+            goToStation(targetIdx);
+            return;
+          }
+        }
+
+        if (state.currentRoute !== 'all') setRoute('all', false);
+        goToOverview();
+      }
+
+      function onWindowResize() {
+        const w = window.innerWidth;
+        const h = window.innerHeight;
+
+        camera.aspect = w / h;
+        camera.updateProjectionMatrix();
+
+        webglRenderer.setSize(w, h);
+        const dpr = Math.min(window.devicePixelRatio || 1, isMobile() ? 1.25 : 1.5);
+        webglRenderer.setPixelRatio(dpr);
+
+        cssRenderer.setSize(w, h);
+
+        // Recompute target destination on resize
+        if (state.mode === 'STATION_LOCKED' || (state.mode === 'TRANSITIONING' && state.destinationMode === 'STATION_LOCKED')) {
+          const targetStation = computeCameraStation(state.projectIndex);
+          state.camera.destPos.copy(targetStation.pos);
+          state.camera.destTarget.copy(targetStation.target);
+        } else if (state.mode === 'OVERVIEW' || state.destinationMode === 'OVERVIEW') {
+          const ov = computeOverviewCamera();
+          state.camera.destPos.copy(ov.pos);
+          state.camera.destTarget.copy(ov.target);
+        }
+
+        wakeLoop();
+      }
+
+      // 12. RENDER LOOP & SLEEP MANAGEMENT (Model Weisdevice)
+      function wakeLoop() {
+        state.isSettled = false;
+        if (!state.rafId && !state.isTabHidden) {
+          state.rafId = requestAnimationFrame(animate);
+        }
+      }
+
+      function animate() {
+        if (state.isTabHidden) {
+          state.rafId = null;
+          return;
+        }
+
+        // Smooth Camera Interpolation
+        const lerpFactor = prefersReducedMotion ? 1.0 : 0.075;
+        state.camera.pos.lerp(state.camera.destPos, lerpFactor);
+        state.camera.target.lerp(state.camera.destTarget, lerpFactor);
+
+        // Drift damping
+        if (prefersReducedMotion) {
+          state.camera.driftYaw = 0;
+          state.camera.driftPitch = 0;
+        } else {
+          state.camera.driftYaw += (state.camera.targetDriftYaw - state.camera.driftYaw) * 0.08;
+          state.camera.driftPitch += (state.camera.targetDriftPitch - state.camera.driftPitch) * 0.08;
+        }
+
+        // Apply camera transforms
+        camera.position.copy(state.camera.pos);
+        camera.lookAt(state.camera.target);
+
+        // Add subtle restrained rotation drift
+        camera.rotation.y += state.camera.driftYaw;
+        camera.rotation.x += state.camera.driftPitch;
+
+        // Render both scenes sharing camera
+        webglRenderer.render(scene, camera);
+        cssRenderer.render(cssScene, camera);
+
+        // Check settling condition
+        const posDist = state.camera.pos.distanceTo(state.camera.destPos);
+        const targetDist = state.camera.target.distanceTo(state.camera.destTarget);
+        const driftDiff = Math.abs(state.camera.driftYaw - state.camera.targetDriftYaw);
+
+        if (state.mode === 'TRANSITIONING' && posDist < 1.0 && targetDist < 1.0) {
+          state.mode = state.destinationMode;
+          document.body.setAttribute('data-state', state.destinationMode);
+          if (state.destinationMode === 'STATION_LOCKED') {
+            updatePlaneAriaAttributes(state.projectIndex);
+            mountActivePlayer(state.projectIndex);
+            startPresentation(state.projectIndex);
+          } else {
+            updatePlaneAriaAttributes(-1);
+          }
+        }
+
+        if (posDist < 0.2 && targetDist < 0.2 && driftDiff < 0.0002) {
+          state.isSettled = true;
+          state.rafId = null;
+          return; // Stop RAF loop to save battery and GPU
+        }
+
+        state.rafId = requestAnimationFrame(animate);
+      }
+
+      // Start
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+      } else {
+        init();
+      }
+
+    })();
+  </script>
+</body>
+</html>

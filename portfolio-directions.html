@@ -1,0 +1,1469 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#070908">
+  <title>Spatial Portfolio Directions — Minato Makoto</title>
+  <meta name="description" content="Ba thử nghiệm portfolio 2D mang cảm giác không gian 3D: diorama, infinite artboard và depth corridor.">
+  <link rel="icon" type="image/x-icon" href="src/assets/20250910_091520.ico">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://i.ytimg.com">
+  <link rel="preconnect" href="https://drive.google.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Instrument+Serif:ital@0;1&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      color-scheme: dark;
+      --bar-h: 66px;
+      --acid: #c9ff3d;
+      --ice: #8ddcff;
+      --warm: #ff7658;
+      --paper: #eee8dc;
+      --ease: cubic-bezier(.2,.8,.2,1);
+    }
+
+    * { box-sizing: border-box; }
+    html, body { width: 100%; height: 100%; }
+    body {
+      margin: 0;
+      overflow: hidden;
+      background: #070908;
+      color: #f3f4ee;
+      font-family: "DM Sans", system-ui, sans-serif;
+    }
+
+    button, a { font: inherit; }
+    button { color: inherit; }
+    button:focus-visible, a:focus-visible { outline: 2px solid currentColor; outline-offset: 4px; }
+
+    .topbar {
+      position: fixed;
+      z-index: 100;
+      inset: 0 0 auto;
+      height: var(--bar-h);
+      display: grid;
+      grid-template-columns: minmax(180px,1fr) auto minmax(180px,1fr);
+      align-items: center;
+      gap: 18px;
+      padding: 0 20px;
+      border-bottom: 1px solid rgba(255,255,255,.13);
+      background: rgba(5,7,6,.88);
+      backdrop-filter: blur(18px);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      min-width: 0;
+      font: 500 10px/1.2 "IBM Plex Mono", monospace;
+      letter-spacing: .11em;
+      text-transform: uppercase;
+    }
+
+    .brand::before {
+      content: "";
+      width: 8px;
+      height: 8px;
+      flex: 0 0 auto;
+      border-radius: 50%;
+      background: var(--acid);
+      box-shadow: 0 0 16px rgba(201,255,61,.8);
+    }
+
+    .brand span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+    .tabs {
+      display: flex;
+      gap: 3px;
+      padding: 4px;
+      border: 1px solid rgba(255,255,255,.14);
+      border-radius: 999px;
+      background: rgba(255,255,255,.04);
+    }
+
+    .tab {
+      height: 36px;
+      padding: 0 15px;
+      border: 0;
+      border-radius: 999px;
+      background: transparent;
+      color: rgba(255,255,255,.48);
+      cursor: pointer;
+      font: 500 10px/1 "IBM Plex Mono", monospace;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      transition: color .2s ease, background .25s ease;
+    }
+
+    .tab:hover { color: #fff; }
+    .tab[aria-selected="true"] { background: #f2f2ec; color: #0a0b0a; }
+
+    .top-actions { display: flex; align-items: center; justify-content: flex-end; gap: 9px; }
+    .mode-hint {
+      color: rgba(255,255,255,.42);
+      font: 500 9px/1 "IBM Plex Mono", monospace;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+
+    .back-link {
+      min-height: 34px;
+      display: inline-flex;
+      align-items: center;
+      padding: 0 12px;
+      border: 1px solid rgba(255,255,255,.16);
+      border-radius: 999px;
+      color: rgba(255,255,255,.72);
+      font-size: 11px;
+      text-decoration: none;
+    }
+
+    .stage { position: fixed; inset: var(--bar-h) 0 0; overflow: hidden; }
+    .prototype {
+      position: absolute;
+      inset: 0;
+      visibility: hidden;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .35s ease, visibility 0s linear .35s;
+    }
+
+    .prototype.is-active {
+      visibility: visible;
+      opacity: 1;
+      pointer-events: auto;
+      transition-delay: 0s;
+    }
+
+    .eyebrow {
+      font: 500 9px/1.4 "IBM Plex Mono", monospace;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+    }
+
+    .glass {
+      border: 1px solid rgba(255,255,255,.17);
+      background: rgba(8,10,9,.72);
+      backdrop-filter: blur(16px);
+      box-shadow: 0 22px 60px rgba(0,0,0,.32);
+    }
+
+    /* 01 — Spatial Diorama */
+    .spatial { background: radial-gradient(circle at 50% 45%, #17201d 0, #090d0b 46%, #040504 100%); }
+    .spatial-viewport {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+      perspective: 1150px;
+      cursor: grab;
+      touch-action: none;
+    }
+
+    .spatial-viewport.is-dragging { cursor: grabbing; }
+    .spatial-vignette, .spatial-scan {
+      position: absolute;
+      z-index: 12;
+      inset: 0;
+      pointer-events: none;
+    }
+    .spatial-vignette { box-shadow: inset 0 0 180px 65px rgba(0,0,0,.66); }
+    .spatial-scan { opacity: .11; background: repeating-linear-gradient(0deg, transparent 0 4px, rgba(255,255,255,.07) 4px 5px); }
+
+    .spatial-scene {
+      position: absolute;
+      z-index: 2;
+      inset: 0;
+      transform-style: preserve-3d;
+      transform-origin: 50% 50%;
+      will-change: transform;
+      transition: transform 1.05s var(--ease);
+    }
+
+    .spatial-viewport.is-dragging .spatial-scene { transition: none; }
+
+    .space-backdrop {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: 1900px;
+      height: 1100px;
+      margin: -550px 0 0 -950px;
+      transform: translateZ(-1050px);
+      border: 1px solid rgba(201,255,61,.09);
+      background:
+        linear-gradient(rgba(201,255,61,.045) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(201,255,61,.045) 1px, transparent 1px),
+        radial-gradient(circle at 52% 48%, rgba(201,255,61,.08), transparent 56%);
+      background-size: 80px 80px, 80px 80px, auto;
+    }
+
+    .space-floor {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: 2400px;
+      height: 1900px;
+      margin: -60px 0 0 -1200px;
+      transform: translate3d(0, 360px, -420px) rotateX(86deg);
+      transform-origin: 50% 0;
+      background:
+        linear-gradient(rgba(201,255,61,.09) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(201,255,61,.09) 1px, transparent 1px);
+      background-size: 100px 100px;
+      mask-image: linear-gradient(#000 0 34%, transparent 83%);
+    }
+
+    .space-axis {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: 1px;
+      height: 1200px;
+      transform: translate3d(0,-580px,-850px);
+      background: linear-gradient(transparent, rgba(201,255,61,.35), transparent);
+    }
+
+    .project-plane {
+      --x: 0px;
+      --y: 0px;
+      --z: 0px;
+      --ry: 0deg;
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: 390px;
+      height: 270px;
+      margin: -135px 0 0 -195px;
+      transform: translate3d(var(--x), var(--y), var(--z)) rotateY(var(--ry));
+      transform-style: preserve-3d;
+      transition: filter .3s ease, opacity .3s ease, box-shadow .3s ease;
+    }
+
+    .project-plane::before {
+      content: "";
+      position: absolute;
+      inset: 16px -14px -14px 16px;
+      transform: translateZ(-38px);
+      border: 1px solid rgba(201,255,61,.2);
+      background: rgba(6,11,8,.5);
+      box-shadow: 0 35px 70px rgba(0,0,0,.42);
+    }
+
+    .plane-button {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      display: grid;
+      grid-template-rows: 1fr auto;
+      padding: 0;
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,.23);
+      background: #0c100e;
+      color: #fff;
+      text-align: left;
+      cursor: pointer;
+      box-shadow: 0 30px 80px rgba(0,0,0,.3);
+      transform: translateZ(0);
+      transition: transform .38s var(--ease), border-color .3s ease, box-shadow .3s ease;
+    }
+
+    .project-plane:hover .plane-button, .project-plane.is-selected .plane-button {
+      transform: translateZ(42px);
+      border-color: var(--acid);
+      box-shadow: 0 0 0 1px rgba(201,255,61,.12), 0 34px 90px rgba(0,0,0,.48), 0 0 35px rgba(201,255,61,.1);
+    }
+
+    .project-plane.is-muted { filter: saturate(.35) brightness(.5); opacity: .55; }
+    .plane-image { position: relative; min-height: 0; overflow: hidden; }
+    .plane-image img { width: 100%; height: 100%; object-fit: cover; filter: saturate(.82) contrast(1.08); transition: transform .8s var(--ease); }
+    .project-plane:hover img { transform: scale(1.055); }
+    .plane-image::after { content: ""; position: absolute; inset: 0; background: linear-gradient(0deg, rgba(5,8,6,.55), transparent 60%); }
+    .plane-number { position: absolute; z-index: 2; top: 12px; right: 12px; color: var(--acid); font: 500 9px/1 "IBM Plex Mono", monospace; }
+
+    .plane-copy { padding: 13px 15px 15px; border-top: 1px solid rgba(255,255,255,.13); }
+    .plane-copy small { display: block; margin-bottom: 6px; color: var(--acid); font: 500 8px/1.2 "IBM Plex Mono", monospace; letter-spacing: .1em; text-transform: uppercase; }
+    .plane-copy strong { display: block; font: 600 22px/.95 "Space Grotesk", sans-serif; letter-spacing: -.035em; }
+    .plane-copy span { display: block; margin-top: 7px; color: rgba(255,255,255,.54); font-size: 10px; }
+
+    .spatial-hud {
+      position: absolute;
+      z-index: 20;
+      inset: 24px 26px auto;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      pointer-events: none;
+    }
+
+    .spatial-title h1 { margin: 9px 0 0; font: 400 clamp(38px,5.4vw,76px)/.84 "Instrument Serif", serif; letter-spacing: -.045em; }
+    .spatial-title h1 em { color: var(--acid); font-weight: 400; }
+    .spatial-instruction { max-width: 230px; color: rgba(255,255,255,.46); font: 500 9px/1.6 "IBM Plex Mono", monospace; text-align: right; text-transform: uppercase; }
+
+    .spatial-depth {
+      position: absolute;
+      z-index: 20;
+      top: 145px;
+      right: 28px;
+      width: 52px;
+      display: grid;
+      gap: 8px;
+      pointer-events: none;
+    }
+    .depth-mark { display: flex; align-items: center; justify-content: flex-end; gap: 7px; color: rgba(255,255,255,.28); font: 500 8px/1 "IBM Plex Mono", monospace; }
+    .depth-mark::after { content: ""; width: 14px; height: 1px; background: currentColor; }
+    .depth-mark:nth-child(4n)::after { width: 25px; color: var(--acid); }
+
+    .spatial-servant {
+      position: absolute;
+      z-index: 30;
+      left: 26px;
+      right: 26px;
+      bottom: 24px;
+      display: grid;
+      grid-template-columns: 136px minmax(240px, 620px) auto;
+      align-items: center;
+      gap: 18px;
+      min-height: 96px;
+      padding: 15px 16px;
+      pointer-events: auto;
+    }
+
+    .servant-name { align-self: stretch; display: flex; flex-direction: column; justify-content: space-between; padding-right: 16px; border-right: 1px solid rgba(255,255,255,.15); color: var(--acid); font: 500 8px/1.4 "IBM Plex Mono", monospace; letter-spacing: .13em; text-transform: uppercase; }
+    .servant-name strong { color: #fff; font-size: 12px; letter-spacing: .05em; }
+    .spatial-servant p { margin: 0; font: 400 clamp(16px,1.5vw,22px)/1.25 "Instrument Serif", serif; }
+    .servant-actions { display: flex; gap: 7px; justify-self: end; }
+    .hud-button { min-height: 38px; padding: 0 13px; border: 1px solid rgba(255,255,255,.2); background: transparent; color: rgba(255,255,255,.75); cursor: pointer; font: 500 9px/1 "IBM Plex Mono", monospace; text-transform: uppercase; }
+    .hud-button.primary { border-color: var(--acid); background: var(--acid); color: #0d1308; }
+
+    /* 02 — Infinite Artboard */
+    .artboard { background: #d8d2c5; color: #161815; }
+    .artboard-viewport {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+      perspective: 1400px;
+      cursor: grab;
+      touch-action: none;
+    }
+    .artboard-viewport.is-dragging { cursor: grabbing; }
+    .artboard-camera { position: absolute; inset: 0; transform-style: preserve-3d; will-change: transform; transition: transform .3s ease-out; }
+    .artboard-world { position: absolute; width: 2300px; height: 1500px; transform-origin: 0 0; transform-style: preserve-3d; will-change: transform; }
+    .artboard-world.is-animating { transition: transform .9s var(--ease); }
+    .artboard-canvas { position: absolute; inset: 0; width: 2300px; height: 1500px; pointer-events: none; }
+
+    .board {
+      --z: 20px;
+      --r: 0deg;
+      position: absolute;
+      width: 460px;
+      border: 1px solid rgba(18,20,17,.35);
+      background: #f2ede3;
+      box-shadow: 0 28px 58px rgba(37,31,24,.22);
+      transform: translateZ(var(--z)) rotateZ(var(--r));
+      transform-style: preserve-3d;
+      transition: transform .4s var(--ease), box-shadow .4s ease;
+    }
+    .board:hover, .board.is-selected { transform: translateZ(calc(var(--z) + 70px)) rotateZ(var(--r)); box-shadow: 0 48px 85px rgba(37,31,24,.3); z-index: 8; }
+    .board button { display: block; width: 100%; padding: 0; border: 0; background: transparent; color: inherit; text-align: left; cursor: pointer; }
+    .board-image { position: relative; height: 240px; overflow: hidden; background: #222; }
+    .board-image img { width: 100%; height: 100%; object-fit: cover; filter: saturate(.82) contrast(1.05); transition: transform .8s var(--ease); }
+    .board:hover img { transform: scale(1.04); }
+    .board-index { position: absolute; top: 12px; left: 12px; padding: 5px 7px; background: #161815; color: #fff; font: 500 8px/1 "IBM Plex Mono", monospace; }
+    .board-body { display: grid; grid-template-columns: 1fr auto; gap: 16px; padding: 18px; }
+    .board-body small { display: block; margin-bottom: 7px; color: #e4492d; font: 600 8px/1 "IBM Plex Mono", monospace; letter-spacing: .1em; text-transform: uppercase; }
+    .board-body h2 { margin: 0; font: 400 40px/.85 "Instrument Serif", serif; letter-spacing: -.035em; }
+    .board-body p { margin: 12px 0 0; max-width: 39ch; color: rgba(22,24,21,.62); font-size: 11px; line-height: 1.55; }
+    .board-proof { align-self: start; padding-left: 14px; border-left: 1px solid rgba(22,24,21,.22); font: 500 8px/1.6 "IBM Plex Mono", monospace; text-align: right; text-transform: uppercase; white-space: nowrap; }
+
+    .board-note {
+      position: absolute;
+      width: 210px;
+      min-height: 150px;
+      padding: 18px;
+      background: #c8ff43;
+      color: #11150d;
+      box-shadow: 0 25px 45px rgba(42,45,28,.16);
+      transform: translateZ(90px) rotateZ(-3deg);
+      font: 500 12px/1.55 "IBM Plex Mono", monospace;
+    }
+    .board-note b { display: block; margin-bottom: 12px; font-size: 9px; letter-spacing: .1em; text-transform: uppercase; }
+
+    .servant-cursor {
+      position: absolute;
+      z-index: 12;
+      width: 126px;
+      height: 126px;
+      display: grid;
+      place-items: center;
+      border: 1px solid #e4492d;
+      border-radius: 50%;
+      background: rgba(228,73,45,.08);
+      color: #e4492d;
+      transform: translateZ(135px);
+      box-shadow: 0 0 0 18px rgba(228,73,45,.06), 0 25px 40px rgba(32,27,22,.14);
+      pointer-events: none;
+      transition: left .85s var(--ease), top .85s var(--ease);
+      font: 600 10px/1.2 "IBM Plex Mono", monospace;
+      letter-spacing: .08em;
+      text-align: center;
+      text-transform: uppercase;
+    }
+    .servant-cursor::after { content: ""; position: absolute; width: 190px; height: 1px; left: 92px; top: 62px; background: #e4492d; transform-origin: 0 50%; transform: rotate(-25deg); }
+
+    .artboard-hud {
+      position: absolute;
+      z-index: 30;
+      inset: 22px 24px auto;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      pointer-events: none;
+    }
+    .artboard-title h1 { margin: 8px 0 0; font: 400 clamp(40px,5.5vw,76px)/.82 "Instrument Serif", serif; letter-spacing: -.04em; }
+    .artboard-title em { color: #e4492d; font-weight: 400; }
+
+    .artboard-minimap { position: relative; width: 158px; height: 98px; border: 1px solid rgba(22,24,21,.45); background: rgba(242,237,227,.78); box-shadow: 0 15px 35px rgba(33,28,23,.1); }
+    .mini-node { position: absolute; width: 24px; height: 14px; border: 1px solid #161815; background: rgba(22,24,21,.12); }
+    .mini-view { position: absolute; left: 24px; top: 19px; width: 78px; height: 52px; border: 1px solid #e4492d; transition: transform .4s ease; }
+
+    .artboard-dock {
+      position: absolute;
+      z-index: 35;
+      left: 24px;
+      right: 24px;
+      bottom: 22px;
+      display: grid;
+      grid-template-columns: minmax(280px,620px) auto;
+      align-items: center;
+      gap: 18px;
+      padding: 14px 16px;
+      border: 1px solid rgba(22,24,21,.35);
+      background: rgba(242,237,227,.86);
+      color: #161815;
+      box-shadow: 0 22px 65px rgba(43,36,28,.2);
+      backdrop-filter: blur(14px);
+    }
+    .artboard-dialogue { display: grid; grid-template-columns: auto 1fr; gap: 14px; align-items: center; }
+    .artboard-glyph { display: grid; place-items: center; width: 42px; height: 42px; border: 1px solid #e4492d; border-radius: 50%; color: #e4492d; }
+    .artboard-dialogue p { margin: 0; font: 400 17px/1.2 "Instrument Serif", serif; }
+    .route-buttons { display: flex; gap: 6px; justify-self: end; }
+    .route-chip { min-height: 36px; padding: 0 11px; border: 1px solid rgba(22,24,21,.25); background: transparent; color: rgba(22,24,21,.55); cursor: pointer; font: 500 8px/1 "IBM Plex Mono", monospace; text-transform: uppercase; }
+    .route-chip[aria-current="true"] { border-color: #161815; background: #161815; color: #f2ede3; }
+
+    /* 03 — Z-axis Corridor */
+    .corridor { background: radial-gradient(circle at 50% 44%, #251f24 0, #0c0b0f 55%, #050507 100%); }
+    .corridor-viewport { position: absolute; inset: 0; overflow: hidden; perspective: 1250px; touch-action: none; }
+    .corridor-viewport::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(90deg, transparent 49.94%, rgba(141,220,255,.2) 50%, transparent 50.06%),
+        linear-gradient(0deg, transparent 49.94%, rgba(141,220,255,.08) 50%, transparent 50.06%);
+      pointer-events: none;
+    }
+    .corridor-world { position: absolute; inset: 0; transform-style: preserve-3d; }
+
+    .corridor-card {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: min(980px,72vw);
+      height: min(590px,70vh);
+      margin: 0;
+      display: grid;
+      grid-template-columns: 58% 42%;
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,.2);
+      background: #ebe5da;
+      color: #171719;
+      box-shadow: 0 45px 110px rgba(0,0,0,.48);
+      transform-style: preserve-3d;
+      backface-visibility: hidden;
+      will-change: transform, opacity, filter;
+      transition: transform .9s var(--ease), opacity .65s ease, filter .65s ease;
+    }
+    .corridor-card:not(.is-active) { pointer-events: none; }
+    .corridor-card.is-active { pointer-events: auto; }
+    .corridor-media { position: relative; min-width: 0; overflow: hidden; background: #111; }
+    .corridor-media img { width: 100%; height: 100%; object-fit: cover; filter: saturate(.82) contrast(1.07); }
+    .corridor-media::after { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, transparent 62%, rgba(0,0,0,.3)); }
+    .corridor-count { position: absolute; z-index: 2; top: 18px; left: 18px; padding: 6px 8px; border: 1px solid rgba(255,255,255,.45); background: rgba(0,0,0,.35); color: #fff; font: 500 9px/1 "IBM Plex Mono", monospace; }
+
+    .corridor-copy { display: flex; flex-direction: column; padding: clamp(24px,3vw,46px); }
+    .corridor-copy .eyebrow { color: #e54d36; }
+    .corridor-copy h2 { margin: 18px 0 15px; font: 400 clamp(46px,5.8vw,82px)/.82 "Instrument Serif", serif; letter-spacing: -.045em; }
+    .corridor-copy h2 em { color: #e54d36; font-weight: 400; }
+    .corridor-copy > p { margin: 0; color: rgba(23,23,25,.64); font-size: 12px; line-height: 1.65; }
+    .case-ledger { display: grid; margin: auto 0 0; padding: 0; list-style: none; }
+    .case-ledger li { display: grid; grid-template-columns: 72px 1fr; gap: 12px; padding: 11px 0; border-top: 1px solid rgba(23,23,25,.18); font-size: 10px; line-height: 1.45; }
+    .case-ledger b { color: #e54d36; font: 600 8px/1.5 "IBM Plex Mono", monospace; text-transform: uppercase; }
+
+    .corridor-header { position: absolute; z-index: 30; top: 24px; left: 27px; pointer-events: none; }
+    .corridor-header h1 { margin: 8px 0 0; font: 400 clamp(38px,5vw,70px)/.85 "Instrument Serif", serif; letter-spacing: -.04em; }
+    .corridor-header h1 em { color: var(--ice); font-weight: 400; }
+
+    .corridor-rail {
+      position: absolute;
+      z-index: 35;
+      top: 50%;
+      right: 27px;
+      transform: translateY(-50%);
+      display: grid;
+      gap: 10px;
+    }
+    .rail-button { width: 56px; height: 45px; display: grid; place-items: center; border: 1px solid rgba(255,255,255,.2); background: rgba(6,7,9,.62); color: rgba(255,255,255,.42); cursor: pointer; font: 500 9px/1 "IBM Plex Mono", monospace; backdrop-filter: blur(10px); }
+    .rail-button[aria-current="true"] { border-color: var(--ice); background: var(--ice); color: #071016; box-shadow: 0 0 28px rgba(141,220,255,.2); }
+
+    .corridor-servant {
+      position: absolute;
+      z-index: 35;
+      left: 27px;
+      right: 102px;
+      bottom: 22px;
+      display: grid;
+      grid-template-columns: 110px minmax(240px,650px) auto;
+      align-items: center;
+      gap: 16px;
+      min-height: 76px;
+      padding: 12px 14px;
+      pointer-events: auto;
+    }
+    .corridor-servant .servant-name { color: var(--ice); }
+    .corridor-servant p { margin: 0; font: 400 17px/1.25 "Instrument Serif", serif; }
+    .corridor-next { min-height: 38px; padding: 0 13px; border: 1px solid var(--ice); background: var(--ice); color: #071016; cursor: pointer; font: 600 9px/1 "IBM Plex Mono", monospace; text-transform: uppercase; }
+    .wheel-cue { position: absolute; z-index: 30; right: 26px; bottom: 25px; color: rgba(255,255,255,.36); font: 500 8px/1.5 "IBM Plex Mono", monospace; text-align: right; text-transform: uppercase; }
+
+    /* 04 — Node Narrative */
+    .narrative {
+      --node-accent: #bfff3f;
+      background:
+        radial-gradient(circle at 50% 37%, rgba(38,70,58,.78), transparent 42%),
+        linear-gradient(135deg, #050b08, #090c0b 46%, #050506);
+    }
+
+    .node-viewport {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+      perspective: 1180px;
+      cursor: grab;
+      touch-action: none;
+    }
+    .node-viewport.is-dragging { cursor: grabbing; }
+
+    .node-scene {
+      position: absolute;
+      inset: 0;
+      z-index: 2;
+      transform-style: preserve-3d;
+      transform-origin: 50% 44%;
+      will-change: transform;
+      transition: transform 1s var(--ease);
+    }
+    .node-viewport.is-dragging .node-scene { transition: none; }
+
+    .node-grid {
+      position: absolute;
+      left: 50%;
+      top: 44%;
+      width: 1900px;
+      height: 1050px;
+      margin: -525px 0 0 -950px;
+      transform: translateZ(-950px);
+      border: 1px solid rgba(191,255,63,.09);
+      background:
+        linear-gradient(rgba(191,255,63,.045) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(191,255,63,.045) 1px, transparent 1px),
+        radial-gradient(circle, rgba(191,255,63,.08), transparent 57%);
+      background-size: 72px 72px, 72px 72px, auto;
+    }
+
+    .node-floor {
+      position: absolute;
+      left: 50%;
+      top: 44%;
+      width: 2200px;
+      height: 1600px;
+      margin: 30px 0 0 -1100px;
+      transform: translate3d(0,330px,-520px) rotateX(87deg);
+      transform-origin: 50% 0;
+      background:
+        linear-gradient(rgba(191,255,63,.08) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(191,255,63,.08) 1px, transparent 1px);
+      background-size: 90px 90px;
+      mask-image: linear-gradient(#000, transparent 82%);
+    }
+
+    .node-edge {
+      position: absolute;
+      left: 50%;
+      top: 44%;
+      height: 2px;
+      transform-origin: 0 50%;
+      background: rgba(197,225,212,.15);
+      box-shadow: 0 0 5px rgba(197,225,212,.08);
+      opacity: .48;
+      transition: background .35s ease, box-shadow .35s ease, opacity .35s ease, height .35s ease;
+      pointer-events: none;
+    }
+    .node-edge::before, .node-edge::after {
+      content: "";
+      position: absolute;
+      top: 50%;
+      border-radius: 50%;
+      transform: translate(-50%,-50%);
+    }
+    .node-edge::before { left: 0; width: 7px; height: 7px; border: 1px solid rgba(197,225,212,.36); background: #07100b; }
+    .node-edge::after { left: 0; width: 8px; height: 8px; background: var(--node-accent); opacity: 0; box-shadow: 0 0 15px var(--node-accent); }
+    .node-edge.is-route { height: 3px; opacity: 1; background: linear-gradient(90deg, rgba(191,255,63,.3), var(--node-accent), rgba(191,255,63,.3)); box-shadow: 0 0 12px rgba(191,255,63,.35); }
+    .node-edge.is-travelled { background: var(--warm); box-shadow: 0 0 13px rgba(255,118,88,.5); }
+    .node-edge.is-current::after { opacity: 1; animation: node-signal 1.25s ease-in-out infinite; }
+    @keyframes node-signal { from { left: 0; } to { left: 100%; } }
+
+    .narrative-node {
+      --x: 0px;
+      --y: 0px;
+      --z: 0px;
+      --ry: 0deg;
+      position: absolute;
+      left: 50%;
+      top: 44%;
+      width: 300px;
+      height: 196px;
+      margin: -98px 0 0 -150px;
+      transform: translate3d(var(--x),var(--y),var(--z)) rotateY(var(--ry));
+      transform-style: preserve-3d;
+      opacity: .46;
+      filter: saturate(.45) brightness(.67);
+      transition: opacity .35s ease, filter .35s ease;
+    }
+    .narrative-node::before {
+      content: "";
+      position: absolute;
+      inset: 12px -11px -11px 12px;
+      transform: translateZ(-32px);
+      border: 1px solid rgba(191,255,63,.13);
+      background: rgba(4,10,7,.68);
+      box-shadow: 0 28px 60px rgba(0,0,0,.42);
+    }
+    .narrative-node.is-route { opacity: .86; filter: saturate(.78) brightness(.86); }
+    .narrative-node.is-visited { opacity: 1; filter: none; }
+    .narrative-node.is-current { opacity: 1; filter: none; }
+
+    .node-button {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      display: grid;
+      grid-template-rows: 1fr auto;
+      padding: 0;
+      overflow: hidden;
+      border: 1px solid rgba(230,245,237,.24);
+      background: #0a100d;
+      color: #fff;
+      text-align: left;
+      cursor: pointer;
+      transform: translateZ(0);
+      transition: transform .4s var(--ease), border-color .3s ease, box-shadow .3s ease;
+    }
+    .narrative-node.is-route .node-button { border-color: rgba(191,255,63,.5); }
+    .narrative-node:hover .node-button, .narrative-node.is-current .node-button {
+      transform: translateZ(44px);
+      border-color: #fff;
+      box-shadow: 0 0 0 2px rgba(191,255,63,.14), 0 0 34px rgba(191,255,63,.16), 0 34px 70px rgba(0,0,0,.42);
+    }
+    .narrative-node.is-current .node-button::after {
+      content: "CURRENT NODE";
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      z-index: 4;
+      padding: 5px 7px;
+      background: var(--node-accent);
+      color: #0b1206;
+      font: 600 7px/1 "IBM Plex Mono", monospace;
+      letter-spacing: .08em;
+    }
+
+    .node-image { position: relative; min-height: 0; overflow: hidden; }
+    .node-image img { width: 100%; height: 100%; object-fit: cover; filter: saturate(.8) contrast(1.08); transition: transform .75s var(--ease); }
+    .narrative-node:hover img { transform: scale(1.05); }
+    .node-image::after { content: ""; position: absolute; inset: 0; background: linear-gradient(0deg, rgba(5,10,7,.7), transparent 65%); }
+    .node-port { position: absolute; z-index: 5; top: 50%; width: 11px; height: 11px; border: 2px solid var(--node-accent); border-radius: 50%; background: #08100a; box-shadow: 0 0 11px rgba(191,255,63,.55); transform: translateY(-50%); }
+    .node-port.in { left: -6px; }
+    .node-port.out { right: -6px; }
+    .node-copy { padding: 10px 12px 12px; border-top: 1px solid rgba(255,255,255,.12); }
+    .node-copy small { display: block; margin-bottom: 5px; color: var(--node-accent); font: 500 7px/1.2 "IBM Plex Mono", monospace; letter-spacing: .1em; text-transform: uppercase; }
+    .node-copy strong { display: block; font: 600 19px/.95 "Space Grotesk", sans-serif; letter-spacing: -.035em; }
+    .node-copy span { display: block; margin-top: 6px; color: rgba(255,255,255,.48); font-size: 9px; }
+    .root-node .node-image img { filter: saturate(.35) contrast(1.15) brightness(.55); }
+    .root-node .node-copy strong { color: var(--node-accent); }
+
+    .narrative-heading {
+      position: absolute;
+      z-index: 24;
+      top: 22px;
+      left: 25px;
+      pointer-events: none;
+    }
+    .narrative-heading h1 { margin: 8px 0 0; font: 400 clamp(40px,5.2vw,72px)/.84 "Instrument Serif", serif; letter-spacing: -.045em; }
+    .narrative-heading h1 em { color: var(--node-accent); font-weight: 400; }
+
+    .route-monitor {
+      position: absolute;
+      z-index: 25;
+      top: 24px;
+      right: 26px;
+      min-width: 210px;
+      padding: 11px 13px;
+      border: 1px solid rgba(191,255,63,.25);
+      background: rgba(5,11,7,.68);
+      color: rgba(255,255,255,.48);
+      backdrop-filter: blur(12px);
+      font: 500 8px/1.7 "IBM Plex Mono", monospace;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+    .route-monitor b { color: var(--node-accent); font-weight: 500; }
+    .route-monitor span { display: flex; justify-content: space-between; gap: 18px; }
+
+    .vn-shell {
+      position: absolute;
+      z-index: 40;
+      left: 24px;
+      right: 24px;
+      bottom: 19px;
+      min-height: 174px;
+      display: grid;
+      grid-template-columns: 170px minmax(300px,1fr) 330px;
+      gap: 0;
+      border: 1px solid rgba(255,255,255,.28);
+      background: linear-gradient(180deg, rgba(13,19,16,.94), rgba(5,9,7,.96));
+      box-shadow: 0 0 0 1px rgba(191,255,63,.08), 0 28px 80px rgba(0,0,0,.56);
+      backdrop-filter: blur(20px);
+    }
+    .vn-shell::before { content: ""; position: absolute; inset: 5px; border: 1px solid rgba(191,255,63,.14); pointer-events: none; }
+
+    .vn-portrait {
+      position: relative;
+      display: grid;
+      place-items: center;
+      overflow: hidden;
+      border-right: 1px solid rgba(255,255,255,.14);
+      background: radial-gradient(circle, rgba(191,255,63,.17), transparent 64%);
+    }
+    .vn-portrait::before { content: ""; position: absolute; width: 126px; height: 126px; border: 1px solid rgba(191,255,63,.34); border-radius: 50%; animation: portrait-turn 9s linear infinite; }
+    .vn-portrait::after { content: ""; position: absolute; inset: 0; opacity: .16; background: repeating-linear-gradient(0deg, transparent 0 3px, rgba(255,255,255,.18) 3px 4px); }
+    @keyframes portrait-turn { to { transform: rotate(360deg); } }
+    .portrait-core { position: relative; z-index: 2; display: grid; place-items: center; width: 86px; height: 86px; border: 1px solid var(--node-accent); border-radius: 50%; color: var(--node-accent); box-shadow: 0 0 38px rgba(191,255,63,.16), inset 0 0 24px rgba(191,255,63,.09); font-size: 31px; }
+    .portrait-label { position: absolute; z-index: 3; left: 13px; right: 13px; bottom: 11px; color: rgba(255,255,255,.46); font: 500 7px/1.3 "IBM Plex Mono", monospace; letter-spacing: .1em; text-align: center; text-transform: uppercase; }
+
+    .vn-dialogue { position: relative; min-width: 0; padding: 29px 28px 23px; }
+    .vn-nameplate { position: absolute; top: -17px; left: 20px; min-width: 220px; padding: 9px 14px; border: 1px solid rgba(255,255,255,.3); background: #101713; color: var(--node-accent); font: 600 9px/1 "IBM Plex Mono", monospace; letter-spacing: .11em; text-transform: uppercase; }
+    .vn-dialogue p { min-height: 78px; margin: 0; font: 400 clamp(18px,1.7vw,25px)/1.32 "Instrument Serif", serif; }
+    .vn-dialogue p::after { content: "▾"; margin-left: 8px; color: var(--node-accent); animation: vn-caret .8s ease-in-out infinite alternate; }
+    @keyframes vn-caret { to { opacity: .25; } }
+    .vn-node-status { display: flex; gap: 16px; margin-top: 10px; color: rgba(255,255,255,.35); font: 500 8px/1 "IBM Plex Mono", monospace; letter-spacing: .08em; text-transform: uppercase; }
+    .vn-node-status b { color: var(--node-accent); font-weight: 500; }
+
+    .vn-actions {
+      position: relative;
+      display: grid;
+      grid-template-rows: 1fr auto;
+      gap: 9px;
+      padding: 14px;
+      border-left: 1px solid rgba(255,255,255,.14);
+    }
+    .vn-choices { display: grid; grid-template-columns: 1fr; gap: 5px; }
+    .vn-choice {
+      position: relative;
+      min-height: 30px;
+      padding: 0 11px 0 25px;
+      border: 1px solid rgba(255,255,255,.15);
+      background: rgba(255,255,255,.025);
+      color: rgba(255,255,255,.55);
+      cursor: pointer;
+      font: 500 8px/1 "IBM Plex Mono", monospace;
+      letter-spacing: .06em;
+      text-align: left;
+      text-transform: uppercase;
+    }
+    .vn-choice::before { content: "◇"; position: absolute; left: 9px; color: rgba(191,255,63,.55); }
+    .vn-choice:hover, .vn-choice[aria-current="true"] { border-color: var(--node-accent); background: rgba(191,255,63,.09); color: #fff; }
+    .vn-choice[aria-current="true"]::before { content: "◆"; color: var(--node-accent); }
+    .vn-nav { display: grid; grid-template-columns: 1fr 1fr 1.35fr; gap: 5px; }
+    .vn-nav button { min-height: 35px; padding: 0 8px; border: 1px solid rgba(255,255,255,.17); background: transparent; color: rgba(255,255,255,.63); cursor: pointer; font: 500 8px/1 "IBM Plex Mono", monospace; text-transform: uppercase; }
+    .vn-nav button:last-child { border-color: var(--node-accent); background: var(--node-accent); color: #0a1106; font-weight: 600; }
+
+    @media (max-width: 1050px) {
+      .topbar { grid-template-columns: auto 1fr auto; }
+      .brand span, .mode-hint { display: none; }
+      .project-plane { width: 340px; height: 238px; margin: -119px 0 0 -170px; }
+      .spatial-servant { grid-template-columns: 120px 1fr auto; }
+      .board { width: 420px; }
+      .board-image { height: 210px; }
+      .corridor-card { width: min(850px,74vw); grid-template-columns: 54% 46%; }
+      .narrative-node { width: 270px; height: 178px; margin: -89px 0 0 -135px; }
+      .vn-shell { grid-template-columns: 132px minmax(270px,1fr) 290px; }
+      .portrait-core { width: 72px; height: 72px; }
+    }
+
+    @media (max-width: 720px) {
+      :root { --bar-h: 60px; }
+      .topbar { gap: 7px; padding: 0 10px; }
+      .tabs { max-width: calc(100vw - 90px); overflow: auto; scrollbar-width: none; }
+      .tabs::-webkit-scrollbar { display: none; }
+      .tab { min-width: 42px; padding: 0 12px; }
+      .tab span, .back-link { display: none; }
+
+      .spatial-hud { inset: 17px 17px auto; }
+      .spatial-title h1 { font-size: 48px; }
+      .spatial-instruction, .spatial-depth { display: none; }
+      .project-plane { width: 270px; height: 198px; margin: -99px 0 0 -135px; }
+      .plane-copy strong { font-size: 18px; }
+      .plane-copy span { display: none; }
+      .spatial-servant { left: 16px; right: 16px; bottom: 15px; grid-template-columns: 1fr; gap: 10px; min-height: 0; padding: 13px; }
+      .spatial-servant .servant-name { flex-direction: row; padding: 0 0 8px; border-right: 0; border-bottom: 1px solid rgba(255,255,255,.15); }
+      .spatial-servant p { font-size: 16px; }
+      .servant-actions { width: 100%; }
+      .servant-actions .hud-button { flex: 1; }
+
+      .artboard-hud { inset: 15px 16px auto; }
+      .artboard-title h1 { font-size: 48px; }
+      .artboard-minimap { display: none; }
+      .artboard-dock { left: 14px; right: 14px; bottom: 14px; display: block; padding: 12px; }
+      .artboard-dialogue p { font-size: 15px; }
+      .route-buttons { margin-top: 10px; overflow: auto; }
+      .route-chip { flex: 1; white-space: nowrap; }
+
+      .corridor-header { top: 17px; left: 17px; }
+      .corridor-header h1 { font-size: 46px; }
+      .corridor-card { width: 82vw; height: 61vh; grid-template-columns: 1fr; grid-template-rows: 48% 52%; }
+      .corridor-copy { padding: 19px; overflow: auto; }
+      .corridor-copy h2 { margin: 10px 0; font-size: 46px; }
+      .corridor-copy > p { font-size: 10px; }
+      .case-ledger li { padding: 8px 0; }
+      .corridor-rail { top: 18px; right: 15px; transform: none; grid-template-columns: repeat(4,1fr); gap: 4px; }
+      .rail-button { width: 36px; height: 32px; }
+      .corridor-servant { left: 15px; right: 15px; bottom: 13px; grid-template-columns: 1fr auto; min-height: 0; padding: 10px; }
+      .corridor-servant .servant-name { grid-column: 1 / -1; flex-direction: row; padding: 0 0 7px; border-right: 0; border-bottom: 1px solid rgba(255,255,255,.15); }
+      .corridor-servant p { font-size: 14px; }
+      .wheel-cue { display: none; }
+
+      .narrative-heading { top: 15px; left: 16px; }
+      .narrative-heading h1 { font-size: 45px; }
+      .route-monitor { display: none; }
+      .narrative-node { width: 228px; height: 154px; margin: -77px 0 0 -114px; }
+      .node-copy { padding: 8px 9px 9px; }
+      .node-copy strong { font-size: 16px; }
+      .node-copy span { display: none; }
+      .vn-shell { left: 10px; right: 10px; bottom: 9px; min-height: 210px; grid-template-columns: 78px 1fr; }
+      .vn-portrait { min-height: 104px; }
+      .vn-portrait::before { width: 66px; height: 66px; }
+      .portrait-core { width: 52px; height: 52px; font-size: 22px; }
+      .portrait-label { display: none; }
+      .vn-dialogue { padding: 25px 14px 12px; }
+      .vn-nameplate { top: -13px; left: 10px; min-width: 160px; padding: 7px 10px; font-size: 7px; }
+      .vn-dialogue p { min-height: 62px; font-size: 15px; }
+      .vn-node-status { gap: 8px; font-size: 6px; }
+      .vn-actions { grid-column: 1 / -1; grid-template-rows: auto auto; padding: 8px; border-top: 1px solid rgba(255,255,255,.14); border-left: 0; }
+      .vn-choices { grid-template-columns: repeat(3,1fr); }
+      .vn-choice { min-height: 28px; padding: 0 5px; text-align: center; }
+      .vn-choice::before { display: none; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand"><span>Minato Makoto / Spatial prototypes</span></div>
+    <nav class="tabs" role="tablist" aria-label="Bốn hướng tương tác không gian">
+      <button class="tab" id="tab-spatial" type="button" role="tab" aria-controls="prototype-spatial" aria-selected="true" data-mode="spatial">01 <span>Spatial Diorama</span></button>
+      <button class="tab" id="tab-artboard" type="button" role="tab" aria-controls="prototype-artboard" aria-selected="false" data-mode="artboard">02 <span>Infinite Artboard</span></button>
+      <button class="tab" id="tab-corridor" type="button" role="tab" aria-controls="prototype-corridor" aria-selected="false" data-mode="corridor">03 <span>Depth Corridor</span></button>
+      <button class="tab" id="tab-narrative" type="button" role="tab" aria-controls="prototype-narrative" aria-selected="false" data-mode="narrative">04 <span>Node Narrative</span></button>
+    </nav>
+    <div class="top-actions">
+      <span class="mode-hint" id="mode-hint">Drag to orbit · wheel to dolly</span>
+      <a class="back-link" href="index.html">Site hiện tại</a>
+    </div>
+  </header>
+
+  <main class="stage">
+    <section class="prototype spatial is-active" id="prototype-spatial" role="tabpanel" aria-labelledby="tab-spatial" data-prototype="spatial">
+      <div class="spatial-viewport" id="spatial-viewport" tabindex="0" aria-label="Không gian project. Kéo để xoay, cuộn để tiến lùi, chọn project để focus.">
+        <div class="spatial-scene" id="spatial-scene">
+          <div class="space-backdrop" aria-hidden="true"></div>
+          <div class="space-floor" aria-hidden="true"></div>
+          <div class="space-axis" aria-hidden="true"></div>
+
+          <article class="project-plane" data-plane="0" data-x="-340" data-y="-60" data-z="-130" data-ry="14" style="--x:-340px;--y:-60px;--z:-130px;--ry:14deg">
+            <button class="plane-button" type="button">
+              <div class="plane-image"><span class="plane-number">P.01 / Z−130</span><img src="https://drive.google.com/thumbnail?id=1X-_4rjqvc4X_ZVYo5BYFDoEBzp_DtkwZ&sz=w1000" alt="Harmony 2025"></div>
+              <div class="plane-copy"><small>Producer · Project owner</small><strong>Harmony 2025</strong><span>Concept → set → post-production</span></div>
+            </button>
+          </article>
+
+          <article class="project-plane" data-plane="1" data-x="350" data-y="70" data-z="-400" data-ry="-16" style="--x:350px;--y:70px;--z:-400px;--ry:-16deg">
+            <button class="plane-button" type="button">
+              <div class="plane-image"><span class="plane-number">P.02 / Z−400</span><img src="https://i.ytimg.com/vi/wBWQsfxG4eE/hqdefault.jpg" alt="BLACKA — Hi Thế Giới"></div>
+              <div class="plane-copy"><small>Post-production supervisor</small><strong>Hi Thế Giới</strong><span>Edit · color · VFX</span></div>
+            </button>
+          </article>
+
+          <article class="project-plane" data-plane="2" data-x="-230" data-y="190" data-z="-720" data-ry="9" style="--x:-230px;--y:190px;--z:-720px;--ry:9deg">
+            <button class="plane-button" type="button">
+              <div class="plane-image"><span class="plane-number">P.03 / Z−720</span><img src="https://i.ytimg.com/vi/7w3royxjrtw/hqdefault.jpg" alt="Doraemon LipIce Sheer Color"></div>
+              <div class="plane-copy"><small>Commercial production · VFX</small><strong>Doraemon × LipIce</strong><span>Brand system → moving image</span></div>
+            </button>
+          </article>
+
+          <article class="project-plane" data-plane="3" data-x="430" data-y="-170" data-z="-920" data-ry="-12" style="--x:430px;--y:-170px;--z:-920px;--ry:-12deg">
+            <button class="plane-button" type="button">
+              <div class="plane-image"><span class="plane-number">P.04 / Z−920</span><img src="https://drive.google.com/thumbnail?id=1LHlJL_vV7l8I4_F-JIutWN8wlMhoGaEn&sz=w1000" alt="Motor Fest 2023"></div>
+              <div class="plane-copy"><small>Solo post-production</small><strong>Motor Fest 2023</strong><span>Deadline pressure → kinetic final</span></div>
+            </button>
+          </article>
+        </div>
+
+        <div class="spatial-vignette" aria-hidden="true"></div>
+        <div class="spatial-scan" aria-hidden="true"></div>
+      </div>
+
+      <header class="spatial-hud">
+        <div class="spatial-title"><span class="eyebrow">01 / 2D planes in a spatial scene</span><h1>Portfolio as <em>diorama.</em></h1></div>
+        <div class="spatial-instruction">Drag anywhere to orbit<br>Wheel to move through depth<br>Click a plane to focus</div>
+      </header>
+
+      <div class="spatial-depth" aria-hidden="true">
+        <span class="depth-mark">000</span><span class="depth-mark">100</span><span class="depth-mark">200</span><span class="depth-mark">300</span><span class="depth-mark">400</span><span class="depth-mark">500</span><span class="depth-mark">600</span><span class="depth-mark">700</span><span class="depth-mark">800</span><span class="depth-mark">900</span>
+      </div>
+
+      <aside class="spatial-servant glass" aria-label="Lời dẫn của Servant">
+        <div class="servant-name"><span>Guide object</span><strong>Servant / 01</strong></div>
+        <p id="spatial-dialogue" aria-live="polite">Đây không phải menu card. Mỗi project là một mặt phẳng nằm ở độ sâu khác nhau; em đưa người xem tới đúng mặt phẳng rồi trả nó về trạng thái đọc bình thường.</p>
+        <div class="servant-actions"><button class="hud-button" id="spatial-reset" type="button">Toàn cảnh</button><button class="hud-button primary" id="spatial-next" type="button">Project tiếp →</button></div>
+      </aside>
+    </section>
+
+    <section class="prototype artboard" id="prototype-artboard" role="tabpanel" aria-labelledby="tab-artboard" data-prototype="artboard" hidden>
+      <div class="artboard-viewport" id="artboard-viewport" tabindex="0" aria-label="Artboard vô hạn. Kéo để di chuyển, cuộn để zoom, chọn project để Servant focus.">
+        <div class="artboard-camera" id="artboard-camera">
+          <div class="artboard-world" id="artboard-world">
+            <canvas class="artboard-canvas" id="artboard-canvas" width="2300" height="1500" aria-hidden="true"></canvas>
+
+            <article class="board" data-board="0" style="left:190px;top:250px;--z:35px;--r:-1.5deg">
+              <button type="button">
+                <div class="board-image"><span class="board-index">BOARD 01 / FLAGSHIP</span><img src="https://drive.google.com/thumbnail?id=1X-_4rjqvc4X_ZVYo5BYFDoEBzp_DtkwZ&sz=w1000" alt="Harmony 2025"></div>
+                <div class="board-body"><div><small>Full ownership</small><h2>Harmony 2025</h2><p>Từ định hình concept đến điều phối set quay và hoàn thiện bản final.</p></div><div class="board-proof">Intent<br>Process<br>Proof</div></div>
+              </button>
+            </article>
+
+            <article class="board" data-board="1" style="left:1060px;top:170px;--z:72px;--r:1.8deg">
+              <button type="button">
+                <div class="board-image"><span class="board-index">BOARD 02 / POST</span><img src="https://i.ytimg.com/vi/wBWQsfxG4eE/hqdefault.jpg" alt="BLACKA — Hi Thế Giới"></div>
+                <div class="board-body"><div><small>One post-production voice</small><h2>Hi Thế Giới</h2><p>Editing, color và VFX không phải ba nhánh — chúng tạo nên một cảm giác duy nhất.</p></div><div class="board-proof">Edit<br>Color<br>VFX</div></div>
+              </button>
+            </article>
+
+            <article class="board" data-board="2" style="left:650px;top:880px;--z:18px;--r:.8deg">
+              <button type="button">
+                <div class="board-image"><span class="board-index">BOARD 03 / PROCESS</span><img src="https://i.ytimg.com/vi/_V3pAcQBhPo/hqdefault.jpg" alt="Microlife Talkshow behind the scene"></div>
+                <div class="board-body"><div><small>Production under constraints</small><h2>Microlife BTS</h2><p>Hậu trường là bằng chứng cho cách con người, thiết bị và thời gian được điều phối.</p></div><div class="board-proof">Crew<br>Timing<br>Adapt</div></div>
+              </button>
+            </article>
+
+            <article class="board" data-board="3" style="left:1610px;top:760px;--z:55px;--r:-2deg">
+              <button type="button">
+                <div class="board-image"><span class="board-index">BOARD 04 / COMMERCIAL</span><img src="https://i.ytimg.com/vi/7w3royxjrtw/hqdefault.jpg" alt="Doraemon LipIce Sheer Color"></div>
+                <div class="board-body"><div><small>Brand system in motion</small><h2>Doraemon × LipIce</h2><p>Yêu cầu thương mại, nhịp hình và VFX được giải như cùng một bài toán.</p></div><div class="board-proof">Brand<br>Motion<br>Finish</div></div>
+              </button>
+            </article>
+
+            <aside class="board-note" style="left:770px;top:360px"><b>Servant note / 01</b>Em có thể vẽ một tuyến xem khác nhau trên cùng artboard, tùy người xem muốn tuyển Producer hay xem hậu kỳ.</aside>
+            <aside class="board-note" style="left:1400px;top:1130px;transform:translateZ(105px) rotateZ(4deg)"><b>Decision trace</b>Creative + technology chỉ xuất hiện như annotation của project, không bị tách thành hai khu.</aside>
+            <div class="servant-cursor" id="servant-cursor" style="left:90px;top:120px">Servant<br>is here</div>
+          </div>
+        </div>
+      </div>
+
+      <header class="artboard-hud">
+        <div class="artboard-title"><span class="eyebrow">02 / Pan · zoom · follow a living cursor</span><h1>An infinite <em>artboard.</em></h1></div>
+        <div class="artboard-minimap" aria-hidden="true">
+          <i class="mini-node" style="left:15px;top:22px"></i><i class="mini-node" style="left:79px;top:15px"></i><i class="mini-node" style="left:48px;top:69px"></i><i class="mini-node" style="left:120px;top:58px"></i><div class="mini-view" id="mini-view"></div>
+        </div>
+      </header>
+
+      <aside class="artboard-dock" aria-label="Servant chọn tuyến xem">
+        <div class="artboard-dialogue"><span class="artboard-glyph" aria-hidden="true">⛧</span><p id="artboard-dialogue" aria-live="polite">Kéo để tự khám phá hoặc chọn một mục đích. Em sẽ bay tới board phù hợp và để lại đường dẫn giữa các bằng chứng.</p></div>
+        <div class="route-buttons" aria-label="Tuyến xem mẫu"><button class="route-chip" type="button" aria-current="false" data-route="0">Tuyển Producer</button><button class="route-chip" type="button" aria-current="false" data-route="1">Xem hậu kỳ</button><button class="route-chip" type="button" aria-current="false" data-route="2">Hiểu tư duy</button></div>
+      </aside>
+    </section>
+
+    <section class="prototype corridor" id="prototype-corridor" role="tabpanel" aria-labelledby="tab-corridor" data-prototype="corridor" hidden>
+      <div class="corridor-viewport" id="corridor-viewport" tabindex="0" aria-label="Các case study xếp theo trục chiều sâu. Cuộn hoặc dùng phím mũi tên để chuyển chapter.">
+        <div class="corridor-world">
+          <article class="corridor-card" data-card="0">
+            <div class="corridor-media"><span class="corridor-count">01 / 04</span><img src="https://drive.google.com/thumbnail?id=1X-_4rjqvc4X_ZVYo5BYFDoEBzp_DtkwZ&sz=w1400" alt="Harmony 2025"></div>
+            <div class="corridor-copy"><span class="eyebrow">Producer · Project owner</span><h2>Harmony <em>2025</em></h2><p>Case study được trình bày như bình thường. Khác biệt nằm ở cách mỗi chapter đang tồn tại trong cùng một hành lang không gian.</p><ul class="case-ledger"><li><b>Intent</b><span>Biến “Better With You” thành một thế giới sống.</span></li><li><b>System</b><span>Concept, production và hậu kỳ dùng chung một logic.</span></li><li><b>Proof</b><span>Final film giữ được tiếng nói xuyên suốt.</span></li></ul></div>
+          </article>
+
+          <article class="corridor-card" data-card="1">
+            <div class="corridor-media"><span class="corridor-count">02 / 04</span><img src="https://i.ytimg.com/vi/wBWQsfxG4eE/hqdefault.jpg" alt="BLACKA — Hi Thế Giới"></div>
+            <div class="corridor-copy"><span class="eyebrow">Post-production supervisor</span><h2>Hi <em>Thế Giới</em></h2><p>Người xem đi sâu hơn vào hậu kỳ thay vì bị ném sang một category khác. Cùng một narrative, độ sâu mới.</p><ul class="case-ledger"><li><b>Edit</b><span>Nhịp dựng khóa attitude của track và performer.</span></li><li><b>Color</b><span>Palette nối các thế giới thành một hệ cảm xúc.</span></li><li><b>VFX</b><span>Hiệu ứng tăng lực cho performance, không phô công cụ.</span></li></ul></div>
+          </article>
+
+          <article class="corridor-card" data-card="2">
+            <div class="corridor-media"><span class="corridor-count">03 / 04</span><img src="https://i.ytimg.com/vi/_V3pAcQBhPo/hqdefault.jpg" alt="Microlife Talkshow behind the scene"></div>
+            <div class="corridor-copy"><span class="eyebrow">Production process</span><h2>Microlife <em>BTS</em></h2><p>Chapter hậu trường đưa người xem ra khỏi final image để thấy hệ thống con người và quyết định vận hành.</p><ul class="case-ledger"><li><b>Context</b><span>Talent, crew, lịch và thiết bị cùng thay đổi.</span></li><li><b>Response</b><span>Ưu tiên cảnh và giữ continuity ngay tại set.</span></li><li><b>Proof</b><span>BTS cho thấy năng lực thay vì chỉ mô tả nó.</span></li></ul></div>
+          </article>
+
+          <article class="corridor-card" data-card="3">
+            <div class="corridor-media"><span class="corridor-count">04 / 04</span><img src="https://i.ytimg.com/vi/7w3royxjrtw/hqdefault.jpg" alt="Doraemon LipIce Sheer Color"></div>
+            <div class="corridor-copy"><span class="eyebrow">Commercial production · VFX</span><h2>Doraemon <em>× LipIce</em></h2><p>Điểm cuối chứng minh cùng một tư duy có thể sống trong yêu cầu thương mại và tiêu chuẩn nhãn hàng.</p><ul class="case-ledger"><li><b>Brand</b><span>Hệ nhận diện vẫn giữ độ vui và dễ nhận biết.</span></li><li><b>Motion</b><span>Nhịp hình phục vụ product appeal.</span></li><li><b>Finish</b><span>VFX hoàn thiện trải nghiệm thay vì đứng riêng.</span></li></ul></div>
+          </article>
+        </div>
+      </div>
+
+      <header class="corridor-header"><span class="eyebrow">03 / Scroll through the z-axis</span><h1>Case studies in <em>depth.</em></h1></header>
+      <nav class="corridor-rail" aria-label="Chọn chapter"><button class="rail-button" type="button" aria-current="true" data-corridor="0">01</button><button class="rail-button" type="button" aria-current="false" data-corridor="1">02</button><button class="rail-button" type="button" aria-current="false" data-corridor="2">03</button><button class="rail-button" type="button" aria-current="false" data-corridor="3">04</button></nav>
+      <aside class="corridor-servant glass" aria-label="Servant dẫn qua hành lang project"><div class="servant-name"><span>Depth guide</span><strong>Servant / 03</strong></div><p id="corridor-dialogue" aria-live="polite">Em giữ phần đang đọc ở trạng thái phẳng và rõ; các chapter trước–sau lùi vào chiều sâu để người xem luôn cảm được mình đang ở đâu trong hành trình.</p><button class="corridor-next" id="corridor-next" type="button">Đi sâu hơn ↓</button></aside>
+      <div class="wheel-cue">Wheel / swipe / arrow keys<br>to travel the z-axis</div>
+    </section>
+
+    <section class="prototype narrative" id="prototype-narrative" role="tabpanel" aria-labelledby="tab-narrative" data-prototype="narrative" hidden>
+      <div class="node-viewport" id="node-viewport" tabindex="0" aria-label="Không gian project dạng node. Kéo để orbit, cuộn để dolly, chọn node hoặc dùng khung thoại để đi theo route.">
+        <div class="node-scene" id="node-scene">
+          <div class="node-grid" aria-hidden="true"></div>
+          <div class="node-floor" aria-hidden="true"></div>
+
+          <div class="node-edge" data-from="0" data-to="1" aria-hidden="true"></div>
+          <div class="node-edge" data-from="0" data-to="2" aria-hidden="true"></div>
+          <div class="node-edge" data-from="0" data-to="3" aria-hidden="true"></div>
+          <div class="node-edge" data-from="1" data-to="2" aria-hidden="true"></div>
+          <div class="node-edge" data-from="1" data-to="3" aria-hidden="true"></div>
+          <div class="node-edge" data-from="1" data-to="4" aria-hidden="true"></div>
+          <div class="node-edge" data-from="2" data-to="3" aria-hidden="true"></div>
+          <div class="node-edge" data-from="2" data-to="4" aria-hidden="true"></div>
+          <div class="node-edge" data-from="3" data-to="4" aria-hidden="true"></div>
+
+          <article class="narrative-node root-node" data-node="0" data-x="0" data-y="-15" data-z="-80" data-ry="0" style="--x:0px;--y:-15px;--z:-80px;--ry:0deg">
+            <button class="node-button" type="button">
+              <i class="node-port in" aria-hidden="true"></i><i class="node-port out" aria-hidden="true"></i>
+              <div class="node-image"><img src="src/assets/images/og-preview.jpg" alt="Minato Makoto — điểm bắt đầu portfolio"></div>
+              <div class="node-copy"><small>Root node · Generalist</small><strong>Minato Makoto</strong><span>Choose a route through the work</span></div>
+            </button>
+          </article>
+
+          <article class="narrative-node" data-node="1" data-x="-405" data-y="-205" data-z="-300" data-ry="13" style="--x:-405px;--y:-205px;--z:-300px;--ry:13deg">
+            <button class="node-button" type="button">
+              <i class="node-port in" aria-hidden="true"></i><i class="node-port out" aria-hidden="true"></i>
+              <div class="node-image"><img src="https://drive.google.com/thumbnail?id=1X-_4rjqvc4X_ZVYo5BYFDoEBzp_DtkwZ&sz=w1000" alt="Harmony 2025"></div>
+              <div class="node-copy"><small>Node 01 · Full ownership</small><strong>Harmony 2025</strong><span>Concept → production → final cut</span></div>
+            </button>
+          </article>
+
+          <article class="narrative-node" data-node="2" data-x="410" data-y="-190" data-z="-390" data-ry="-13" style="--x:410px;--y:-190px;--z:-390px;--ry:-13deg">
+            <button class="node-button" type="button">
+              <i class="node-port in" aria-hidden="true"></i><i class="node-port out" aria-hidden="true"></i>
+              <div class="node-image"><img src="https://i.ytimg.com/vi/wBWQsfxG4eE/hqdefault.jpg" alt="BLACKA — Hi Thế Giới"></div>
+              <div class="node-copy"><small>Node 02 · Post-production</small><strong>Hi Thế Giới</strong><span>Edit · color · VFX</span></div>
+            </button>
+          </article>
+
+          <article class="narrative-node" data-node="3" data-x="-345" data-y="225" data-z="-540" data-ry="9" style="--x:-345px;--y:225px;--z:-540px;--ry:9deg">
+            <button class="node-button" type="button">
+              <i class="node-port in" aria-hidden="true"></i><i class="node-port out" aria-hidden="true"></i>
+              <div class="node-image"><img src="https://i.ytimg.com/vi/_V3pAcQBhPo/hqdefault.jpg" alt="Microlife Talkshow behind the scene"></div>
+              <div class="node-copy"><small>Node 03 · Production process</small><strong>Microlife BTS</strong><span>Crew · timing · adaptation</span></div>
+            </button>
+          </article>
+
+          <article class="narrative-node" data-node="4" data-x="390" data-y="235" data-z="-640" data-ry="-10" style="--x:390px;--y:235px;--z:-640px;--ry:-10deg">
+            <button class="node-button" type="button">
+              <i class="node-port in" aria-hidden="true"></i><i class="node-port out" aria-hidden="true"></i>
+              <div class="node-image"><img src="https://i.ytimg.com/vi/7w3royxjrtw/hqdefault.jpg" alt="Doraemon LipIce Sheer Color"></div>
+              <div class="node-copy"><small>Node 04 · Commercial system</small><strong>Doraemon × LipIce</strong><span>Brand · motion · VFX finish</span></div>
+            </button>
+          </article>
+        </div>
+      </div>
+
+      <header class="narrative-heading"><span class="eyebrow">04 / Spatial node-based portfolio</span><h1>A guided <em>node narrative.</em></h1></header>
+      <aside class="route-monitor" aria-label="Trạng thái route">
+        <span>active_route <b id="route-monitor-name">producer</b></span>
+        <span>route_nodes <b id="route-monitor-count">04</b></span>
+        <span>current_node <b id="route-monitor-node">overview</b></span>
+      </aside>
+
+      <aside class="vn-shell" aria-label="Visual Novel Guide Object">
+        <div class="vn-portrait" aria-hidden="true"><div class="portrait-core">⛧</div><span class="portrait-label">Guide Object / active</span></div>
+        <div class="vn-dialogue">
+          <div class="vn-nameplate">SERVANT // GUIDE OBJECT</div>
+          <p id="vn-text" aria-live="polite">Em đã nối các project thành một graph, nhưng chỉ route đang kể mới phát sáng. Minato-sama hãy chọn người xem đang muốn tìm điều gì; em sẽ điều khiển camera qua từng node bằng chính khung thoại này.</p>
+          <div class="vn-node-status"><span>Route: <b id="vn-route-label">Producer</b></span><span>Node: <b id="vn-node-label">Overview</b></span><span>Progress: <b id="vn-progress-label">0 / 4</b></span></div>
+        </div>
+        <div class="vn-actions">
+          <div class="vn-choices" aria-label="Chọn route do Servant dẫn">
+            <button class="vn-choice" type="button" aria-current="true" data-vn-route="producer">Tôi cần một Producer</button>
+            <button class="vn-choice" type="button" aria-current="false" data-vn-route="post">Cho tôi xem hậu kỳ</button>
+            <button class="vn-choice" type="button" aria-current="false" data-vn-route="mindset">Tôi muốn hiểu tư duy</button>
+          </div>
+          <div class="vn-nav"><button id="vn-back" type="button">← Back</button><button id="vn-overview" type="button">Overview</button><button id="vn-next" type="button">Start route →</button></div>
+        </div>
+      </aside>
+    </section>
+  </main>
+
+  <script>
+    (() => {
+      const modes = ['spatial','artboard','corridor','narrative'];
+      const hints = { spatial:'Drag to orbit · wheel to dolly', artboard:'Drag to pan · wheel to zoom', corridor:'Wheel / swipe to travel depth', narrative:'Choose a route · guide with VN controls' };
+      const tabs = [...document.querySelectorAll('.tab')];
+      const panels = [...document.querySelectorAll('.prototype')];
+
+      function setMode(mode, updateHash = true) {
+        if (!modes.includes(mode)) return;
+        tabs.forEach(tab => {
+          const active = tab.dataset.mode === mode;
+          tab.setAttribute('aria-selected', String(active));
+          tab.tabIndex = active ? 0 : -1;
+        });
+        panels.forEach(panel => {
+          const active = panel.dataset.prototype === mode;
+          panel.hidden = !active;
+          panel.classList.toggle('is-active', active);
+        });
+        document.getElementById('mode-hint').textContent = hints[mode];
+        if (updateHash) history.replaceState(null,'',`#${mode}`);
+        if (mode === 'artboard') requestAnimationFrame(() => ensureArtboardInitialised());
+      }
+
+      tabs.forEach((tab,index) => {
+        tab.addEventListener('click', () => setMode(tab.dataset.mode));
+        tab.addEventListener('keydown', event => {
+          if (!['ArrowLeft','ArrowRight'].includes(event.key)) return;
+          event.preventDefault();
+          const next = (index + (event.key === 'ArrowRight' ? 1 : -1) + tabs.length) % tabs.length;
+          tabs[next].focus();
+          setMode(tabs[next].dataset.mode);
+        });
+      });
+
+      document.addEventListener('keydown', event => {
+        if (['1','2','3','4'].includes(event.key) && !event.altKey && !event.ctrlKey && !event.metaKey) setMode(modes[Number(event.key)-1]);
+      });
+
+      /* Spatial diorama */
+      const spatialViewport = document.getElementById('spatial-viewport');
+      const spatialScene = document.getElementById('spatial-scene');
+      const planes = [...document.querySelectorAll('.project-plane')];
+      const spatialCopy = [
+        'Harmony cho thấy khả năng giữ trọn một project. Em đã đưa mặt phẳng đó về chính diện; nội dung giờ đọc như một case study bình thường.',
+        'Ở độ sâu này, edit, color và VFX không còn là danh sách công cụ. Chúng cùng hiện diện trên một mặt phẳng kết quả.',
+        'Project thương mại được đặt sâu hơn để người xem đi từ personal authorship sang khả năng đáp ứng brand system.',
+        'Motor Fest là lớp áp lực: tốc độ, deadline và năng lượng sự kiện cùng được giải trong hậu kỳ.'
+      ];
+      const spatial = { yaw:-4, pitch:-3, dolly:0, focus:null, px:0, py:0, dragging:false, sx:0, sy:0, syaw:0, spitch:0 };
+
+      function renderSpatial() {
+        let transform;
+        const parallaxX = spatial.px * 2.2;
+        const parallaxY = spatial.py * -1.5;
+        if (spatial.focus === null) {
+          transform = `translate3d(0px,0px,${spatial.dolly}px) rotateX(${spatial.pitch + parallaxY}deg) rotateY(${spatial.yaw + parallaxX}deg)`;
+        } else {
+          const plane = planes[spatial.focus];
+          const x = Number(plane.dataset.x), y = Number(plane.dataset.y), z = Number(plane.dataset.z), ry = Number(plane.dataset.ry);
+          transform = `translate3d(${-x}px,${-y}px,${-z + 120 + spatial.dolly}px) rotateX(${parallaxY * .35}deg) rotateY(${-ry + parallaxX * .35}deg)`;
+        }
+        spatialScene.style.transform = transform;
+        planes.forEach((plane,index) => {
+          plane.classList.toggle('is-selected', index === spatial.focus);
+          plane.classList.toggle('is-muted', spatial.focus !== null && index !== spatial.focus);
+        });
+      }
+
+      function focusPlane(index) {
+        spatial.focus = index;
+        spatial.dolly = 0;
+        document.getElementById('spatial-dialogue').textContent = spatialCopy[index];
+        renderSpatial();
+      }
+
+      planes.forEach((plane,index) => plane.querySelector('button').addEventListener('click', event => { event.stopPropagation(); focusPlane(index); }));
+      document.getElementById('spatial-reset').addEventListener('click', () => { spatial.focus=null; spatial.yaw=-4; spatial.pitch=-3; spatial.dolly=0; document.getElementById('spatial-dialogue').textContent='Đây không phải menu card. Mỗi project là một mặt phẳng nằm ở độ sâu khác nhau; em đưa người xem tới đúng mặt phẳng rồi trả nó về trạng thái đọc bình thường.'; renderSpatial(); });
+      document.getElementById('spatial-next').addEventListener('click', () => focusPlane(spatial.focus === null ? 0 : (spatial.focus + 1) % planes.length));
+
+      spatialViewport.addEventListener('pointerdown', event => {
+        if (event.target.closest('button')) return;
+        spatial.dragging=true; spatial.sx=event.clientX; spatial.sy=event.clientY; spatial.syaw=spatial.yaw; spatial.spitch=spatial.pitch;
+        spatialViewport.classList.add('is-dragging'); spatialViewport.setPointerCapture(event.pointerId);
+      });
+      spatialViewport.addEventListener('pointermove', event => {
+        const rect = spatialViewport.getBoundingClientRect();
+        spatial.px = (event.clientX - rect.left) / rect.width * 2 - 1;
+        spatial.py = (event.clientY - rect.top) / rect.height * 2 - 1;
+        if (spatial.dragging) { spatial.focus=null; spatial.yaw=spatial.syaw + (event.clientX-spatial.sx)*.055; spatial.pitch=Math.max(-22,Math.min(18,spatial.spitch-(event.clientY-spatial.sy)*.04)); }
+        renderSpatial();
+      });
+      const endSpatialDrag = event => { if (!spatial.dragging) return; spatial.dragging=false; spatialViewport.classList.remove('is-dragging'); try { spatialViewport.releasePointerCapture(event.pointerId); } catch {} };
+      spatialViewport.addEventListener('pointerup', endSpatialDrag); spatialViewport.addEventListener('pointercancel', endSpatialDrag);
+      spatialViewport.addEventListener('wheel', event => { event.preventDefault(); spatial.dolly=Math.max(-220,Math.min(300,spatial.dolly-event.deltaY*.35)); renderSpatial(); }, {passive:false});
+      spatialViewport.addEventListener('keydown', event => { if (event.key==='ArrowRight') focusPlane(spatial.focus===null?0:(spatial.focus+1)%planes.length); if (event.key==='ArrowLeft') focusPlane(spatial.focus===null?planes.length-1:(spatial.focus-1+planes.length)%planes.length); });
+      renderSpatial();
+
+      /* Infinite artboard */
+      const artViewport = document.getElementById('artboard-viewport');
+      const artCamera = document.getElementById('artboard-camera');
+      const artWorld = document.getElementById('artboard-world');
+      const boards = [...document.querySelectorAll('.board')];
+      const cursor = document.getElementById('servant-cursor');
+      const boardCenters = [{x:420,y:450},{x:1290,y:370},{x:880,y:1080},{x:1840,y:970}];
+      const routeMap = [[0,2],[1,3],[2,0]];
+      const routeText = [
+        'Bạn đang tuyển Producer. Em nối Harmony với Microlife để đặt ownership cạnh bằng chứng vận hành trên set.',
+        'Bạn muốn xem hậu kỳ. Em bay tới Hi Thế Giới trước, rồi nối sang Doraemon để so authorship với brand constraint.',
+        'Bạn muốn hiểu tư duy. Em bắt đầu ở hậu trường, sau đó quay về flagship để cho thấy quyết định vận hành đã đi vào final film.'
+      ];
+      const art = { x:0, y:0, scale:.62, dragging:false, moved:false, sx:0, sy:0, ox:0, oy:0, ready:false, hoverX:0, hoverY:0 };
+
+      function drawArtboard() {
+        const canvas = document.getElementById('artboard-canvas');
+        const ctx = canvas.getContext('2d');
+        ctx.clearRect(0,0,canvas.width,canvas.height);
+        ctx.fillStyle='#d8d2c5'; ctx.fillRect(0,0,canvas.width,canvas.height);
+        for (let x=0;x<=2300;x+=40) { ctx.beginPath(); ctx.strokeStyle=x%200===0?'rgba(22,24,21,.16)':'rgba(22,24,21,.07)'; ctx.lineWidth=x%200===0?1.2:.7; ctx.moveTo(x,0);ctx.lineTo(x,1500);ctx.stroke(); }
+        for (let y=0;y<=1500;y+=40) { ctx.beginPath(); ctx.strokeStyle=y%200===0?'rgba(22,24,21,.16)':'rgba(22,24,21,.07)'; ctx.lineWidth=y%200===0?1.2:.7; ctx.moveTo(0,y);ctx.lineTo(2300,y);ctx.stroke(); }
+        const links=[[0,1],[0,2],[1,3],[2,3]];
+        links.forEach(([a,b]) => { const A=boardCenters[a], B=boardCenters[b]; ctx.beginPath(); ctx.strokeStyle='rgba(228,73,45,.56)';ctx.lineWidth=2;ctx.setLineDash([10,8]);ctx.moveTo(A.x,A.y);ctx.bezierCurveTo((A.x+B.x)/2,A.y,(A.x+B.x)/2,B.y,B.x,B.y);ctx.stroke();ctx.setLineDash([]); });
+        boardCenters.forEach((p,i) => { ctx.beginPath();ctx.fillStyle=i===0?'#e4492d':'#161815';ctx.arc(p.x,p.y,5,0,Math.PI*2);ctx.fill(); });
+      }
+
+      function renderArtboard() {
+        artWorld.style.transform=`translate3d(${art.x}px,${art.y}px,0) scale(${art.scale})`;
+        artCamera.style.transform=`rotateX(${art.hoverY * -1.7}deg) rotateY(${art.hoverX * 1.7}deg)`;
+        document.getElementById('mini-view').style.transform=`translate(${Math.max(-16,Math.min(42,-art.x/28))}px,${Math.max(-12,Math.min(20,-art.y/32))}px) scale(${Math.max(.55,Math.min(1.2,1/art.scale))})`;
+      }
+
+      function ensureArtboardInitialised() {
+        if (art.ready || artViewport.clientWidth===0) return;
+        art.x=artViewport.clientWidth/2-900*art.scale; art.y=artViewport.clientHeight/2-580*art.scale; art.ready=true; drawArtboard(); renderArtboard();
+      }
+
+      function animateArtboardTo(index) {
+        ensureArtboardInitialised();
+        const point=boardCenters[index]; const targetScale=artViewport.clientWidth<720?.72:.82;
+        art.x=artViewport.clientWidth/2-point.x*targetScale; art.y=artViewport.clientHeight/2-point.y*targetScale;
+        art.scale=targetScale; artWorld.classList.add('is-animating'); renderArtboard();
+        setTimeout(()=>artWorld.classList.remove('is-animating'),950);
+        cursor.style.left=`${point.x-170}px`; cursor.style.top=`${point.y-155}px`;
+        boards.forEach((board,i)=>board.classList.toggle('is-selected',i===index));
+      }
+
+      boards.forEach((board,index) => board.querySelector('button').addEventListener('click', event => { if (art.moved) return; event.stopPropagation(); animateArtboardTo(index); document.getElementById('artboard-dialogue').textContent=`Em đã focus board ${String(index+1).padStart(2,'0')}. Nội dung vẫn là một case study phẳng; artboard và cursor mới là lớp điều phối không gian.`; }));
+      document.querySelectorAll('.route-chip').forEach((button,index) => button.addEventListener('click', () => { document.querySelectorAll('.route-chip').forEach((b,i)=>b.setAttribute('aria-current',String(i===index))); document.getElementById('artboard-dialogue').textContent=routeText[index]; animateArtboardTo(routeMap[index][0]); }));
+
+      artViewport.addEventListener('pointerdown', event => { if (event.target.closest('button')) return; ensureArtboardInitialised(); art.dragging=true; art.moved=false; art.sx=event.clientX;art.sy=event.clientY;art.ox=art.x;art.oy=art.y; artViewport.classList.add('is-dragging');artViewport.setPointerCapture(event.pointerId); });
+      artViewport.addEventListener('pointermove', event => {
+        const rect=artViewport.getBoundingClientRect(); art.hoverX=(event.clientX-rect.left)/rect.width*2-1; art.hoverY=(event.clientY-rect.top)/rect.height*2-1;
+        if (art.dragging) { const dx=event.clientX-art.sx,dy=event.clientY-art.sy; if (Math.abs(dx)+Math.abs(dy)>5) art.moved=true;art.x=art.ox+dx;art.y=art.oy+dy; }
+        renderArtboard();
+      });
+      const endArtDrag=event=>{if(!art.dragging)return;art.dragging=false;artViewport.classList.remove('is-dragging');try{artViewport.releasePointerCapture(event.pointerId)}catch{}setTimeout(()=>art.moved=false,0)};
+      artViewport.addEventListener('pointerup',endArtDrag);artViewport.addEventListener('pointercancel',endArtDrag);
+      artViewport.addEventListener('wheel', event => { event.preventDefault();ensureArtboardInitialised();const rect=artViewport.getBoundingClientRect();const mx=event.clientX-rect.left,my=event.clientY-rect.top;const wx=(mx-art.x)/art.scale,wy=(my-art.y)/art.scale;const next=Math.max(.34,Math.min(1.35,art.scale*Math.exp(-event.deltaY*.001)));art.x=mx-wx*next;art.y=my-wy*next;art.scale=next;renderArtboard(); },{passive:false});
+      artViewport.addEventListener('keydown', event => { if(event.key==='+'){art.scale=Math.min(1.35,art.scale+.1);renderArtboard()} if(event.key==='-'){art.scale=Math.max(.34,art.scale-.1);renderArtboard()} });
+      window.addEventListener('resize',()=>{if(art.ready)renderArtboard()});
+
+      /* Depth corridor */
+      const corridorViewport=document.getElementById('corridor-viewport');
+      const corridorCards=[...document.querySelectorAll('.corridor-card')];
+      const railButtons=[...document.querySelectorAll('.rail-button')];
+      const corridorCopy=[
+        'Em giữ phần đang đọc ở trạng thái phẳng và rõ; các chapter trước–sau lùi vào chiều sâu để người xem luôn cảm được mình đang ở đâu trong hành trình.',
+        'Đi sâu một lớp: cùng portfolio ấy, giờ trọng tâm chuyển từ ownership sang cách kỹ thuật hậu kỳ tạo ra cảm giác.',
+        'Chapter hậu trường nằm sâu hơn final image, nhưng em có thể kéo nó ra trước để chứng minh năng lực điều phối mà reel thường che mất.',
+        'Điểm cuối là commercial constraint. Người xem vẫn đọc một layout bình thường, nhưng đã thực sự đi xuyên qua cấu trúc năng lực.'
+      ];
+      let corridorIndex=0, wheelLock=false, touchStartY=0;
+
+      function setCorridor(index) {
+        corridorIndex=(index+corridorCards.length)%corridorCards.length;
+        corridorCards.forEach((card,i)=>{
+          const r=i-corridorIndex;
+          let x=0,y=0,z=0,ry=0,scale=1,opacity=1,blur=0;
+          if(r===0){z=120;}
+          else if(r>0){x=(r%2?1:-1)*Math.min(210,90+r*34);y=r*28;z=-r*520;ry=(r%2?-1:1)*(6+r*2);scale=Math.max(.72,1-r*.06);opacity=Math.max(.18,1-r*.22);blur=Math.max(0,r-1)*1.2;}
+          else{x=-Math.min(300,150+Math.abs(r)*40);y=-40;z=240+Math.abs(r)*80;ry=18;scale=.86;opacity=0;blur=3;}
+          card.style.transform=`translate3d(calc(-50% + ${x}px),calc(-50% + ${y}px),${z}px) rotateY(${ry}deg) scale(${scale})`;
+          card.style.opacity=opacity;card.style.filter=`blur(${blur}px) saturate(${r===0?1:.7})`;card.style.zIndex=String(20-r);
+          card.classList.toggle('is-active',r===0);card.setAttribute('aria-hidden',String(r!==0));
+        });
+        railButtons.forEach((button,i)=>button.setAttribute('aria-current',String(i===corridorIndex)));
+        document.getElementById('corridor-dialogue').textContent=corridorCopy[corridorIndex];
+        document.getElementById('corridor-next').textContent=corridorIndex===corridorCards.length-1?'Về đầu ↑':'Đi sâu hơn ↓';
+      }
+
+      railButtons.forEach((button,index)=>button.addEventListener('click',()=>setCorridor(index)));
+      document.getElementById('corridor-next').addEventListener('click',()=>setCorridor(corridorIndex+1));
+      corridorViewport.addEventListener('wheel',event=>{event.preventDefault();if(wheelLock||Math.abs(event.deltaY)<12)return;wheelLock=true;setCorridor(corridorIndex+(event.deltaY>0?1:-1));setTimeout(()=>wheelLock=false,620)},{passive:false});
+      corridorViewport.addEventListener('keydown',event=>{if(['ArrowDown','ArrowRight','PageDown'].includes(event.key)){event.preventDefault();setCorridor(corridorIndex+1)}if(['ArrowUp','ArrowLeft','PageUp'].includes(event.key)){event.preventDefault();setCorridor(corridorIndex-1)}});
+      corridorViewport.addEventListener('pointerdown',event=>{touchStartY=event.clientY});
+      corridorViewport.addEventListener('pointerup',event=>{const dy=event.clientY-touchStartY;if(Math.abs(dy)>55)setCorridor(corridorIndex+(dy<0?1:-1))});
+      setCorridor(0);
+
+      /* Node narrative + Visual Novel Guide Object */
+      const nodeViewport=document.getElementById('node-viewport');
+      const nodeScene=document.getElementById('node-scene');
+      const narrativeNodes=[...document.querySelectorAll('.narrative-node')];
+      const nodeEdges=[...document.querySelectorAll('.node-edge')];
+      const nodePositions=[
+        {x:0,y:-15,z:-80,ry:0,name:'Minato Makoto',slug:'root'},
+        {x:-405,y:-205,z:-300,ry:13,name:'Harmony 2025',slug:'harmony'},
+        {x:410,y:-190,z:-390,ry:-13,name:'Hi Thế Giới',slug:'hi_the_gioi'},
+        {x:-345,y:225,z:-540,ry:9,name:'Microlife BTS',slug:'microlife_bts'},
+        {x:390,y:235,z:-640,ry:-10,name:'Doraemon × LipIce',slug:'doraemon_lipice'}
+      ];
+      const nodeRoutes={
+        producer:{label:'Producer',nodes:[0,1,3,4],intro:'Bạn đang đánh giá khả năng sở hữu một dự án. Em sẽ đi từ identity root tới flagship, mở hậu trường vận hành rồi kết thúc ở commercial constraint.',complete:'Route Producer đã hoàn tất: ownership, production process và khả năng đáp ứng brand nằm trên cùng một đường bằng chứng.'},
+        post:{label:'Post-production',nodes:[0,2,4],intro:'Bạn muốn xem hậu kỳ. Em bỏ qua phần giới thiệu dài và nối thẳng identity root với project giàu edit–color–VFX, sau đó kiểm tra tư duy ấy dưới brand constraint.',complete:'Route hậu kỳ đã hoàn tất: một đầu là authorship, đầu còn lại là commercial discipline — không cần tách creative và technology.'},
+        mindset:{label:'Mindset',nodes:[0,3,1,2],intro:'Bạn muốn hiểu cách Minato tư duy. Em bắt đầu ở hậu trường, quay về flagship để thấy quyết định vận hành đi vào final, rồi đối chiếu với một project hậu kỳ đậm authorship.',complete:'Route tư duy đã hoàn tất: graph cho thấy cách quan sát, điều phối và hoàn thiện nối với nhau qua project thật.'}
+      };
+      const nodeDialogue=[
+        'Đây là root node, không phải một trang About đứng riêng. Từ đây em biên dịch cùng một portfolio thành route phù hợp với ý định của người xem.',
+        'Harmony là node ownership. Concept, con người trên set và bản final đều hội tụ ở đây nên nó là bằng chứng mở đầu mạnh nhất cho tuyến Producer.',
+        'Hi Thế Giới là node authorship hậu kỳ. Editing, color và VFX không chia nhánh; chúng cùng tạo một giọng hình ảnh duy nhất.',
+        'Microlife BTS mở lớp thường bị reel che đi: khả năng quan sát, điều phối và thích nghi khi hệ thống sản xuất đang chuyển động.',
+        'Doraemon × LipIce kiểm tra cùng tư duy dưới constraint thương mại: brand, nhịp hình và VFX phải cùng đúng trong một final.'
+      ];
+      const narrative={yaw:-3,pitch:-2,dolly:0,px:0,py:0,dragging:false,sx:0,sy:0,syaw:0,spitch:0,focus:null,routeKey:'producer',route:[0,1,3,4],step:-1};
+      let vnTimer=null;
+
+      function edgeKey(a,b){return a<b?`${a}-${b}`:`${b}-${a}`}
+
+      function positionNodeEdges(){
+        nodeEdges.forEach(edge=>{
+          const a=nodePositions[Number(edge.dataset.from)],b=nodePositions[Number(edge.dataset.to)];
+          const dx=b.x-a.x,dy=b.y-a.y,length=Math.hypot(dx,dy),angle=Math.atan2(dy,dx)*180/Math.PI;
+          edge.style.width=`${length}px`;
+          edge.style.transform=`translate3d(${a.x}px,${a.y}px,${(a.z+b.z)/2-12}px) rotateZ(${angle}deg)`;
+        });
+      }
+
+      function writeVN(text){
+        const target=document.getElementById('vn-text');
+        if(vnTimer)clearInterval(vnTimer);
+        if(window.matchMedia('(prefers-reduced-motion: reduce)').matches){target.textContent=text;return}
+        target.textContent='';let index=0;
+        vnTimer=setInterval(()=>{target.textContent+=text[index]||'';index++;if(index>=text.length){clearInterval(vnTimer);vnTimer=null}},11);
+      }
+
+      function renderNarrativeScene(){
+        const parallaxX=narrative.px*2,parallaxY=narrative.py*-1.4;
+        let transform;
+        if(narrative.focus===null){
+          transform=`translate3d(0,0,${narrative.dolly}px) rotateX(${narrative.pitch+parallaxY}deg) rotateY(${narrative.yaw+parallaxX}deg)`;
+        }else{
+          const node=nodePositions[narrative.focus];
+          transform=`translate3d(${-node.x}px,${-node.y}px,${-node.z+130+narrative.dolly}px) rotateX(${parallaxY*.3}deg) rotateY(${-node.ry+parallaxX*.3}deg)`;
+        }
+        nodeScene.style.transform=transform;
+      }
+
+      function refreshNarrativeGraph(){
+        const activePairs=new Set();
+        const travelledPairs=new Set();
+        for(let i=0;i<narrative.route.length-1;i++){
+          const key=edgeKey(narrative.route[i],narrative.route[i+1]);activePairs.add(key);
+          if(narrative.step>i)travelledPairs.add(key);
+        }
+        const currentPair=narrative.step>0?edgeKey(narrative.route[narrative.step-1],narrative.route[narrative.step]):null;
+        nodeEdges.forEach(edge=>{
+          const key=edgeKey(Number(edge.dataset.from),Number(edge.dataset.to));
+          edge.classList.toggle('is-route',activePairs.has(key));
+          edge.classList.toggle('is-travelled',travelledPairs.has(key));
+          edge.classList.toggle('is-current',key===currentPair);
+        });
+        narrativeNodes.forEach((node,index)=>{
+          const routeIndex=narrative.route.indexOf(index);
+          node.classList.toggle('is-route',routeIndex!==-1);
+          node.classList.toggle('is-visited',routeIndex!==-1&&routeIndex<=narrative.step);
+          node.classList.toggle('is-current',index===narrative.focus);
+        });
+        const routeData=nodeRoutes[narrative.routeKey];
+        const current=narrative.focus===null?null:nodePositions[narrative.focus];
+        document.getElementById('route-monitor-name').textContent=narrative.routeKey;
+        document.getElementById('route-monitor-count').textContent=String(narrative.route.length).padStart(2,'0');
+        document.getElementById('route-monitor-node').textContent=current?current.slug:'overview';
+        document.getElementById('vn-route-label').textContent=routeData.label;
+        document.getElementById('vn-node-label').textContent=current?current.name:'Overview';
+        document.getElementById('vn-progress-label').textContent=`${Math.max(0,narrative.step+1)} / ${narrative.route.length}`;
+        document.getElementById('vn-next').textContent=narrative.step<0?'Start route →':narrative.step===narrative.route.length-1?'Complete route →':'Next node →';
+        document.querySelectorAll('.vn-choice').forEach(button=>button.setAttribute('aria-current',String(button.dataset.vnRoute===narrative.routeKey)));
+      }
+
+      function focusNarrativeNode(index,announce=true){
+        narrative.focus=index;narrative.dolly=0;
+        const routeIndex=narrative.route.indexOf(index);if(routeIndex!==-1)narrative.step=routeIndex;
+        refreshNarrativeGraph();renderNarrativeScene();
+        if(announce)writeVN(nodeDialogue[index]);
+      }
+
+      function narrativeOverview(text){
+        narrative.focus=null;narrative.step=-1;narrative.dolly=0;
+        refreshNarrativeGraph();renderNarrativeScene();
+        writeVN(text||nodeRoutes[narrative.routeKey].intro);
+      }
+
+      function chooseNarrativeRoute(key){
+        const route=nodeRoutes[key];if(!route)return;
+        narrative.routeKey=key;narrative.route=[...route.nodes];
+        narrativeOverview(route.intro);
+      }
+
+      function moveNarrativeRoute(delta){
+        if(delta>0&&narrative.step===narrative.route.length-1){narrativeOverview(nodeRoutes[narrative.routeKey].complete);return}
+        if(delta<0&&narrative.step<=0){narrativeOverview(nodeRoutes[narrative.routeKey].intro);return}
+        const next=Math.max(0,Math.min(narrative.route.length-1,narrative.step+delta));
+        focusNarrativeNode(narrative.route[next]);
+      }
+
+      narrativeNodes.forEach((node,index)=>node.querySelector('button').addEventListener('click',event=>{event.stopPropagation();focusNarrativeNode(index)}));
+      document.querySelectorAll('.vn-choice').forEach(button=>button.addEventListener('click',()=>chooseNarrativeRoute(button.dataset.vnRoute)));
+      document.getElementById('vn-back').addEventListener('click',()=>moveNarrativeRoute(-1));
+      document.getElementById('vn-overview').addEventListener('click',()=>narrativeOverview());
+      document.getElementById('vn-next').addEventListener('click',()=>moveNarrativeRoute(1));
+
+      nodeViewport.addEventListener('pointerdown',event=>{
+        if(event.target.closest('button'))return;
+        narrative.dragging=true;narrative.sx=event.clientX;narrative.sy=event.clientY;narrative.syaw=narrative.yaw;narrative.spitch=narrative.pitch;
+        nodeViewport.classList.add('is-dragging');nodeViewport.setPointerCapture(event.pointerId);
+      });
+      nodeViewport.addEventListener('pointermove',event=>{
+        const rect=nodeViewport.getBoundingClientRect();narrative.px=(event.clientX-rect.left)/rect.width*2-1;narrative.py=(event.clientY-rect.top)/rect.height*2-1;
+        if(narrative.dragging){
+          narrative.yaw=narrative.syaw+(event.clientX-narrative.sx)*.05;narrative.pitch=Math.max(-20,Math.min(16,narrative.spitch-(event.clientY-narrative.sy)*.04));
+          if(narrative.focus!==null){narrative.focus=null;narrative.step=-1;refreshNarrativeGraph()}
+        }
+        renderNarrativeScene();
+      });
+      const endNodeDrag=event=>{if(!narrative.dragging)return;narrative.dragging=false;nodeViewport.classList.remove('is-dragging');try{nodeViewport.releasePointerCapture(event.pointerId)}catch{}};
+      nodeViewport.addEventListener('pointerup',endNodeDrag);nodeViewport.addEventListener('pointercancel',endNodeDrag);
+      nodeViewport.addEventListener('wheel',event=>{event.preventDefault();narrative.dolly=Math.max(-180,Math.min(250,narrative.dolly-event.deltaY*.32));renderNarrativeScene()},{passive:false});
+      nodeViewport.addEventListener('keydown',event=>{if(event.key==='ArrowRight'){event.preventDefault();moveNarrativeRoute(1)}if(event.key==='ArrowLeft'){event.preventDefault();moveNarrativeRoute(-1)}if(event.key==='Escape'){event.preventDefault();narrativeOverview()}});
+
+      positionNodeEdges();refreshNarrativeGraph();renderNarrativeScene();
+
+      const requested=location.hash.slice(1);
+      setMode(modes.includes(requested)?requested:'spatial',false);
+    })();
+  </script>
+</body>
+</html>

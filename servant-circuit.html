@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <title>Servant Circuit Demo - Minato Makoto</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Jersey+25&family=VT323&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #060606;
+      --term: #39FF14;
+      --ice: #7dd3fc;
+      --acid: #bfff3f;
+      font-family: 'VT323', monospace;
+      color: var(--term);
+    }
+    body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: var(--bg); overflow: hidden; }
+    * { box-sizing: border-box; }
+
+    .top-bar {
+      position: fixed; top: 0; left: 0; right: 0; padding: 15px 25px;
+      display: flex; justify-content: space-between; align-items: center;
+      z-index: 100; font-family: 'Jersey 25', sans-serif; font-size: 28px;
+      color: var(--term); text-transform: uppercase;
+      background: linear-gradient(rgba(6,6,6,0.9), transparent);
+    }
+    .top-bar a { color: var(--term); text-decoration: none; border-bottom: 2px solid var(--term); }
+    .demo-label { background: var(--term); color: var(--bg); padding: 2px 8px; border-radius: 4px; font-size: 20px; }
+
+    .scene-container { position: absolute; inset: 0; perspective: 1200px; overflow: hidden; touch-action: none; outline: none; }
+    .scene { position: absolute; left: 50%; top: 50%; transform-style: preserve-3d; transition: transform 0.85s cubic-bezier(0.2,0.8,0.2,1); }
+    .scene.is-dragging { transition: none; }
+
+    .edge { position: absolute; height: 2px; background: var(--term); transform-origin: 0 50%; opacity: 0; box-shadow: 0 0 10px var(--term); pointer-events: none; transition: opacity 0.5s; }
+    .edge.active { opacity: 0.3; height: 2px; z-index: -1; }
+    .edge.travelled { opacity: 0.85; height: 3px; background: var(--acid); }
+    .edge.current { opacity: 1; height: 3px; background: var(--ice); box-shadow: 0 0 16px var(--ice); }
+
+    .node {
+      position: absolute; width: 320px; height: 180px; margin-left: -160px; margin-top: -90px;
+      transform-style: preserve-3d; transition: all 0.7s cubic-bezier(0.2,0.8,0.2,1);
+      cursor: pointer; border: 1px solid rgba(57, 255, 20, 0.3); background: rgba(6, 6, 6, 0.85);
+      backdrop-filter: blur(5px);
+    }
+    .node:hover { border-color: var(--term); box-shadow: 0 0 25px rgba(57,255,20,0.25); }
+
+    .node.focused {
+      width: 860px; height: 480px; margin-left: -430px; margin-top: -240px;
+      border-color: var(--term); z-index: 10; display: flex; cursor: default;
+      box-shadow: 0 0 40px rgba(57,255,20,0.15);
+    }
+    .node.focused:hover { transform: none; box-shadow: 0 0 40px rgba(57,255,20,0.15); }
+
+    .node-thumb { position: absolute; inset: 0; background-size: cover; background-position: center; transition: opacity 0.3s; }
+    .node-thumb::after { content: ''; position: absolute; inset: 0; background: linear-gradient(0deg, rgba(6,6,6,0.9), transparent 60%); }
+    .node-title { position: absolute; bottom: 0; left: 0; right: 0; padding: 10px 15px; font-size: 26px; font-family: 'Jersey 25', sans-serif; z-index: 2; }
+
+    .node-content { display: none; }
+    .node.focused .node-thumb { position: relative; width: 55%; height: 100%; border-right: 1px solid var(--term); }
+    .node.focused .node-thumb::after { background: rgba(6,6,6,0.2); }
+    .node.focused .node-title { display: none; }
+    .node.focused .node-content { width: 45%; padding: 25px; overflow-y: auto; color: var(--ice); font-size: 20px; display: block; line-height: 1.4; background: rgba(6,6,6,0.95); }
+    .node-detail-title { color: #fff; font: 34px/1 'Jersey 25', sans-serif; margin: 0 0 18px; }
+
+    .node-content b { color: var(--acid); font-family: 'Jersey 25', sans-serif; font-size: 24px; letter-spacing: 1px; display: block; margin-top: 15px; margin-bottom: 5px; text-transform: uppercase; }
+    .node-content b:first-child { margin-top: 0; }
+
+    .cursor { position: absolute; width: 70px; height: 70px; margin: -35px 0 0 -35px; border: 2px dashed var(--acid); border-radius: 50%; pointer-events: none; transition: opacity 0.6s ease; opacity: 0; z-index: 15; }
+    .cursor::after { content: ''; position: absolute; inset: -10px; border: 1px solid var(--term); border-radius: 50%; animation: spin 4s linear infinite; }
+    @keyframes spin { 100% { transform: rotate(360deg); } }
+
+    /* VN Dock */
+    .vn-dock {
+      position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
+      width: 90%; max-width: 850px; border: 1px solid var(--term);
+      background: rgba(6,6,6,0.92); display: flex; gap: 25px; padding: 25px;
+      z-index: 100; backdrop-filter: blur(12px);
+      box-shadow: 0 0 30px rgba(57,255,20,0.1);
+    }
+    .vn-portrait { width: 90px; height: 90px; border: 2px solid var(--term); border-radius: 50%; display: grid; place-items: center; font-size: 50px; font-family: 'Jersey 25'; color: var(--term); flex-shrink: 0; position: relative; }
+    .vn-portrait::before { content: ''; position: absolute; inset: -6px; border: 1px dashed var(--acid); border-radius: 50%; animation: spin 6s linear infinite reverse; }
+    .vn-body { flex: 1; display: flex; flex-direction: column; justify-content: space-between; gap: 15px; }
+    .vn-text { font-size: 24px; min-height: 70px; color: #fff; }
+    .vn-controls { display: flex; gap: 12px; flex-wrap: wrap; }
+
+    .btn { border: 1px solid var(--term); background: transparent; color: var(--term); font-family: 'VT323', monospace; font-size: 22px; padding: 6px 18px; cursor: pointer; text-transform: uppercase; transition: all 0.2s; }
+    .btn:hover, .btn:focus-visible { background: rgba(57,255,20,0.2); outline: none; }
+    .btn.active { background: var(--term); color: var(--bg); font-weight: bold; }
+
+    /* Mobile Corridor */
+    @media (max-width: 720px) {
+      .top-bar { font-size: 20px; padding: 10px 15px; }
+      .scene-container { overflow-y: auto; touch-action: auto; perspective: none; }
+      .scene { position: relative; left: 0; top: 0; transform: none !important; display: flex; flex-direction: column; gap: 20px; padding: 70px 20px 220px; width: 100%; margin: 0; transition: none; }
+
+      .node { position: relative; width: 100%; height: auto; margin: 0; transform: none !important; opacity: 0.4; transition: opacity 0.3s; }
+      .node:hover { transform: none; box-shadow: none; }
+      .node.in-route { opacity: 1; border-color: rgba(57, 255, 20, 0.6); }
+      .node.detour-available { display: block; opacity: 0.72; border-style: dashed; }
+      .node:not(.in-route):not(.detour-available) { display: none; }
+
+      .node.focused { width: 100%; height: auto; margin: 0; flex-direction: column; transform: none !important; box-shadow: 0 0 15px rgba(57,255,20,0.2); }
+      .node.focused .node-thumb { width: 100%; height: 220px; border-right: none; border-bottom: 1px solid var(--term); }
+      .node.focused .node-content { width: 100%; max-height: none; }
+
+      .edge, .cursor { display: none !important; }
+
+      .vn-dock { bottom: 0; width: 100%; border-bottom: none; border-left: none; border-right: none; padding: 15px; gap: 15px; }
+      .vn-portrait { display: none; }
+      .vn-text { font-size: 20px; min-height: 50px; }
+      .btn { font-size: 18px; padding: 5px 12px; flex: 1; text-align: center; }
+    }
+
+    /* Reduced Motion */
+    @media (prefers-reduced-motion: reduce) and (max-width: 0px) {
+      * { transition: none !important; animation: none !important; }
+      .scene-container { overflow-y: auto; touch-action: auto; perspective: none; }
+      .scene { position: relative; left: 0; top: 0; transform: none !important; display: flex; flex-direction: column; gap: 20px; padding: 70px 20px 220px; width: 100%; margin: 0; }
+      .node { position: relative; width: 100%; height: auto; margin: 0; transform: none !important; opacity: 0.4; }
+      .node.in-route { opacity: 1; }
+      .node.detour-available { display: block; opacity: 0.72; border-style: dashed; }
+      .node:not(.in-route):not(.detour-available) { display: none; }
+      .node.focused { width: 100%; height: auto; margin: 0; flex-direction: column; transform: none !important; }
+      .node.focused .node-thumb { width: 100%; height: 250px; border-right: none; border-bottom: 1px solid var(--term); }
+      .node.focused .node-content { width: 100%; }
+      .edge, .cursor { display: none !important; }
+    }
+  </style>
+</head>
+<body>
+  <header class="top-bar">
+    <div><span class="demo-label">PHASE 0 DEMO</span></div>
+    <a href="index.html">← Back to Index</a>
+  </header>
+
+  <main class="scene-container" id="scene-container" tabindex="0" aria-label="3D Portfolio Graph">
+    <div class="scene" id="scene">
+      <div id="spatial-cursor" class="cursor"></div>
+    </div>
+  </main>
+
+  <aside class="vn-dock" aria-label="Servant Guide Interface">
+    <div class="vn-portrait" aria-hidden="true">☾</div>
+    <div class="vn-body">
+      <div class="vn-text" id="vn-text" aria-live="polite">Initializing Servant Circuit...</div>
+      <div class="vn-controls" id="vn-buttons"></div>
+    </div>
+  </aside>
+
+  <script>
+    const CARD_DATA = {
+      'personal-info-card': {
+        title: 'Minato Makoto',
+        pos: {x: 0, y: 0, z: 0},
+        thumb: 'src/assets/images/og-preview.jpg',
+        text: "<b>IDENTITY HUB</b><br>𝐌𝐢𝐧𝐚𝐭𝐨 𝐌𝐚𝐤𝐨𝐭𝐨 ↔ 𝐋𝐮̛𝐨̛𝐧𝐠 𝐁𝐚̉𝐨 𝐇𝐮𝐲<br>Core Identity: 𝑁𝑂𝑉𝐴.𝝅.𝟑.𝟏𝟒<br>Geometry: Ϝ(𝒙,𝒚) = ∑ᵢ 𝒅(𝑷,𝑨ᵢ) = 𝒌<br><br><b>INTENT</b><br>Minato base từ Photographer, sau đó là Graphic Designer với Adobe Creative Suite và hiện tại đang là Producer tự do chuyên về Video và Photo.<br><br><b>SYSTEM</b><br>Director of Artificial Intelligence là định danh claim từ AI."
+      },
+      'harmony-card': {
+        title: 'Harmony 2025',
+        pos: {x: -350, y: -150, z: -300},
+        thumb: 'https://drive.google.com/thumbnail?id=1X-_4rjqvc4X_ZVYo5BYFDoEBzp_DtkwZ&sz=w1000',
+        text: "<b>INTENT</b><br>Toàn bộ quá trình của dự án video Harmony - Better With You được Minato phụ trách: tiền kỳ, on-set và hậu kỳ.<br><br><b>SYSTEM & PROOF</b><br>Đây là sản phẩm minh chứng năng lực tổng thể từ khâu sáng tạo đến khâu kỹ thuật, thể hiện rõ vai trò Producer ∴ Project Owner."
+      },
+      'daydream-card': {
+        title: 'Day Dreams Final',
+        pos: {x: -600, y: -300, z: -450},
+        thumb: 'https://drive.google.com/thumbnail?id=1PsYIUeHpntiBvQT1aYqrY8rd0KGJlU4B&sz=w1000',
+        text: "<b>INTENT</b><br>Với dự án RECAP DAY DREAMS FINAL 2024, Minato đảm nhận vai trò Producer, chịu trách nhiệm xuyên suốt từ khâu lên ý tưởng, sản xuất tại hiện trường cho đến hoàn thiện hậu kỳ.<br><br><b>PROOF</b><br>Video này là minh chứng cho khả năng quản lý và thực thi toàn diện một dự án, đảm bảo sản phẩm cuối cùng truyền tải đúng tinh thần và năng lượng của sự kiện."
+      },
+      'microlife-bts-card': {
+        title: 'Microlife BTS',
+        pos: {x: 350, y: 150, z: -250},
+        thumb: 'https://i.ytimg.com/vi/_V3pAcQBhPo/hqdefault.jpg',
+        text: "<b>INTENT</b><br>Dự án Microlife Talkshow 2021 Minato đảm nhận vai trò Producer Assistant - trợ lý sản xuất và ghi hình Behind The Scene cho thầy là Executive Producer.<br><br><b>SYSTEM</b><br>Công việc tập trung vào ghi nhận quy trình sản xuất, hỗ trợ tiền kỳ và các khoảnh khắc cần thiết, lưu trữ hình ảnh và truyền tải tinh thần của dự án."
+      },
+      'hithegioi-card': {
+        title: 'Hi Thế Giới',
+        pos: {x: 450, y: -100, z: -400},
+        thumb: 'https://i.ytimg.com/vi/wBWQsfxG4eE/hqdefault.jpg',
+        text: "<b>INTENT</b><br>Toàn bộ hậu kỳ do Minato trực tiếp thực hiện, đảm bảo từ xử lý kỹ thuật đến hoàn thiện sáng tạo.<br><br><b>PROOF</b><br>Đây là ví dụ cho năng lực one man army trong post-production."
+      },
+      'motor-fest-card': {
+        title: 'Motor Fest 2023',
+        pos: {x: 650, y: -200, z: -600},
+        thumb: 'https://drive.google.com/thumbnail?id=1LHlJL_vV7l8I4_F-JIutWN8wlMhoGaEn&sz=w1000',
+        text: "<b>INTENT</b><br>Motor Fest 2023 ghi dấu khả năng solo hậu kỳ: áp lực thời gian cùng với phân chia công việc giữa Công ty và Freelance.<br><br><b>SYSTEM</b><br>Minato biến hỗn loạn thành phản xạ, sử dụng thời gian hợp lý để có thể đáp ứng nhu cầu của các đối tác."
+      },
+      'doraemon-tvc-card': {
+        title: 'Doraemon TVC',
+        pos: {x: -200, y: 250, z: -550},
+        thumb: 'https://i.ytimg.com/vi/7w3royxjrtw/hqdefault.jpg',
+        text: "<b>INTENT</b><br>Trong dự án TVC Doraemon Lipice Sheer Color, Minato đảm nhận vai trò Producer Assistant, tập trung chủ yếu vào giai đoạn hậu kỳ.<br><br><b>SYSTEM</b><br>Trách nhiệm chính là phối hợp thực hiện phần VFX (Visual Effects), đảm bảo các hiệu ứng hình ảnh được hoàn thiện đúng theo yêu cầu của kịch bản và tiêu chuẩn của nhãn hàng."
+      },
+      'contact-card': {
+        title: 'Contact / Exit',
+        pos: {x: 0, y: 0, z: -900},
+        thumb: 'src/assets/images/og-preview.jpg',
+        text: "<b>INTENT</b><br>Đây là kênh liên lạc trực tiếp.<br><br><b>SYSTEM & PROOF</b><br><a href='mailto:minatokiva@gmail.com'>minatokiva@gmail.com</a><br><a href='tel:+84704555527'>Zalo / WhatsApp: +84 704 5555 27</a>"
+      }
+    };
+
+    const ROUTES = {
+      producer: ['personal-info-card', 'harmony-card', 'microlife-bts-card', 'doraemon-tvc-card', 'contact-card'],
+      post: ['personal-info-card', 'hithegioi-card', 'motor-fest-card', 'doraemon-tvc-card', 'contact-card'],
+      process: ['personal-info-card', 'microlife-bts-card', 'harmony-card', 'hithegioi-card', 'contact-card']
+    };
+
+    const VN_TEXTS = {
+      hub: "Chào mừng Minato-sama. Không gian 3D chứa các project của hệ thống Servant Circuit đã khởi tạo. Hãy chọn một tuyến xem (route) bên dưới để em dẫn đường.",
+      orbiting: "Chế độ quan sát tự do. Kéo chuột để xoay, cuộn để zoom. Tuyến xem hiện tại vẫn được bảo lưu. Nhấn Overview để về trung tâm.",
+      producer_start: "Route Producer: Nhấn mạnh vào khả năng làm chủ toàn bộ dự án từ tiền kỳ đến hậu kỳ. Điểm bắt đầu: Identity Hub.",
+      post_start: "Route Post-Production: Nhấn mạnh vào kỹ năng dựng phim, màu sắc và VFX. Điểm bắt đầu: Identity Hub.",
+      process_start: "Route Process: Nhấn mạnh vào tư duy giải quyết vấn đề và quy trình sản xuất. Điểm bắt đầu: Identity Hub.",
+      detour: "Đây là nhánh Day Dreams ngoài tuyến chính. Chọn Return để quay lại hành trình, hoặc Splice để đưa bằng chứng này vào route Producer."
+    };
+
+    let currentRoute = null;
+    let currentRouteIndex = 0;
+    let activeRouteNodes = [];
+    let focusedNode = null;
+
+    let cam = { tx: 0, ty: 0, tz: -500, rx: 15, ry: -20, dolly: 0 };
+    let isDragging = false;
+    let startX, startY, startRy, startRx;
+
+    const isMobile = () => window.innerWidth <= 720;
+
+    function init() {
+      const scene = document.getElementById('scene');
+
+      Object.keys(CARD_DATA).forEach(id => {
+        const data = CARD_DATA[id];
+        const node = document.createElement('div');
+        node.className = 'node';
+        node.id = id;
+        node.tabIndex = 0;
+        node.setAttribute('role', 'button');
+        node.setAttribute('aria-label', data.title);
+
+        node.style.transform = `translate3d(${data.pos.x}px, ${data.pos.y}px, ${data.pos.z}px)`;
+
+        node.innerHTML = `
+          <div class="node-thumb" style="background-image: url('${data.thumb}')"></div>
+          <div class="node-title">${data.title}</div>
+          <div class="node-content"><h2 class="node-detail-title">${data.title}</h2>${data.text}</div>
+        `;
+
+        const triggerFocus = (e) => {
+          if (e.target.closest('.node-content')) return;
+          if (node.classList.contains('focused')) return;
+          focusNode(id);
+          updateVNDock();
+        };
+
+        node.addEventListener('click', triggerFocus);
+        node.addEventListener('keydown', (e) => { if (e.key === 'Enter') triggerFocus(e); });
+
+        scene.appendChild(node);
+      });
+
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && focusedNode) {
+          goOverview();
+        } else if (currentRoute && (e.key === 'ArrowRight' || e.key === 'ArrowDown') && currentRouteIndex < activeRouteNodes.length - 1) {
+          e.preventDefault();
+          navRoute(1);
+        } else if (currentRoute && (e.key === 'ArrowLeft' || e.key === 'ArrowUp') && currentRouteIndex > 0) {
+          e.preventDefault();
+          navRoute(-1);
+        }
+      });
+
+      const container = document.getElementById('scene-container');
+      container.addEventListener('pointerdown', (e) => {
+        if (e.target.closest('.node.focused')) return;
+        if (isMobile()) return;
+        isDragging = true;
+        startX = e.clientX; startY = e.clientY;
+        startRy = cam.ry; startRx = cam.rx;
+        scene.classList.add('is-dragging');
+        container.setPointerCapture(e.pointerId);
+      });
+
+      container.addEventListener('pointermove', (e) => {
+        if (!isDragging) return;
+        const dx = e.clientX - startX;
+        const dy = e.clientY - startY;
+        cam.ry = startRy + dx * 0.25;
+        cam.rx = startRx - dy * 0.25;
+
+        updateCamera();
+      });
+
+      const endDrag = (e) => {
+        if(!isDragging) return;
+        isDragging = false;
+        scene.classList.remove('is-dragging');
+        try{ container.releasePointerCapture(e.pointerId); }catch(err){}
+      };
+      container.addEventListener('pointerup', endDrag);
+      container.addEventListener('pointercancel', endDrag);
+
+      container.addEventListener('wheel', (e) => {
+        if (e.target.closest('.node-content') || isMobile()) return;
+        e.preventDefault();
+        cam.dolly = Math.min(1000, Math.max(-2000, cam.dolly - e.deltaY));
+        updateCamera();
+      }, {passive: false});
+
+      window.addEventListener('resize', () => {
+        updateCamera();
+        if (isMobile()) updateRouteHighlight();
+      });
+
+      updateRouteHighlight();
+      focusNode('personal-info-card');
+      updateVNDock();
+    }
+
+    function updateCamera() {
+      const scene = document.getElementById('scene');
+      if (isMobile()) {
+        scene.style.transform = 'none';
+        return;
+      }
+      scene.style.transform = `translateZ(${cam.dolly}px) rotateX(${cam.rx}deg) rotateY(${cam.ry}deg) translate3d(${cam.tx}px, ${cam.ty}px, ${cam.tz}px)`;
+    }
+
+    function focusNode(id) {
+      focusedNode = id;
+      const nodeData = CARD_DATA[id];
+
+      document.querySelectorAll('.node').forEach(n => {
+        n.classList.remove('focused');
+        if (n.id === id) {
+          n.classList.add('focused');
+          n.focus();
+        }
+      });
+
+      const cursor = document.getElementById('spatial-cursor');
+      if (!isMobile()) {
+        cursor.style.transform = `translate3d(${nodeData.pos.x}px, ${nodeData.pos.y}px, ${nodeData.pos.z}px)`;
+        cursor.style.opacity = 1;
+
+        cam.tx = -nodeData.pos.x;
+        cam.ty = -nodeData.pos.y;
+        cam.tz = -nodeData.pos.z;
+        cam.rx = 0;
+        cam.ry = 0;
+        cam.dolly = 450;
+        updateCamera();
+      }
+    }
+
+    function drawRouteEdges() {
+      document.querySelectorAll('.edge').forEach(e => e.remove());
+      if (!currentRoute || isMobile()) return;
+
+      const nodes = activeRouteNodes;
+      const scene = document.getElementById('scene');
+
+      for (let i = 0; i < nodes.length - 1; i++) {
+        const p1 = CARD_DATA[nodes[i]].pos;
+        const p2 = CARD_DATA[nodes[i+1]].pos;
+
+        const dx = p2.x - p1.x, dy = p2.y - p1.y, dz = p2.z - p1.z;
+        const dist = Math.hypot(dx, dy, dz);
+        const ry = Math.atan2(-dz, dx);
+        const rz = Math.asin(dy / dist) || 0;
+
+        const edge = document.createElement('div');
+        edge.className = `edge active${i < currentRouteIndex ? ' travelled' : ''}${i === currentRouteIndex ? ' current' : ''}`;
+        edge.style.width = dist + 'px';
+        edge.style.transform = `translate3d(${p1.x}px, ${p1.y}px, ${p1.z}px) rotateY(${ry}rad) rotateZ(${rz}rad)`;
+        scene.appendChild(edge);
+      }
+    }
+
+    function updateRouteHighlight() {
+      if (!isMobile()) return;
+      const visibleNodes = currentRoute ? [...activeRouteNodes] : ['personal-info-card'];
+      if (currentRoute === 'producer' && !visibleNodes.includes('daydream-card')) visibleNodes.push('daydream-card');
+      document.querySelectorAll('.node').forEach(n => {
+        const isDetour = n.id === 'daydream-card' && currentRoute === 'producer' && !activeRouteNodes.includes(n.id);
+        n.classList.toggle('detour-available', isDetour);
+        if (visibleNodes.includes(n.id) && !isDetour) {
+          n.classList.add('in-route');
+        } else {
+          n.classList.remove('in-route');
+        }
+      });
+    }
+
+    let typeInterval;
+    function typeText(text) {
+      const el = document.getElementById('vn-text');
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        el.innerHTML = text;
+        return;
+      }
+      clearInterval(typeInterval);
+      el.innerHTML = '';
+      let i = 0;
+      typeInterval = setInterval(() => {
+        el.innerHTML += text.charAt(i);
+        i++;
+        if (i >= text.length) clearInterval(typeInterval);
+      }, 15);
+    }
+
+    function updateVNDock() {
+      const btnContainer = document.getElementById('vn-buttons');
+      let textToType = "";
+      btnContainer.innerHTML = '';
+
+      if (currentRoute === null) {
+        if (focusedNode === 'personal-info-card' || !focusedNode) {
+          textToType = VN_TEXTS.hub;
+          btnContainer.innerHTML = `
+            <button class="btn" onclick="startRoute('producer')">Producer</button>
+            <button class="btn" onclick="startRoute('post')">Post-production</button>
+            <button class="btn" onclick="startRoute('process')">Process</button>
+          `;
+        } else {
+          textToType = "Đang xem tự do ngoài Hub. Hãy chọn Overview để quay lại Identity Hub.";
+          btnContainer.innerHTML = `<button class="btn active" onclick="goOverview()">Overview</button>`;
+        }
+      } else {
+        if (!focusedNode) {
+          textToType = VN_TEXTS.orbiting;
+        } else if (focusedNode === activeRouteNodes[currentRouteIndex]) {
+          if (currentRouteIndex === 0) textToType = VN_TEXTS[`${currentRoute}_start`];
+          else {
+            const previous = CARD_DATA[activeRouteNodes[currentRouteIndex - 1]].title;
+            const current = CARD_DATA[activeRouteNodes[currentRouteIndex]].title;
+            textToType = `${previous} → ${current}: tuyến đang nối bằng chứng vừa xem với quyết định kế tiếp.`;
+          }
+        } else {
+          textToType = VN_TEXTS.detour;
+        }
+
+        if (currentRouteIndex > 0) {
+          btnContainer.innerHTML += `<button class="btn" onclick="navRoute(-1)">Back</button>`;
+        }
+        btnContainer.innerHTML += `<button class="btn" onclick="goOverview()">Overview</button>`;
+
+        if (focusedNode && focusedNode !== activeRouteNodes[currentRouteIndex]) {
+          btnContainer.innerHTML = `<button class="btn" onclick="returnToRoute()">Return</button>` +
+            (currentRoute === 'producer' && focusedNode === 'daydream-card' && !activeRouteNodes.includes('daydream-card') ? `<button class="btn active" onclick="spliceDetour()">Splice into route</button>` : '') +
+            `<button class="btn" onclick="goOverview()">Overview</button>`;
+        } else if (currentRouteIndex < activeRouteNodes.length - 1) {
+          btnContainer.innerHTML += `<button class="btn active" onclick="navRoute(1)">Continue</button>`;
+        } else {
+          btnContainer.innerHTML += `<button class="btn active" onclick="finishRoute()">Finish Route</button>`;
+        }
+      }
+      typeText(textToType);
+    }
+
+    window.startRoute = (routeId) => {
+      currentRoute = routeId;
+      currentRouteIndex = 0;
+      activeRouteNodes = [...ROUTES[routeId]];
+      drawRouteEdges();
+      updateRouteHighlight();
+      focusNode(activeRouteNodes[0]);
+      updateVNDock();
+    };
+
+    window.navRoute = (dir) => {
+      currentRouteIndex += dir;
+      focusNode(activeRouteNodes[currentRouteIndex]);
+      drawRouteEdges();
+      updateVNDock();
+      if (isMobile()) {
+        const target = document.getElementById(activeRouteNodes[currentRouteIndex]);
+        if(target) target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    };
+
+    window.returnToRoute = () => {
+      focusNode(activeRouteNodes[currentRouteIndex]);
+      updateVNDock();
+    };
+
+    window.spliceDetour = () => {
+      if (currentRoute !== 'producer' || focusedNode !== 'daydream-card' || activeRouteNodes.includes('daydream-card')) return;
+      const harmonyIndex = activeRouteNodes.indexOf('harmony-card');
+      activeRouteNodes.splice(harmonyIndex + 1, 0, 'daydream-card');
+      currentRouteIndex = harmonyIndex + 1;
+      drawRouteEdges();
+      updateRouteHighlight();
+      updateVNDock();
+    };
+
+    window.goOverview = () => {
+      focusedNode = null;
+      document.querySelectorAll('.node').forEach(n => n.classList.remove('focused'));
+      document.getElementById('spatial-cursor').style.opacity = 0;
+
+      if (!isMobile()) {
+        cam.tx = -150; cam.ty = 0; cam.tz = 200;
+        cam.rx = 15; cam.ry = -25; cam.dolly = -300;
+        updateCamera();
+      } else {
+        window.scrollTo({top: 0, behavior: 'smooth'});
+      }
+      updateVNDock();
+    };
+
+    window.finishRoute = () => {
+      currentRoute = null;
+      currentRouteIndex = 0;
+      activeRouteNodes = [];
+      drawRouteEdges();
+      updateRouteHighlight();
+      focusNode('personal-info-card');
+      updateVNDock();
+      if (isMobile()) window.scrollTo({top: 0, behavior: 'smooth'});
+    };
+
+    init();
+  </script>
+</body>
+</html>

@@ -26,6 +26,8 @@
               "src/assets",
               "styles.css",
               "mobile.html",
+              "portfolio-directions.html",
+              "servant-circuit-production.html",
               "blog"
             ]
           },
