@@ -68,7 +68,7 @@
       height: 100%;
       z-index: 1;
       display: block;
-      pointer-events: auto;
+      pointer-events: none;
     }
 
     #css3d-container {
@@ -88,12 +88,12 @@
     .project-plane {
       position: absolute;
       width: var(--panel-w);
-      height: calc(var(--panel-h) + var(--caption-h));
+      height: var(--panel-h);
       margin: 0;
       pointer-events: auto;
       opacity: 1;
       transform-origin: 50% 50%;
-      transition: opacity 300ms ease, filter 300ms ease;
+      transition: opacity 560ms cubic-bezier(.22, .8, .2, 1), filter 560ms cubic-bezier(.22, .8, .2, 1);
     }
 
     .project-plane.is-dimmed {
@@ -119,29 +119,32 @@
       transition: border-color 220ms ease, box-shadow 260ms ease, filter 260ms ease;
     }
 
-    .media-frame::before,
-    .media-frame::after {
-      content: "";
+    .flow-port {
       position: absolute;
-      z-index: 7;
+      top: 50%;
+      z-index: 5;
+      width: 56px;
+      height: 56px;
+      color: var(--accent-cyan);
       pointer-events: none;
     }
 
-    .media-frame::before {
-      inset: 12px;
-      border: 4px solid transparent;
-      border-top-color: rgba(222, 244, 255, 0.78);
-      border-left-color: rgba(67, 216, 255, 0.42);
-      clip-path: polygon(0 0, 32% 0, 32% 6px, 68% 6px, 68% 0, 100% 0, 100% 26%, calc(100% - 6px) 26%, calc(100% - 6px) 74%, 100% 74%, 100% 100%, 68% 100%, 68% calc(100% - 6px), 32% calc(100% - 6px), 32% 100%, 0 100%, 0 74%, 6px 74%, 6px 26%, 0 26%);
+    .flow-port-in {
+      left: 0;
+      transform: translate(-50%, -50%);
     }
 
-    .media-frame::after {
-      top: 22px;
-      right: 22px;
-      width: 8px;
-      height: 42%;
-      background: var(--accent-cyan);
-      box-shadow: 0 0 22px rgba(67, 216, 255, 0.82), 0 318px 0 rgba(226, 51, 51, 0.8);
+    .flow-port-out {
+      right: 0;
+      color: var(--accent-oxide);
+      transform: translate(50%, -50%);
+    }
+
+    .flow-port svg {
+      display: block;
+      width: 100%;
+      height: 100%;
+      overflow: visible;
     }
 
     .project-plane:hover .media-frame,
@@ -155,7 +158,6 @@
       box-shadow: 0 34px 100px rgba(0, 0, 0, 0.9), 0 0 54px rgba(67, 216, 255, 0.24), inset 0 0 0 8px rgba(4, 15, 25, 0.84);
     }
 
-    .panel-img,
     .panel-player,
     .node-hit {
       position: absolute;
@@ -164,23 +166,21 @@
       height: 100%;
     }
 
-    .panel-img {
-      z-index: 1;
-      object-fit: cover;
-      display: block;
-    }
-
     .panel-player {
-      z-index: 6;
+      z-index: 1;
       border: 0;
       display: block;
       background: #000;
       opacity: 0;
       pointer-events: none;
-      animation: player-online 260ms ease forwards;
+      transition: opacity 360ms cubic-bezier(.22, .8, .2, 1);
     }
 
-    body[data-state="STATION_LOCKED"] .project-plane[aria-current="true"] .panel-player {
+    .panel-player.is-ready {
+      opacity: 1;
+    }
+
+    body[data-state="STATION_LOCKED"] .project-plane[aria-current="true"] .panel-player.is-ready {
       pointer-events: auto;
     }
 
@@ -188,8 +188,10 @@
       position: absolute;
       inset: 0;
       z-index: 2;
-      background: linear-gradient(135deg, rgba(3, 10, 18, 0.04), rgba(3, 10, 18, 0.5));
+      background: linear-gradient(135deg, rgba(3, 10, 18, 0.04), rgba(3, 10, 18, 0.28));
       pointer-events: none;
+      opacity: 1;
+      transition: opacity 360ms cubic-bezier(.22, .8, .2, 1);
     }
 
     .node-hit {
@@ -206,10 +208,13 @@
       outline-offset: -14px;
     }
 
-    .project-plane.is-playing .node-hit,
-    .project-plane.is-playing .panel-overlay,
-    .project-plane.is-playing .panel-play {
+    .project-plane.is-playing .node-hit {
       display: none;
+    }
+
+    .project-plane.is-playing .panel-play,
+    .project-plane.is-playing .panel-player.is-ready + .panel-overlay {
+      opacity: 0;
     }
 
     .panel-play {
@@ -301,11 +306,6 @@
     body[data-state="STATION_LOCKED"] .project-plane[aria-current="true"] .node-caption {
       opacity: 0;
       transform: translateY(-12px);
-    }
-
-    @keyframes player-online {
-      from { opacity: 0; }
-      to { opacity: 1; }
     }
 
     /* 3. FIXED EDITORIAL HUD LAYER */
@@ -1067,9 +1067,7 @@
           title: 'Harmony 2025 – Better With You',
           role: 'Producer · Project Manager',
           routes: ['all', 'producer', 'process'],
-          thumb: 'https://drive.google.com/thumbnail?id=1X-_4rjqvc4X_ZVYo5BYFDoEBzp_DtkwZ&sz=w1280',
           link: 'https://drive.google.com/file/d/1X-_4rjqvc4X_ZVYo5BYFDoEBzp_DtkwZ/view',
-          alt: 'Harmony 2025 – Better With You video project thumbnail',
           cue: 'Toàn bộ tiền kỳ, on-set và hậu kỳ do Minato-sama trực tiếp phụ trách; minh chứng rõ nét vai trò Producer ∴ Project Owner.',
           intent: 'Toàn bộ quá trình của dự án video Harmony - Better With You được Minato phụ trách: tiền kỳ (ý tưởng, kịch bản, chuẩn bị), on-set (đạo diễn sản xuất, giám sát ghi hình) và hậu kỳ (dựng phim, chỉnh màu, hoàn thiện).',
           proof: 'Sản phẩm minh chứng năng lực tổng thể từ khâu sáng tạo đến khâu kỹ thuật thực thi.'
@@ -1080,9 +1078,7 @@
           title: 'RECAP DAY DREAMS FINAL 2024!',
           role: 'Producer · Project Manager',
           routes: ['all', 'producer', 'process'],
-          thumb: 'https://drive.google.com/thumbnail?id=1PsYIUeHpntiBvQT1aYqrY8rd0KGJlU4B&sz=w1280',
           link: 'https://drive.google.com/file/d/1PsYIUeHpntiBvQT1aYqrY8rd0KGJlU4B/view',
-          alt: 'RECAP DAY DREAMS FINAL 2024! video project thumbnail',
           cue: 'Chịu trách nhiệm từ lên ý tưởng, sản xuất hiện trường đến hoàn thiện hậu kỳ.',
           intent: 'Với dự án RECAP DAY DREAMS FINAL 2024, Minato đảm nhận vai trò Producer, chịu trách nhiệm xuyên suốt từ ý tưởng đến hoàn thiện.',
           proof: 'Khả năng quản lý và thực thi toàn diện, truyền tải trọn vẹn năng lượng sự kiện.'
@@ -1093,10 +1089,7 @@
           title: 'Microlife Talkshow 2021 | BTS',
           role: 'Post-production Supervisor · Producer Assistant',
           routes: ['all', 'process', 'producer'],
-          thumb: 'https://img.youtube.com/vi/_V3pAcQBhPo/maxresdefault.jpg',
-          thumbFallback: 'https://img.youtube.com/vi/_V3pAcQBhPo/hqdefault.jpg',
           link: 'https://www.youtube.com/watch?v=_V3pAcQBhPo',
-          alt: 'Microlife Talkshow 2021 Behind the Scene thumbnail',
           cue: 'Trợ lý sản xuất kiêm ghi hình BTS, lưu trữ hình ảnh và hỗ trợ quy trình cho Executive Producer.',
           intent: 'Hỗ trợ Executive Producer, tập trung vào quy trình sản xuất, tiền kỳ và ghi nhận các khoảnh khắc quan trọng.',
           proof: 'Khả năng ghi nhận và chuẩn hóa quy trình sản xuất talkshow truyền thông y tế.'
@@ -1107,9 +1100,7 @@
           title: 'Motor Fest 2023',
           role: 'Post-production Supervisor',
           routes: ['all', 'post'],
-          thumb: 'https://drive.google.com/thumbnail?id=1LHlJL_vV7l8I4_F-JIutWN8wlMhoGaEn&sz=w1280',
           link: 'https://drive.google.com/file/d/1LHlJL_vV7l8I4_F-JIutWN8wlMhoGaEn/view',
-          alt: 'Motor Fest 2023 video project thumbnail',
           cue: 'Minh chứng năng lực solo hậu kỳ dưới áp lực thời gian cao và cân đối đa dự án.',
           intent: 'Ghi dấu khả năng solo hậu kỳ: áp lực thời gian cùng với phân chia công việc giữa Công ty và Freelance.',
           proof: 'Biến hỗn loạn thành phản xạ, đáp ứng hoàn hảo tiêu chuẩn đối tác.'
@@ -1120,10 +1111,7 @@
           title: 'BLACKA - Hi Thế Giới | No No No ft. ARTHUR',
           role: 'Post-production Supervisor',
           routes: ['all', 'post'],
-          thumb: 'https://img.youtube.com/vi/wBWQsfxG4eE/maxresdefault.jpg',
-          thumbFallback: 'https://img.youtube.com/vi/wBWQsfxG4eE/hqdefault.jpg',
           link: 'https://www.youtube.com/watch?v=wBWQsfxG4eE',
-          alt: 'Hi Thế Giới music video thumbnail',
           cue: 'Toàn bộ hậu kỳ one-man army: kỹ thuật dựng, nhịp điệu và hoàn thiện sáng tạo.',
           intent: 'Toàn bộ hậu kỳ do Minato trực tiếp thực hiện, bảo đảm từ xử lý kỹ thuật đến hoàn thiện sáng tạo.',
           proof: 'Ví dụ điển hình cho năng lực one-man army trong post-production âm nhạc.'
@@ -1134,9 +1122,7 @@
           title: 'MV Lé - Dr Roc',
           role: 'Post-Production Supervisor',
           routes: ['all', 'post'],
-          thumb: 'https://drive.google.com/thumbnail?id=1yeMXF7wVZBWE2W7VHUQvHY1k7gREsfjD&sz=w1280',
           link: 'https://drive.google.com/file/d/1yeMXF7wVZBWE2W7VHUQvHY1k7gREsfjD/view',
-          alt: 'MV Lé - Dr Roc video project thumbnail',
           cue: 'Xử lý trọn vẹn hậu kỳ từ raw footage: Editing, Color Grading và VFX.',
           intent: 'Trong MV Lé – Dr Roc, Minato chính là toàn bộ hậu kỳ từ raw footage.',
           proof: 'Kiểm soát hình ảnh, màu sắc và VFX liền mạch, đồng nhất với tinh thần nghệ sĩ.'
@@ -1147,9 +1133,7 @@
           title: 'ĐỒNG CỎ LAU - Hành trình từ đất trời đến tổ ấm',
           role: 'Post-Production Supervisor',
           routes: ['all', 'post'],
-          thumb: 'https://drive.google.com/thumbnail?id=1cN1AkKCYtoxowWyVDofOIZlX4cZnrhGS&sz=w1280',
           link: 'https://drive.google.com/file/d/1cN1AkKCYtoxowWyVDofOIZlX4cZnrhGS/view',
-          alt: 'Đồng Cỏ Lau video project thumbnail',
           cue: 'Một mình gánh trọn hậu kỳ: dựng phim, màu sắc và dẫn dắt cảm xúc người xem.',
           intent: 'Một mình gánh trọn hậu kỳ cho ĐỒNG CỎ LAU từ dựng phim đến cảm xúc.',
           proof: 'Kiểm soát nhịp điệu kể chuyện tinh tế chạm đúng cảm xúc khách hàng.'
@@ -1160,9 +1144,7 @@
           title: 'Doraemon Lipice Sheer Color',
           role: 'VFX · Producer Assistant',
           routes: ['all', 'post', 'process', 'producer'],
-          thumb: 'https://i.ytimg.com/vi/7w3royxjrtw/hqdefault.jpg',
           link: 'https://www.youtube.com/watch?v=7w3royxjrtw',
-          alt: 'Doraemon Lipice Sheer Color TVC VFX thumbnail',
           cue: 'Phối hợp thực hiện VFX và giám sát hậu kỳ theo tiêu chuẩn khắt khe của nhãn hàng quốc tế.',
           intent: 'Đảm nhận vai trò Producer Assistant, phối hợp thực hiện phần VFX (Visual Effects).',
           proof: 'Đáp ứng chính xác tiêu chuẩn kỹ thuật thương mại của nhãn hàng Lipice.'
@@ -1173,9 +1155,7 @@
           title: 'Thái Long Yến Tiệc',
           role: 'Post-Production Supervisor',
           routes: ['all', 'post'],
-          thumb: 'https://drive.google.com/thumbnail?id=1oFDR_ff0AHRXJuIFiQy8suxvZNKuA_Bg&sz=w1280',
           link: 'https://drive.google.com/file/d/1oFDR_ff0AHRXJuIFiQy8suxvZNKuA_Bg/view',
-          alt: 'Thái Long Yến Tiệc video project thumbnail',
           cue: 'Mỗi khung hình và âm thanh đều đi qua bàn tay duy nhất, đảm bảo tính thẩm mỹ chuẩn mực.',
           intent: 'Độc lập thực hiện toàn bộ khâu hoàn thiện hậu kỳ cho dự án ẩm thực cao cấp.',
           proof: 'Sự tỉ mỉ trong xử lý ánh sáng thực phẩm và âm thanh yến tiệc.'
@@ -1186,10 +1166,7 @@
           title: 'The 2nd Chance - Hãy Thay Đổi Lối Sống',
           role: 'BTS · Producer Assistant',
           routes: ['all', 'process', 'producer'],
-          thumb: 'https://img.youtube.com/vi/5RVfxLfCHwg/maxresdefault.jpg',
-          thumbFallback: 'https://img.youtube.com/vi/5RVfxLfCHwg/hqdefault.jpg',
           link: 'https://www.youtube.com/watch?v=5RVfxLfCHwg',
-          alt: 'The 2nd Chance TVC thumbnail',
           cue: 'Dự án khởi đầu chuỗi truyền thông sức khỏe: hỗ trợ quy trình vận hành trơn tru từ tiền kỳ.',
           intent: 'Hỗ trợ Executive Producer, ghi hình BTS và bảo đảm quy trình vận hành trơn tru từ đầu.',
           proof: 'Nền tảng khởi động cho chuỗi TVC y tế dài hạn.'
@@ -1200,10 +1177,7 @@
           title: 'Bảo Vệ Gia Đình Phòng Ngừa Đột Quỵ',
           role: 'BTS · Producer Assistant',
           routes: ['all', 'process'],
-          thumb: 'https://img.youtube.com/vi/PPNA0KnOrNg/maxresdefault.jpg',
-          thumbFallback: 'https://img.youtube.com/vi/PPNA0KnOrNg/hqdefault.jpg',
           link: 'https://www.youtube.com/watch?v=PPNA0KnOrNg',
-          alt: 'Bảo Vệ Gia Đình Phòng Ngừa Đột Quỵ Talkshow thumbnail',
           cue: 'Điều phối sản xuất và ghi hình BTS với các chuyên gia y khoa hàng đầu (NSƯT Thành Lộc, ThS.BS Trần Công Duy).',
           intent: 'Điều phối sản xuất, ghi hình BTS và đảm bảo luồng công việc xuyên suốt với dàn cast chuyên nghiệp.',
           proof: 'Kinh nghiệm làm việc hiệu quả với các nhân vật công chúng và bác sĩ chuyên khoa.'
@@ -1222,18 +1196,22 @@
       const NODE_NATIVE_W = 1280;
       const NODE_NATIVE_H = 720;
       const NODE_CAPTION_NATIVE_H = 140;
+      const NODE_CAPTION_OFFSET_NATIVE = 28;
       const NODE_SCALE = 0.5;
       const NODE_WORLD_W = NODE_NATIVE_W * NODE_SCALE;
       const NODE_WORLD_H = NODE_NATIVE_H * NODE_SCALE;
-      const NODE_WORLD_TOTAL_H = (NODE_NATIVE_H + NODE_CAPTION_NATIVE_H) * NODE_SCALE;
+      const NODE_WORLD_BOTTOM_EXTENT = (NODE_NATIVE_H / 2 + NODE_CAPTION_OFFSET_NATIVE + NODE_CAPTION_NATIVE_H) * NODE_SCALE;
       const ROW_STEP = 520;
-      const DEPTHS = [0, -28, -44, -12, -24, -56, -72, -36, -50, -84, -102];
       const PANEL_LAYOUT = PROJECTS.map((project, idx) => ({
         x: idx % 2 === 0 ? -380 : 380,
         y: -Math.floor(idx / 2) * ROW_STEP,
-        z: DEPTHS[idx],
+        z: 0,
         yaw: 0
       }));
+      const FLOW_PORT_RADIUS = 14;
+      const FLOW_TERMINAL_GAP = 130;
+      const FLOW_TOP_Y = NODE_WORLD_H / 2 + FLOW_TERMINAL_GAP;
+      const FLOW_BOTTOM_Y = PANEL_LAYOUT[PANEL_LAYOUT.length - 1].y - NODE_WORLD_BOTTOM_EXTENT - FLOW_TERMINAL_GAP;
 
       // 3. SYSTEM STATE
       const state = {
@@ -1268,7 +1246,10 @@
 
       let webglRenderer, cssRenderer, scene, cssScene, camera;
       let projectPlaneElements = [];
-      let activePlayer = null;
+      const playerEntries = [];
+      let playerPreloadQueue = [];
+      let playerPreloadRunning = false;
+      let activePlayerIndex = -1;
       let presentationTimer = null;
 
       // 4. BOOT INITIALIZATION
@@ -1346,7 +1327,9 @@
         });
 
         // Check URL hash
+        playerPreloadQueue = playerEntries.map((_, idx) => idx);
         handleHashChange();
+        warmPlayerQueue();
 
         // Hide Boot Veil
         setTimeout(() => {
@@ -1356,70 +1339,94 @@
         wakeLoop();
       }
 
-      // 5. WEBGL NEURAL RAIL — connectors only; CSS3D owns every media surface
+      // 5. UNDERLAY SIGNAL PATH — noodles pass behind media; ports remain above it in CSS3D
       function buildArchitecturalWebGLScene() {
-        const busZ = -150;
-        const branchMaterial = new THREE.LineBasicMaterial({ color: 0x54788b, opacity: 0.28, transparent: true });
-        const bridgeMaterial = new THREE.LineBasicMaterial({ color: 0xb7dae8, opacity: 0.34, transparent: true });
-        const cyanMaterial = new THREE.MeshBasicMaterial({ color: 0x43d8ff, transparent: true, opacity: 0.9 });
-        const redMaterial = new THREE.MeshBasicMaterial({ color: 0xe23333, transparent: true, opacity: 0.92 });
-        const busMaterial = new THREE.MeshBasicMaterial({ color: 0x1666b0, transparent: true, opacity: 0.54 });
+        const flowZ = 0;
+        const ports = PANEL_LAYOUT.map(layout => ({
+          in: new THREE.Vector3(layout.x - NODE_WORLD_W / 2, layout.y, flowZ),
+          out: new THREE.Vector3(layout.x + NODE_WORLD_W / 2, layout.y, flowZ)
+        }));
+        const globalIn = new THREE.Vector3(0, FLOW_TOP_Y, flowZ);
+        const globalOut = new THREE.Vector3(0, FLOW_BOTTOM_Y, flowZ);
+        const noodleMaterial = new THREE.LineBasicMaterial({
+          color: 0xb7dae8,
+          opacity: 0.34,
+          transparent: true,
+          depthTest: false,
+          depthWrite: false,
+          fog: false
+        });
+        const addNoodle = (start, controlA, controlB, end) => {
+          const points = new THREE.CubicBezierCurve3(start, controlA, controlB, end).getPoints(48);
+          const noodle = new THREE.Line(new THREE.BufferGeometry().setFromPoints(points), noodleMaterial);
+          noodle.renderOrder = 1;
+          scene.add(noodle);
+        };
 
-        const busCurve = new THREE.CatmullRomCurve3([
-          new THREE.Vector3(0, 120, busZ),
-          new THREE.Vector3(0, -2860, busZ)
-        ]);
-        scene.add(new THREE.Mesh(new THREE.TubeGeometry(busCurve, 24, 1.7, 6, false), busMaterial));
+        addNoodle(
+          globalIn,
+          new THREE.Vector3(0, FLOW_TOP_Y - FLOW_TERMINAL_GAP * 0.6, flowZ),
+          new THREE.Vector3(ports[0].in.x - 170, ports[0].in.y + FLOW_TERMINAL_GAP, flowZ),
+          ports[0].in
+        );
 
-        const branchPoints = [];
-        const bridgePoints = [];
-        const rows = Math.ceil(PANEL_LAYOUT.length / 2);
-
-        for (let row = 0; row < rows; row += 1) {
-          const leftIdx = row * 2;
-          const rightIdx = leftIdx + 1;
-          const rowY = -row * ROW_STEP - 232;
-          const junction = new THREE.Vector3(0, rowY, busZ);
-
-          [leftIdx, rightIdx].forEach((idx) => {
-            if (!PANEL_LAYOUT[idx]) return;
-            const layout = PANEL_LAYOUT[idx];
-            const port = new THREE.Vector3(layout.x, rowY, layout.z - 8);
-            const elbow = new THREE.Vector3(layout.x > 0 ? 224 : -224, rowY, -86);
-            branchPoints.push(port, elbow, elbow, junction);
-
-            const ring = new THREE.Mesh(
-              new THREE.RingGeometry(10, 14, 6),
-              idx % 4 === 3 ? redMaterial : cyanMaterial
+        ports.forEach((port, idx) => {
+          const next = ports[idx + 1];
+          if (!next) {
+            addNoodle(
+              port.out,
+              new THREE.Vector3(port.out.x + FLOW_PORT_RADIUS * 4, port.out.y - 84, flowZ),
+              new THREE.Vector3(globalOut.x + FLOW_PORT_RADIUS * 4, globalOut.y + 104, flowZ),
+              globalOut
             );
-            ring.position.copy(port);
-            scene.add(ring);
-
-            const core = new THREE.Mesh(
-              new THREE.CircleGeometry(5, 4),
-              idx % 4 === 3 ? redMaterial : cyanMaterial
+          } else if (next.in.y === port.out.y) {
+            addNoodle(
+              port.out,
+              new THREE.Vector3(port.out.x + 34, port.out.y - 24, flowZ),
+              new THREE.Vector3(next.in.x - 34, next.in.y - 24, flowZ),
+              next.in
             );
-            core.position.copy(port);
-            core.position.z += 1;
-            core.rotation.z = Math.PI / 4;
-            scene.add(core);
-          });
-
-          if (rightIdx < PANEL_LAYOUT.length) {
-            bridgePoints.push(
-              new THREE.Vector3(PANEL_LAYOUT[leftIdx].x, rowY, PANEL_LAYOUT[leftIdx].z - 8),
-              new THREE.Vector3(0, rowY - 22, -118),
-              new THREE.Vector3(PANEL_LAYOUT[rightIdx].x, rowY, PANEL_LAYOUT[rightIdx].z - 8)
+          } else {
+            const midY = (port.out.y + next.in.y) / 2;
+            const midpoint = new THREE.Vector3(0, midY, flowZ);
+            addNoodle(
+              port.out,
+              new THREE.Vector3(port.out.x + FLOW_PORT_RADIUS * 4, port.out.y - ROW_STEP * 0.18, flowZ),
+              new THREE.Vector3(port.out.x + FLOW_PORT_RADIUS * 4, midY, flowZ),
+              midpoint
+            );
+            addNoodle(
+              midpoint,
+              new THREE.Vector3(next.in.x - FLOW_PORT_RADIUS * 4, midY, flowZ),
+              new THREE.Vector3(next.in.x - FLOW_PORT_RADIUS * 4, next.in.y + ROW_STEP * 0.18, flowZ),
+              next.in
             );
           }
-        }
+        });
 
-        scene.add(new THREE.LineSegments(new THREE.BufferGeometry().setFromPoints(branchPoints), branchMaterial));
+        const portMaterials = {
+          in: new THREE.MeshBasicMaterial({ color: 0x43d8ff, opacity: 0.9, transparent: true, depthTest: false, depthWrite: false }),
+          out: new THREE.MeshBasicMaterial({ color: 0xe23333, opacity: 0.92, transparent: true, depthTest: false, depthWrite: false })
+        };
+        const addPort = (position, type) => {
+          const ring = new THREE.Mesh(new THREE.RingGeometry(10, FLOW_PORT_RADIUS, 6), portMaterials[type]);
+          ring.position.copy(position);
+          ring.renderOrder = 2;
+          scene.add(ring);
 
-        for (let i = 0; i < bridgePoints.length; i += 3) {
-          const curve = new THREE.CatmullRomCurve3(bridgePoints.slice(i, i + 3));
-          scene.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(curve.getPoints(20)), bridgeMaterial));
-        }
+          const core = new THREE.Mesh(new THREE.CircleGeometry(5, 4), portMaterials[type]);
+          core.position.copy(position);
+          core.position.z += 1;
+          core.rotation.z = Math.PI / 4;
+          core.renderOrder = 3;
+          scene.add(core);
+        };
+
+        addPort(globalIn, 'in');
+        addPort(globalOut, 'out');
+
+        webglRenderer.domElement.dataset.flowPorts = String(ports.length * 2 + 2);
+        webglRenderer.domElement.dataset.flowLinks = String(ports.length + 1);
       }
 
       // 6. BUILD CSS3D SEMANTIC PROJECT PLANES
@@ -1436,28 +1443,29 @@
           article.setAttribute('aria-label', `${p.indexStr}. ${p.title}. ${p.role}`);
 
           article.innerHTML = `
+            <span class="flow-port flow-port-in" aria-hidden="true">
+              <svg viewBox="0 0 56 56" focusable="false">
+                <polygon points="28,3 49.7,15.5 49.7,40.5 28,53 6.3,40.5 6.3,15.5" fill="none" stroke="currentColor" stroke-width="8" />
+                <rect x="23" y="23" width="10" height="10" fill="currentColor" transform="rotate(45 28 28)" />
+              </svg>
+            </span>
             <div class="media-frame" data-qa="media-frame">
-              <img src="${p.thumb}" alt="${p.alt}" loading="lazy" class="panel-img" />
               <div class="panel-overlay"></div>
               <span class="panel-play"><span aria-hidden="true">▶</span> Open station</span>
               <button class="node-hit" type="button" aria-label="Mở station ${p.indexStr}: ${p.title}"></button>
             </div>
+            <span class="flow-port flow-port-out" aria-hidden="true">
+              <svg viewBox="0 0 56 56" focusable="false">
+                <polygon points="28,3 49.7,15.5 49.7,40.5 28,53 6.3,40.5 6.3,15.5" fill="none" stroke="currentColor" stroke-width="8" />
+                <rect x="23" y="23" width="10" height="10" fill="currentColor" transform="rotate(45 28 28)" />
+              </svg>
+            </span>
             <div class="node-caption" aria-hidden="true">
               <span class="node-index">${p.indexStr}</span>
               <span class="node-title">${p.title}</span>
               <span class="node-role">${p.role}</span>
             </div>
           `;
-
-          // Alternate thumbnail resolution only; there is no separate presentation mode.
-          const img = article.querySelector('.panel-img');
-          img.onerror = () => {
-            if (p.thumbFallback && img.src !== p.thumbFallback) {
-              img.src = p.thumbFallback;
-            } else {
-              img.removeAttribute('src');
-            }
-          };
 
           const nodeButton = article.querySelector('.node-hit');
           nodeButton.addEventListener('click', (event) => {
@@ -1473,7 +1481,12 @@
           cssObj.scale.setScalar(NODE_SCALE);
           cssScene.add(cssObj);
 
-          projectPlaneElements.push({ article, cssObj, nodeButton, mediaFrame: article.querySelector('.media-frame') });
+          const mediaFrame = article.querySelector('.media-frame');
+          const playerEntry = createPlayerShell(p);
+          mediaFrame.insertBefore(playerEntry.iframe, mediaFrame.firstChild);
+
+          projectPlaneElements.push({ article, cssObj, nodeButton });
+          playerEntries.push(playerEntry);
         });
       }
 
@@ -1515,17 +1528,16 @@
         const distance = Math.max(1100, contentHalfWidth / (hTan * fill));
         const visibleH = 2 * distance * vTan;
         const worldPerPx = visibleH / window.innerHeight;
-        const articlePx = NODE_WORLD_TOTAL_H / worldPerPx;
         const topSafe = aspect >= 1 ? 112 : 132;
         const bottomSafe = aspect >= 1 ? 112 : window.innerWidth <= 520 ? 94 : 110;
-        const topCenter = topSafe + articlePx / 2;
-        const bottomCenter = window.innerHeight - bottomSafe - articlePx / 2;
-        const topY = (topCenter - window.innerHeight / 2) * worldPerPx;
-        const lastY = PANEL_LAYOUT[PANEL_LAYOUT.length - 1].y;
-        const bottomY = lastY + (bottomCenter - window.innerHeight / 2) * worldPerPx;
+        const terminalRadiusPx = (FLOW_PORT_RADIUS + 8) / worldPerPx;
+        const topCenter = topSafe + terminalRadiusPx;
+        const bottomCenter = window.innerHeight - bottomSafe - terminalRadiusPx;
+        const topY = FLOW_TOP_Y + (topCenter - window.innerHeight / 2) * worldPerPx;
+        const bottomY = FLOW_BOTTOM_Y + (bottomCenter - window.innerHeight / 2) * worldPerPx;
 
         if (bottomY >= topY) {
-          const center = lastY / 2;
+          const center = (FLOW_TOP_Y + FLOW_BOTTOM_Y) / 2;
           return { distance, worldPerPx, min: center, max: center };
         }
         return { distance, worldPerPx, min: bottomY, max: topY };
@@ -1550,11 +1562,12 @@
         wakeLoop();
       }
 
-      // 9. ONE-ACTIVE-PLAYER LIFECYCLE
+      // 9. SEQUENTIAL PLAYER WARM-UP + ONE-ACTIVE-PLAYER LIFECYCLE
       function getEmbedConfig(project) {
         const driveMatch = project.link.match(/drive\.google\.com\/file\/d\/([^/]+)/);
         if (driveMatch) {
           return {
+            provider: 'drive',
             src: `https://drive.google.com/file/d/${driveMatch[1]}/preview`,
             allow: 'encrypted-media; picture-in-picture'
           };
@@ -1563,45 +1576,139 @@
         const url = new URL(project.link);
         const videoId = url.searchParams.get('v');
         return {
-          src: `https://www.youtube-nocookie.com/embed/${videoId}?playsinline=1&rel=0`,
+          provider: 'youtube',
+          src: `https://www.youtube-nocookie.com/embed/${videoId}?enablejsapi=1&playsinline=1&rel=0&origin=${encodeURIComponent(window.location.origin)}`,
           allow: 'accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share'
         };
       }
 
+      function createPlayerShell(project, attempts = 0) {
+        const config = getEmbedConfig(project);
+        const iframe = document.createElement('iframe');
+        Object.assign(iframe, {
+          className: 'panel-player',
+          title: `Video: ${project.title}`,
+          loading: 'eager',
+          referrerPolicy: 'strict-origin-when-cross-origin',
+          allow: config.allow,
+          allowFullscreen: true,
+          tabIndex: -1
+        });
+        iframe.dataset.qa = 'preloaded-player';
+        iframe.dataset.playerState = 'idle';
+        iframe.setAttribute('aria-hidden', 'true');
+        return { provider: config.provider, iframe, src: config.src, attempts };
+      }
+
+      async function warmPlayerQueue() {
+        if (playerPreloadRunning || document.hidden) return;
+        playerPreloadRunning = true;
+        while (!document.hidden) {
+          let idx = playerPreloadQueue.shift();
+          while (idx !== undefined && playerEntries[idx].iframe.dataset.playerState !== 'idle') idx = playerPreloadQueue.shift();
+          if (idx === undefined) break;
+
+          const entry = playerEntries[idx];
+          entry.attempts += 1;
+          entry.iframe.dataset.playerState = 'loading';
+          const loaded = await new Promise((resolve) => {
+            let settled = false;
+            const finish = (result) => {
+              if (settled) return;
+              settled = true;
+              clearTimeout(timeoutId);
+              entry.iframe.onload = entry.iframe.onerror = null;
+              resolve(result);
+            };
+            const timeoutId = setTimeout(() => finish(false), 12000);
+            entry.iframe.onload = () => finish(true);
+            entry.iframe.onerror = () => finish(false);
+            entry.iframe.src = entry.src;
+          });
+
+          if (loaded) {
+            entry.iframe.dataset.playerState = 'ready';
+            requestAnimationFrame(() => requestAnimationFrame(() => {
+              entry.iframe.classList.add('is-ready');
+              if (activePlayerIndex === idx && state.mode === 'STATION_LOCKED') {
+                entry.iframe.setAttribute('aria-hidden', 'false');
+                entry.iframe.tabIndex = 0;
+              }
+            }));
+          } else {
+            const replacement = createPlayerShell(PROJECTS[idx], entry.attempts);
+            entry.iframe.replaceWith(replacement.iframe);
+            playerEntries[idx] = replacement;
+            const isActive = activePlayerIndex === idx;
+            if (isActive) {
+              replacement.iframe.dataset.qa = 'active-player';
+            }
+            const retry = replacement.attempts < 2;
+            replacement.iframe.dataset.playerState = retry ? 'idle' : 'deferred';
+            if (retry) playerPreloadQueue[isActive ? 'unshift' : 'push'](idx);
+          }
+          if (!document.hidden && playerPreloadQueue.length) {
+            await new Promise(resolve => setTimeout(resolve, 320));
+          }
+        }
+        playerPreloadRunning = false;
+      }
+
+      function prioritizePlayerPreload(idx) {
+        const entry = playerEntries[idx];
+        if (!entry) return;
+        if (entry.iframe.dataset.playerState === 'deferred') {
+          entry.attempts = 0;
+          entry.iframe.dataset.playerState = 'idle';
+        }
+        if (entry.iframe.dataset.playerState !== 'idle') return;
+        playerPreloadQueue = [idx, ...playerPreloadQueue.filter(queuedIdx => queuedIdx !== idx)];
+        warmPlayerQueue();
+      }
+
       function unmountActivePlayer() {
-        if (!activePlayer) return;
-        const item = projectPlaneElements[activePlayer.index];
-        activePlayer.iframe.remove();
+        if (activePlayerIndex < 0) return;
+
+        const entry = playerEntries[activePlayerIndex];
+        const item = projectPlaneElements[activePlayerIndex];
+        entry.iframe.dataset.qa = 'preloaded-player';
+        entry.iframe.tabIndex = -1;
+        entry.iframe.setAttribute('aria-hidden', 'true');
+        if (entry.provider === 'youtube') {
+          try {
+            entry.iframe.contentWindow.postMessage(JSON.stringify({ event: 'command', func: 'pauseVideo', args: [] }), 'https://www.youtube-nocookie.com');
+          } catch (e) {}
+        }
+        // Drive has no reliable cross-origin pause API, so its loaded context stays resident.
         if (item) {
           item.article.classList.remove('is-playing');
           item.nodeButton.disabled = false;
         }
-        activePlayer = null;
+        activePlayerIndex = -1;
         updatePlaneAriaAttributes(state.mode === 'STATION_LOCKED' ? state.projectIndex : -1);
       }
 
       function mountActivePlayer(idx) {
         if (document.hidden || state.mode !== 'STATION_LOCKED' || idx !== state.projectIndex) return;
-        if (activePlayer && activePlayer.index === idx) return;
+        if (activePlayerIndex === idx) return;
         unmountActivePlayer();
 
-        const project = PROJECTS[idx];
         const item = projectPlaneElements[idx];
-        const config = getEmbedConfig(project);
-        const iframe = document.createElement('iframe');
-        iframe.className = 'panel-player';
-        iframe.setAttribute('data-qa', 'active-player');
-        iframe.src = config.src;
-        iframe.title = `Video: ${project.title}`;
-        iframe.loading = 'eager';
-        iframe.referrerPolicy = 'strict-origin-when-cross-origin';
-        iframe.allow = config.allow;
-        iframe.allowFullscreen = true;
-        item.mediaFrame.appendChild(iframe);
+        const entry = playerEntries[idx];
+        if (!item || !entry) return;
+
+        entry.iframe.setAttribute('data-qa', 'active-player');
         item.article.classList.add('is-playing');
         item.nodeButton.disabled = true;
         item.nodeButton.tabIndex = -1;
-        activePlayer = { index: idx, iframe };
+        activePlayerIndex = idx;
+
+        if (entry.iframe.dataset.playerState === 'ready') {
+          entry.iframe.setAttribute('aria-hidden', 'false');
+          entry.iframe.tabIndex = 0;
+        } else {
+          prioritizePlayerPreload(idx);
+        }
       }
 
       // 10. SCRIPTED PRESENTER — deterministic simulation, not a remote LLM call
@@ -1731,6 +1838,7 @@
       function goToStation(idx) {
         if (!PROJECTS[idx] || !state.activeRouteIndices.includes(idx)) return;
         unmountActivePlayer();
+        prioritizePlayerPreload(idx);
         cancelPresentation();
         state.mode = 'TRANSITIONING';
         state.destinationMode = 'STATION_LOCKED';
@@ -1852,7 +1960,7 @@
       }
 
       function updatePlaneAriaAttributes(activeIdx) {
-        const latticeInteractive = state.mode === 'OVERVIEW';
+        const latticeInteractive = state.mode === 'OVERVIEW' || state.destinationMode === 'OVERVIEW';
         projectPlaneElements.forEach((item, idx) => {
           const isActive = idx === activeIdx;
           const isOnRoute = state.activeRouteIndices.includes(idx);
@@ -2008,6 +2116,7 @@
             mountActivePlayer(state.projectIndex);
             startPresentation(state.projectIndex);
           }
+          warmPlayerQueue();
           wakeLoop();
         });
 
