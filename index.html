@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#070706">
+  <title>MINATO MAKOTO (Lương Bảo Huy) — 3D Z-Axis Spatial Portfolio &amp; Visual Novel HUD</title>
+  <meta name="description" content="Không gian 3D Z-Axis Node HUD &amp; Visual Novel Guide của Lương Bảo Huy (Minato Makoto) — Senior Designer, Video Editor, Photographer, Video Producer.">
+  <meta property="og:title" content="MINATO MAKOTO (Lương Bảo Huy) — 3D Spatial Portfolio">
+  <meta property="og:description" content="Senior Designer · Video Editor · Photographer · Video Producer — 13 Spatial Nodes along the Z-Axis Corridor.">
+  <meta property="og:type" content="website">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='10' fill='%23070706' stroke='%23ff4425' stroke-width='2'/%3E%3Cpath d='M14 46V18h8l10 15 10-15h8v28h-7V29L32 44 21 29v17z' fill='%23ece8df'/%3E%3C/svg%3E">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,500;0,600;1,400&family=Instrument+Serif:ital@0;1&family=Syne:wght@500;600;700;800&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="assets/css/tokens.css">
+  <link rel="stylesheet" href="assets/css/stage-nodes.css">
+  <link rel="stylesheet" href="assets/css/chrome-hud.css">
+</head>
+<body data-mode="OVERVIEW">
+  <div class="sr-only" id="a11y-live" role="status" aria-live="polite"></div>
+
+  <!-- 1. 3D VIEWPORT (WebGL Z-Corridor + CSS3D Multi-Plane HUD Nodes + Dreamina Oval/Comet Tether) -->
+  <main class="viewport" id="viewport">
+    <canvas id="webgl-layer"></canvas>
+    <div id="css3d-layer"></div>
+    <svg id="tether-svg" aria-hidden="true">
+      <defs>
+        <filter id="tether-glow-filter" x="-40%" y="-40%" width="180%" height="180%">
+          <feGaussianBlur stdDeviation="3.2" result="blur" />
+          <feMerge>
+            <feMergeNode in="blur" />
+            <feMergeNode in="SourceGraphic" />
+          </feMerge>
+        </filter>
+        <linearGradient id="tether-comet-grad" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stop-color="#ff4425" stop-opacity="0.08" />
+          <stop offset="55%" stop-color="#ff4425" stop-opacity="0.88" />
+          <stop offset="100%" stop-color="#cfece6" stop-opacity="1" />
+        </linearGradient>
+      </defs>
+      <g class="overview-wires-group" id="overview-wires-group"></g>
+      <path class="tether-path-base" id="tether-path-base" d="M0,0 L0,0"></path>
+      <path class="tether-path" id="tether-path" d="M0,0 L0,0"></path>
+      <path class="tether-comet-trail" id="tether-comet-trail" pathLength="1000" d="M0,0 L0,0"></path>
+      <circle class="tether-pulse" id="tether-pulse" cx="0" cy="0" r="10"></circle>
+      <circle class="tether-anchor" id="tether-anchor" cx="0" cy="0" r="4"></circle>
+      <circle class="tether-elbow" id="tether-elbow" cx="0" cy="0" r="3"></circle>
+      <g class="tether-capsule-group" id="tether-capsule-group" transform="translate(0,0) rotate(0) scale(1,1)">
+        <ellipse class="tether-packet-halo" id="tether-packet-halo" cx="0" cy="0" rx="7.5" ry="7.5"></ellipse>
+        <ellipse class="tether-packet-mid" id="tether-packet-mid" cx="0" cy="0" rx="4.8" ry="4.8"></ellipse>
+        <ellipse class="tether-packet" id="tether-packet" cx="0" cy="0" rx="3.1" ry="3.1"></ellipse>
+      </g>
+    </svg>
+  </main>
+
+  <!-- 2. TOP HEADER BAR — Full-Width Spread of Identity & Titles -->
+  <header class="chrome-top">
+    <div class="brand-block" id="brand-home-trigger" title="Về trang tổng Overview">
+      <span class="brand-emblem" aria-hidden="true">⧙</span>
+      <h1 class="brand-name">Minato Makoto <em>Lương Bảo Huy</em></h1>
+      <span class="brand-dob">29.03.1997</span>
+    </div>
+
+    <ul class="header-titles-spread" aria-label="Chức danh chuyên môn">
+      <li><span class="title-dot" aria-hidden="true"></span>Senior Designer</li>
+      <li><span class="title-dot" aria-hidden="true"></span>Video Editor</li>
+      <li><span class="title-dot" aria-hidden="true"></span>Photographer</li>
+      <li><span class="title-dot" aria-hidden="true"></span>Video Producer</li>
+    </ul>
+  </header>
+
+  <!-- 3. LEFT Z-AXIS DEPTH SCRUBBER -->
+  <aside class="z-scrubber" aria-label="Trục chiều sâu Z">
+    <div class="z-scrubber-head">
+      <span>Z-CORRIDOR // 13 NODES</span>
+      <strong id="scrubber-readout">OVERVIEW MODE</strong>
+    </div>
+    <div class="z-stops-list" id="z-stops-list">
+      <div class="z-progress-fill" id="z-progress-fill"></div>
+    </div>
+  </aside>
+
+  <!-- 4. PERSISTENT VISUAL NOVEL & CHAT SUB-HUD (Fixed Right-Side Position Across All Modes) -->
+  <section class="chat-dock" id="chat-dock" aria-label="Khung thuyết minh Visual Novel &amp; Sub-HUD của Witness">
+    <div class="subhud-rig" id="subhud-rig">
+      <div class="subhud-main-wrap">
+        <div class="subhud-layer-back" aria-hidden="true"></div>
+
+        <div class="subhud-chassis" id="subhud-chassis">
+          <div class="subhud-content-inner">
+            <header class="chat-header">
+              <div class="chat-header-left">
+                <span class="chat-signal-glyph" aria-hidden="true">⧙</span>
+                <span id="chat-channel-title">Witness π.3.14</span>
+                <span class="chat-online-dot" aria-hidden="true"></span>
+              </div>
+              <div class="chat-header-right">
+                <button class="chat-watch-btn" id="chat-action-btn" type="button">Mở Hồ sơ ↗</button>
+              </div>
+            </header>
+
+            <div class="chat-body-workspace">
+              <div class="chat-stream" id="chat-stream" role="log" aria-live="polite"></div>
+              <div class="chat-prompts" id="chat-prompts" aria-label="Lựa chọn nhánh hội thoại"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Floating Geometric Corner Brackets, 4-Edge Calipers & Unified Left Input Port -->
+        <div class="subhud-layer-frame" aria-hidden="true">
+          <span class="subhud-corner tl"></span>
+          <span class="subhud-corner tr"></span>
+          <span class="subhud-corner bl"></span>
+          <span class="subhud-corner br"></span>
+          <span class="subhud-edge top"></span>
+          <span class="subhud-edge bottom"></span>
+          <span class="subhud-edge left"></span>
+          <span class="subhud-edge right"></span>
+
+          <!-- Unified Left-Center Input Socket (Receives 13 Nodes in OVERVIEW and Active Node in JOURNEY) -->
+          <div class="chat-port-socket chat-port-left" id="chat-port-left">
+            <span class="socket-ring"><span class="socket-dot"></span></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right-Side Visual Novel Control Buttons (No "SLOT" text, Larger Icon & Text) -->
+      <nav class="subhud-external-rail" aria-label="Điều khiển hành trình Node">
+        <button class="vn-nav-btn" id="btn-prev-node" type="button" title="Node trước đó">
+          <span class="vn-btn-icon" aria-hidden="true">▲</span>
+          <span class="vn-btn-label">PREV</span>
+        </button>
+        <button class="vn-nav-btn is-overview-active" id="btn-overview-mode" type="button" title="Chuyển đổi Toàn cảnh (13 Nodes)">
+          <span class="vn-btn-icon" aria-hidden="true">❖</span>
+          <span class="vn-btn-label">MAP</span>
+        </button>
+        <button class="vn-nav-btn" id="btn-next-node" type="button" title="Node kế tiếp">
+          <span class="vn-btn-icon" aria-hidden="true">▼</span>
+          <span class="vn-btn-label">NEXT</span>
+        </button>
+      </nav>
+    </div>
+  </section>
+
+  <!-- Three.js r128 + CSS3DRenderer -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/renderers/CSS3DRenderer.js"></script>
+
+  <!-- Production Modular Scripts -->
+  <script defer src="assets/js/nodes-data.js"></script>
+  <script defer src="assets/js/text-fx.js"></script>
+  <script defer src="assets/js/subhud-controller.js"></script>
+  <script defer src="assets/js/scene-engine.js"></script>
+</body>
+</html>

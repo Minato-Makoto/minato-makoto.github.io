@@ -1,0 +1,1035 @@
+/* =========================================================================
+   MINATO MAKOTO — 3D STAGE, DREAMINA OVAL/COMET TETHERS & 3D HUD NODES
+   ========================================================================= */
+
+/* 1. 3D STAGE & DUAL-RENDERER VIEWPORT */
+.viewport {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 38% 46%, rgba(236, 232, 223, 0.048) 0%, transparent 65%),
+    var(--void);
+}
+
+.viewport::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 50% 50%, transparent 56%, rgba(4, 4, 3, 0.68) 100%),
+    repeating-linear-gradient(0deg, rgba(236, 232, 223, 0.008) 0 1px, transparent 1px 3px);
+}
+
+#webgl-layer {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  display: block;
+  pointer-events: none;
+}
+
+#css3d-layer {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 2;
+  pointer-events: none;
+}
+
+#css3d-layer > div {
+  pointer-events: none;
+}
+
+/* =========================================================================
+   2. DREAMINA-STYLE COMET STREAM & ELONGATED OVAL CAPSULE TETHER NETWORK
+   ========================================================================= */
+#tether-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 5;
+  pointer-events: none;
+  overflow: visible;
+}
+
+.overview-wires-group {
+  opacity: 1;
+  transition: opacity 380ms var(--ease-soft);
+}
+
+body[data-mode="JOURNEY"] .overview-wires-group {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.overview-wire-base {
+  fill: none;
+  stroke: rgba(207, 236, 230, 0.16);
+  stroke-width: 1.15;
+  transition: stroke 280ms var(--ease-soft), opacity 280ms var(--ease-soft), stroke-width 280ms var(--ease-soft);
+}
+
+.overview-wire-flow {
+  fill: none;
+  stroke: rgba(226, 171, 75, 0.45);
+  stroke-width: 1.25;
+  stroke-dasharray: 14 16;
+  stroke-linecap: round;
+  animation: tether-dash-loop 1.6s linear infinite;
+  transition: stroke 280ms var(--ease-soft), opacity 280ms var(--ease-soft), stroke-width 280ms var(--ease-soft);
+}
+
+/* Dreamina-Style Stretched Comet Stream on Active/Hovered Overview Wire */
+.overview-wire-comet {
+  fill: none;
+  stroke: url(#tether-comet-grad);
+  stroke-width: 2.6;
+  stroke-linecap: round;
+  stroke-dasharray: 150 1000;
+  filter: url(#tether-glow-filter);
+  opacity: 0;
+  transition: opacity 220ms var(--ease-soft);
+}
+
+.overview-wire-base.is-highlighted {
+  stroke: rgba(255, 68, 37, 0.62);
+  stroke-width: 1.85;
+}
+
+.overview-wire-flow.is-highlighted {
+  stroke: var(--phosphor);
+  stroke-width: 2;
+  stroke-dasharray: 18 12;
+}
+
+.overview-node-port {
+  fill: var(--void);
+  stroke: var(--phosphor);
+  stroke-width: 1.5;
+  opacity: 0.88;
+  transition: opacity 280ms var(--ease-soft), stroke 280ms var(--ease-soft);
+}
+
+.overview-hub-ring {
+  fill: rgba(7, 7, 6, 0.92);
+  stroke: var(--amber);
+  stroke-width: 1.5;
+}
+
+.overview-hub-core {
+  fill: var(--phosphor);
+}
+
+/* Journey Mode: Main Node (Left) -> Sub-HUD (Right) Bezier Bridge + Comet Trail */
+.tether-path-base {
+  fill: none;
+  stroke: rgba(207, 236, 230, 0.25);
+  stroke-width: 2.2;
+  opacity: 0;
+  transition: opacity 280ms var(--ease-soft);
+}
+
+.tether-path {
+  fill: none;
+  stroke: rgba(255, 68, 37, 0.65);
+  stroke-width: 1.6;
+  stroke-dasharray: 16 14;
+  stroke-linecap: round;
+  opacity: 0;
+  animation: tether-dash-loop 1.25s linear infinite;
+  transition: opacity 280ms var(--ease-soft);
+}
+
+.tether-comet-trail {
+  fill: none;
+  stroke: url(#tether-comet-grad);
+  stroke-width: 3.2;
+  stroke-linecap: round;
+  stroke-dasharray: 150 1000;
+  filter: url(#tether-glow-filter);
+  opacity: 0;
+  transition: opacity 280ms var(--ease-soft);
+}
+
+@keyframes tether-dash-loop {
+  from { stroke-dashoffset: 60; }
+  to   { stroke-dashoffset: 0; }
+}
+
+.tether-anchor,
+.tether-elbow {
+  fill: var(--void);
+  stroke: var(--signal);
+  stroke-width: 1.8;
+  opacity: 0;
+  transition: opacity 280ms var(--ease-soft);
+}
+
+.tether-elbow {
+  stroke: var(--phosphor);
+  stroke-width: 1.6;
+}
+
+.tether-pulse {
+  fill: none;
+  stroke: var(--signal);
+  stroke-width: 1.1;
+  opacity: 0;
+  transition: opacity 280ms var(--ease-soft);
+}
+
+/* Tangent-Aligned Elongated Oval Data Capsule (Dreamina Data Packet Style) */
+.tether-packet-halo {
+  fill: rgba(255, 68, 37, 0.16);
+  stroke: rgba(255, 68, 37, 0.62);
+  stroke-width: 1.1;
+  filter: drop-shadow(0 0 10px var(--signal));
+}
+
+.tether-packet-mid {
+  fill: rgba(207, 236, 230, 0.35);
+  filter: drop-shadow(0 0 8px var(--phosphor));
+}
+
+.tether-packet {
+  fill: #ffffff;
+  filter: drop-shadow(0 0 6px var(--phosphor));
+}
+
+body[data-mode="JOURNEY"] .tether-path-base { opacity: 0.85; }
+body[data-mode="JOURNEY"] .tether-path { opacity: 0.92; }
+body[data-mode="JOURNEY"] .tether-comet-trail { opacity: 0.98; }
+body[data-mode="JOURNEY"] .tether-anchor { opacity: 1; }
+body[data-mode="JOURNEY"] .tether-pulse { opacity: 0.45; }
+body[data-mode="JOURNEY"] .tether-elbow { opacity: 1; }
+
+/* =========================================================================
+   3. ENLARGED 4-LAYER FLOATING 3D HUD NODE (640x384 native)
+   ========================================================================= */
+.hud-node {
+  position: absolute;
+  width: var(--node-w);
+  height: var(--node-h);
+  pointer-events: auto;
+  transform-style: preserve-3d;
+  cursor: pointer;
+  opacity: 0.9;
+  transition:
+    opacity 520ms var(--ease-fluid),
+    filter 520ms var(--ease-fluid);
+}
+
+body[data-mode="JOURNEY"] .hud-node.is-distant {
+  opacity: 0.32;
+  filter: brightness(0.68);
+}
+
+body[data-mode="JOURNEY"] .hud-node.is-passed,
+.hud-node.is-behind-cam {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+
+.node-rig {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+}
+
+/* LAYER -1 (Back Z-Plane: -22px -> -48px on hover/active) */
+.node-layer-back {
+  position: absolute;
+  inset: -16px -22px;
+  transform: translateZ(-22px);
+  border: 1px dashed rgba(236, 232, 223, 0.14);
+  background:
+    linear-gradient(90deg, rgba(236, 232, 223, 0.025) 1px, transparent 1px),
+    linear-gradient(0deg, rgba(236, 232, 223, 0.025) 1px, transparent 1px);
+  background-size: 28px 28px;
+  animation: grid-drift-loop 14s linear infinite;
+  pointer-events: none;
+  transition:
+    inset 480ms cubic-bezier(0.19, 1, 0.22, 1),
+    transform 560ms cubic-bezier(0.19, 1, 0.22, 1),
+    border-color 420ms var(--ease-soft),
+    background-color 420ms var(--ease-soft),
+    box-shadow 420ms var(--ease-soft);
+}
+
+@keyframes grid-drift-loop {
+  from { background-position: 0 0, 0 0; }
+  to   { background-position: 28px 28px, 28px 28px; }
+}
+
+.node-ghost-index {
+  position: absolute;
+  top: -40px;
+  left: -10px;
+  font-family: var(--font-display);
+  font-size: 80px;
+  font-weight: 800;
+  line-height: 0.82;
+  letter-spacing: -0.04em;
+  color: transparent;
+  -webkit-text-stroke: 1px rgba(236, 232, 223, 0.16);
+  pointer-events: none;
+  transition:
+    -webkit-text-stroke-color 460ms var(--ease-soft),
+    transform 540ms cubic-bezier(0.19, 1, 0.22, 1),
+    filter 460ms var(--ease-soft);
+}
+
+.node-depth-ruler {
+  position: absolute;
+  right: -36px;
+  top: 0;
+  bottom: 0;
+  width: 26px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: flex-start;
+  font-size: 8.5px;
+  letter-spacing: 0.14em;
+  color: var(--ink-dim);
+  border-left: 1px solid rgba(236, 232, 223, 0.13);
+  padding-left: 6px;
+  transition: border-color 460ms var(--ease-soft), color 460ms var(--ease-soft);
+}
+
+/* LAYER 0 (Core Z-Plane: 0px) */
+.node-layer-core {
+  position: absolute;
+  inset: 0;
+  transform: translateZ(0px);
+  background: rgba(9, 9, 8, 0.92);
+  border: 1px solid var(--line);
+  overflow: visible;
+  transition:
+    border-color 420ms var(--ease-soft),
+    box-shadow 480ms cubic-bezier(0.19, 1, 0.22, 1),
+    transform 540ms cubic-bezier(0.19, 1, 0.22, 1);
+}
+
+.node-visual-poster {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.node-visual-poster svg.poster-art {
+  width: 100%;
+  height: 100%;
+  display: block;
+  transition: transform 680ms cubic-bezier(0.19, 1, 0.22, 1), opacity 460ms var(--ease-soft);
+}
+
+.poster-art .orbit-ring-cw {
+  transform-origin: 320px 192px;
+  animation: hud-spin-cw 38s linear infinite;
+}
+
+.poster-art .orbit-ring-ccw {
+  transform-origin: 320px 192px;
+  animation: hud-spin-ccw 28s linear infinite;
+}
+
+@keyframes hud-spin-cw {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+@keyframes hud-spin-ccw {
+  from { transform: rotate(360deg); }
+  to   { transform: rotate(0deg); }
+}
+
+.node-scan-beam {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 48px;
+  opacity: 0.28;
+  background: linear-gradient(
+    180deg,
+    transparent 0%,
+    rgba(207, 236, 230, 0.04) 48%,
+    rgba(255, 68, 37, 0.08) 50%,
+    transparent 100%
+  );
+  pointer-events: none;
+  z-index: 1;
+  animation: node-horizon-loop 7.6s ease-in-out infinite alternate;
+}
+
+@keyframes node-horizon-loop {
+  0%   { transform: translateY(-40px); }
+  100% { transform: translateY(336px); }
+}
+
+.node-shimmer {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    115deg,
+    transparent 20%,
+    rgba(236, 232, 223, 0.05) 46%,
+    rgba(255, 68, 37, 0.08) 50%,
+    transparent 75%
+  );
+  opacity: 0;
+  transition: opacity 420ms var(--ease-soft);
+  pointer-events: none;
+  z-index: 2;
+}
+
+.node-media-slot {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  background: rgba(7, 7, 6, 0.96);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 520ms var(--ease-soft);
+  overflow-y: auto;
+}
+
+.hud-node.is-playing .node-media-slot {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.node-media-slot iframe {
+  width: 100%;
+  height: 100%;
+  border: 0;
+  display: block;
+}
+
+/* Exact Right-Edge Port Anchor on .node-layer-core (0px offset with SVG wire) */
+.node-port-socket.port-right {
+  position: absolute;
+  right: -5px;
+  top: 50%;
+  width: 10px;
+  height: 10px;
+  transform: translateY(-50%);
+  border-radius: 50%;
+  background: transparent;
+  border: 0;
+  pointer-events: none;
+}
+
+/* Holographic Data Sheet (Node 00 & Node 04) */
+.node-data-sheet {
+  position: relative;
+  padding: 18px 22px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  font-size: 10.5px;
+  line-height: 1.48;
+  color: var(--ink-soft);
+  overflow: hidden;
+}
+
+.node-data-sheet::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--signal), var(--phosphor), var(--amber));
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform 860ms var(--ease-fluid);
+}
+
+.node-data-sheet.is-sheet-active::before {
+  transform: scaleX(1);
+}
+
+.sheet-head-anim {
+  opacity: 0;
+  transform: translateY(10px);
+  transition:
+    opacity 620ms var(--ease-fluid),
+    transform 680ms var(--ease-fluid);
+}
+
+.node-data-sheet.is-sheet-active .sheet-head-anim {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.node-data-sheet h3 {
+  font-family: var(--font-display);
+  font-size: 16.5px;
+  color: var(--ink);
+  margin-bottom: 5px;
+}
+
+.sheet-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 6px 12px;
+  margin: 8px 0;
+}
+
+.sheet-cell {
+  position: relative;
+  padding: 5px 9px 5px 11px;
+  border: 1px solid var(--line);
+  background: rgba(236, 232, 223, 0.025);
+  opacity: 0;
+  transform: translateY(14px) scale(0.97);
+  transition:
+    opacity 600ms var(--ease-fluid),
+    transform 660ms var(--ease-fluid),
+    border-color 480ms var(--ease-soft);
+  transition-delay: calc(var(--cell-i, 0) * 80ms + 120ms);
+}
+
+.sheet-cell::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: var(--signal);
+  transform: scaleY(0);
+  transform-origin: top;
+  transition: transform 520ms var(--ease-fluid);
+  transition-delay: calc(var(--cell-i, 0) * 80ms + 240ms);
+}
+
+.node-data-sheet.is-sheet-active .sheet-cell {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+.node-data-sheet.is-sheet-active .sheet-cell::before {
+  transform: scaleY(1);
+}
+
+.sheet-cell b {
+  display: block;
+  font-size: 8.5px;
+  color: var(--amber);
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+.sheet-cell span {
+  font-size: 10px;
+  color: var(--ink);
+}
+
+.sheet-skills-bars {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--line);
+  opacity: 0;
+  transform: translateY(10px);
+  transition:
+    opacity 660ms var(--ease-fluid) 460ms,
+    transform 660ms var(--ease-fluid) 460ms;
+}
+
+.node-data-sheet.is-sheet-active .sheet-skills-bars {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.skill-meter {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.skill-meter-top {
+  display: flex;
+  justify-content: space-between;
+  font-size: 8px;
+  letter-spacing: 0.06em;
+  color: var(--ink-soft);
+  text-transform: uppercase;
+}
+
+.skill-meter-top i {
+  font-style: normal;
+  color: var(--phosphor);
+}
+
+.skill-track {
+  height: 3.5px;
+  background: rgba(236, 232, 223, 0.12);
+  overflow: hidden;
+}
+
+.skill-fill {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, var(--signal), var(--phosphor));
+  transition: width 1120ms var(--ease-fluid) 540ms;
+}
+
+.node-data-sheet.is-sheet-active .skill-fill {
+  width: var(--pct, 90%);
+}
+
+/* =========================================================================
+   LAYER +1: 4 CORNER BRACKETS & 4 EDGE CALIPER RAILS (IN / OUT HOVER FX)
+   ========================================================================= */
+.node-layer-frame {
+  position: absolute;
+  inset: -7px;
+  transform: translateZ(18px);
+  pointer-events: none;
+  transition:
+    transform 520ms cubic-bezier(0.19, 1, 0.22, 1),
+    inset 480ms cubic-bezier(0.19, 1, 0.22, 1);
+}
+
+.hud-corner {
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  border-color: rgba(236, 232, 223, 0.55);
+  border-style: solid;
+  transform: translate3d(0, 0, 0);
+  transition:
+    transform 460ms cubic-bezier(0.19, 1, 0.22, 1),
+    width 460ms cubic-bezier(0.19, 1, 0.22, 1),
+    height 460ms cubic-bezier(0.19, 1, 0.22, 1),
+    border-color 360ms var(--ease-soft),
+    filter 360ms var(--ease-soft);
+}
+.hud-corner.tl { top: 0; left: 0; border-width: 2px 0 0 2px; }
+.hud-corner.tr { top: 0; right: 0; border-width: 2px 2px 0 0; }
+.hud-corner.bl { bottom: 0; left: 0; border-width: 0 0 2px 2px; }
+.hud-corner.br { bottom: 0; right: 0; border-width: 0 2px 2px 0; }
+
+/* 4 Geometric Edge Shutter Calipers (Expand outward along 4 sides + Glow on Hover) */
+.hud-edge {
+  position: absolute;
+  background: rgba(236, 232, 223, 0.42);
+  opacity: 0.34;
+  transition:
+    transform 480ms cubic-bezier(0.19, 1, 0.22, 1),
+    opacity 360ms var(--ease-soft),
+    background-color 360ms var(--ease-soft),
+    box-shadow 360ms var(--ease-soft);
+}
+
+.hud-edge.top {
+  top: 0;
+  left: 50%;
+  width: 62%;
+  height: 2px;
+  transform: translate3d(-50%, 0, 0) scaleX(0.16);
+}
+
+.hud-edge.bottom {
+  bottom: 0;
+  left: 50%;
+  width: 62%;
+  height: 2px;
+  transform: translate3d(-50%, 0, 0) scaleX(0.16);
+}
+
+.hud-edge.left {
+  left: 0;
+  top: 50%;
+  width: 2px;
+  height: 56%;
+  transform: translate3d(0, -50%, 0) scaleY(0.16);
+}
+
+.hud-edge.right {
+  right: 0;
+  top: 50%;
+  width: 2px;
+  height: 56%;
+  transform: translate3d(0, -50%, 0) scaleY(0.16);
+}
+
+.node-top-strip {
+  position: absolute;
+  top: -24px;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 9px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+  transition: transform 460ms cubic-bezier(0.19, 1, 0.22, 1);
+}
+
+.node-tally {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 8px;
+  border: 1px solid var(--line);
+  background: rgba(7, 7, 6, 0.9);
+  color: var(--ink-soft);
+  transition: border-color 420ms var(--ease-soft), color 420ms var(--ease-soft), box-shadow 420ms var(--ease-soft);
+}
+
+.node-tally-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--phosphor);
+  opacity: 0.8;
+  transition: background-color 420ms var(--ease-soft), box-shadow 420ms var(--ease-soft);
+}
+
+/* LAYER +2 (Front Z-Plane: +36px -> +64px on hover) */
+.node-layer-front {
+  position: absolute;
+  inset: 0;
+  transform: translateZ(36px);
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 16px 20px;
+  transition:
+    transform 560ms cubic-bezier(0.19, 1, 0.22, 1),
+    opacity 400ms var(--ease-soft);
+}
+
+.hud-node.is-playing .node-layer-front {
+  opacity: 0;
+}
+
+.node-reticle-wrap {
+  position: absolute;
+  left: 50%;
+  top: 46%;
+  width: 120px;
+  height: 120px;
+  transform: translate(-50%, -50%) scale(0.88);
+  opacity: 0.45;
+  transition:
+    transform 540ms cubic-bezier(0.19, 1, 0.22, 1),
+    opacity 420ms var(--ease-soft),
+    filter 420ms var(--ease-soft);
+}
+
+.node-reticle-svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.reticle-ring-outer {
+  transform-origin: 56px 56px;
+  animation: hud-spin-cw 26s linear infinite;
+  transition: stroke 420ms var(--ease-soft);
+}
+
+.reticle-ring-inner {
+  transform-origin: 56px 56px;
+  animation: hud-spin-ccw 19s linear infinite;
+  transition: stroke 420ms var(--ease-soft);
+}
+
+.reticle-lock-label {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0.92);
+  padding: 3px 9px;
+  background: rgba(7, 7, 6, 0.92);
+  border: 1px solid var(--line-mid);
+  font-size: 8px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  opacity: 0;
+  transition:
+    opacity 380ms var(--ease-soft),
+    transform 460ms cubic-bezier(0.19, 1, 0.22, 1),
+    border-color 380ms var(--ease-soft),
+    box-shadow 380ms var(--ease-soft);
+}
+
+.node-header-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.node-cat-badge {
+  padding: 3.5px 8px;
+  background: rgba(7, 7, 6, 0.86);
+  border: 1px solid var(--line);
+  font-size: 8.5px;
+  letter-spacing: 0.14em;
+  color: var(--amber);
+  text-transform: uppercase;
+  transition: border-color 380ms var(--ease-soft), box-shadow 380ms var(--ease-soft);
+}
+
+.node-coords-tag {
+  padding: 3.5px 8px;
+  background: rgba(7, 7, 6, 0.86);
+  border: 1px solid var(--line);
+  font-size: 8.5px;
+  letter-spacing: 0.13em;
+  color: var(--ink-dim);
+  transition: border-color 380ms var(--ease-soft), color 380ms var(--ease-soft);
+}
+
+.node-caption-deck {
+  background: linear-gradient(180deg, rgba(8, 8, 7, 0.78) 0%, rgba(8, 8, 7, 0.95) 100%);
+  border: 1px solid var(--line);
+  border-left: 2.5px solid var(--ink-soft);
+  padding: 11px 15px;
+  backdrop-filter: blur(8px);
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: end;
+  gap: 14px;
+  transition:
+    border-color 420ms var(--ease-soft),
+    box-shadow 420ms var(--ease-soft),
+    transform 480ms cubic-bezier(0.19, 1, 0.22, 1);
+}
+
+.node-title-main {
+  font-family: var(--font-display);
+  font-size: 19px;
+  font-weight: 700;
+  line-height: 1.14;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+}
+
+.node-role-sub {
+  margin-top: 4px;
+  font-size: 9px;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+  overflow: hidden;
+}
+
+.node-action-hint {
+  font-size: 8.5px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--phosphor);
+  padding: 4.5px 8px;
+  border: 1px solid rgba(207, 236, 230, 0.26);
+  white-space: nowrap;
+  transition:
+    border-color 380ms var(--ease-soft),
+    background-color 380ms var(--ease-soft),
+    box-shadow 380ms var(--ease-soft);
+}
+
+/* =========================================================================
+   4. HOVER IN / OUT & ACTIVE GEOMETRIC SHAPE EXPANSION + GLOW CHOREOGRAPHY
+   ========================================================================= */
+.hud-node:hover,
+.hud-node.is-active {
+  opacity: 1 !important;
+  filter: none !important;
+}
+
+.hud-node:hover .node-layer-back,
+.hud-node.is-active .node-layer-back {
+  inset: -24px -32px;
+  transform: translateZ(-46px);
+  border-color: rgba(255, 68, 37, 0.42);
+  background-color: rgba(255, 68, 37, 0.028);
+  box-shadow: 0 0 28px rgba(255, 68, 37, 0.14);
+}
+
+.hud-node:hover .node-ghost-index,
+.hud-node.is-active .node-ghost-index {
+  -webkit-text-stroke-color: rgba(255, 68, 37, 0.55);
+  transform: translate3d(-6px, -5px, 0);
+  filter: drop-shadow(0 0 10px rgba(255, 68, 37, 0.35));
+}
+
+.hud-node:hover .node-layer-core,
+.hud-node.is-active .node-layer-core {
+  border-color: var(--phosphor);
+  box-shadow:
+    0 28px 80px rgba(0, 0, 0, 0.85),
+    0 0 28px rgba(255, 68, 37, 0.28),
+    0 0 12px rgba(207, 236, 230, 0.35),
+    inset 0 0 28px rgba(207, 236, 230, 0.1);
+}
+
+.hud-node:hover .node-visual-poster svg.poster-art {
+  transform: scale(1.036);
+}
+
+.hud-node:hover .node-shimmer {
+  opacity: 1;
+}
+
+.hud-node:hover .node-layer-frame,
+.hud-node.is-active .node-layer-frame {
+  transform: translateZ(34px);
+  inset: -11px;
+}
+
+/* 4 Corners Expand Outward Diagonally + Ignite With Diode Glow on Hover */
+.hud-node:hover .hud-corner,
+.hud-node.is-active .hud-corner {
+  width: 26px;
+  height: 26px;
+  border-color: var(--signal);
+  filter: drop-shadow(0 0 6px var(--signal)) drop-shadow(0 0 12px var(--phosphor));
+}
+
+.hud-node:hover .hud-corner.tl { transform: translate3d(-9px, -9px, 0); border-color: var(--phosphor); }
+.hud-node:hover .hud-corner.tr { transform: translate3d(9px, -9px, 0); border-color: var(--phosphor); }
+.hud-node:hover .hud-corner.bl { transform: translate3d(-9px, 9px, 0); border-color: var(--phosphor); }
+.hud-node:hover .hud-corner.br { transform: translate3d(9px, 9px, 0); border-color: var(--phosphor); }
+
+/* 4 Edges Expand Outward Along All 4 Sides + Luminous Glow on Hover */
+.hud-node:hover .hud-edge.top {
+  opacity: 1;
+  background: var(--phosphor);
+  box-shadow: 0 0 14px var(--phosphor), 0 0 6px var(--signal);
+  transform: translate3d(-50%, -8px, 0) scaleX(1);
+}
+
+.hud-node:hover .hud-edge.bottom {
+  opacity: 1;
+  background: var(--phosphor);
+  box-shadow: 0 0 14px var(--phosphor), 0 0 6px var(--signal);
+  transform: translate3d(-50%, 8px, 0) scaleX(1);
+}
+
+.hud-node:hover .hud-edge.left {
+  opacity: 1;
+  background: var(--signal);
+  box-shadow: 0 0 14px var(--signal), 0 0 6px var(--phosphor);
+  transform: translate3d(-8px, -50%, 0) scaleY(1);
+}
+
+.hud-node:hover .hud-edge.right {
+  opacity: 1;
+  background: var(--signal);
+  box-shadow: 0 0 14px var(--signal), 0 0 6px var(--phosphor);
+  transform: translate3d(8px, -50%, 0) scaleY(1);
+}
+
+.hud-node.is-active .hud-edge {
+  opacity: 0.72;
+  background: var(--signal);
+  box-shadow: 0 0 10px rgba(255, 68, 37, 0.45);
+}
+
+.hud-node.is-active .hud-edge.top,
+.hud-node.is-active .hud-edge.bottom {
+  transform: translate3d(-50%, 0, 0) scaleX(0.52);
+}
+
+.hud-node.is-active .hud-edge.left,
+.hud-node.is-active .hud-edge.right {
+  transform: translate3d(0, -50%, 0) scaleY(0.52);
+}
+
+.hud-node:hover .node-top-strip {
+  transform: translateY(-6px);
+}
+
+.hud-node:hover .node-tally,
+.hud-node.is-active .node-tally {
+  border-color: var(--phosphor);
+  color: var(--ink);
+  box-shadow: 0 0 14px rgba(207, 236, 230, 0.28);
+}
+
+.hud-node:hover .node-tally-dot,
+.hud-node.is-active .node-tally-dot {
+  background: var(--phosphor);
+  box-shadow: 0 0 10px var(--phosphor);
+}
+
+.hud-node:hover .node-layer-front,
+.hud-node.is-active .node-layer-front {
+  transform: translateZ(64px);
+}
+
+.hud-node:hover .node-reticle-wrap,
+.hud-node.is-active .node-reticle-wrap {
+  transform: translate(-50%, -50%) scale(1.12);
+  opacity: 0.98;
+  filter: drop-shadow(0 0 10px rgba(255, 68, 37, 0.45));
+}
+
+.hud-node:hover .reticle-ring-outer,
+.hud-node.is-active .reticle-ring-outer {
+  stroke: var(--signal);
+}
+
+.hud-node:hover .reticle-ring-inner,
+.hud-node.is-active .reticle-ring-inner {
+  stroke: var(--phosphor);
+}
+
+.hud-node:hover .reticle-lock-label,
+.hud-node.is-active .reticle-lock-label {
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1);
+  border-color: var(--phosphor);
+  color: var(--ink);
+  box-shadow: 0 0 14px rgba(207, 236, 230, 0.32);
+}
+
+.hud-node:hover .node-cat-badge {
+  border-color: var(--amber);
+  box-shadow: 0 0 12px rgba(226, 171, 75, 0.28);
+}
+
+.hud-node:hover .node-coords-tag {
+  border-color: var(--phosphor);
+  color: var(--ink);
+}
+
+.hud-node:hover .node-caption-deck,
+.hud-node.is-active .node-caption-deck {
+  border-color: var(--phosphor);
+  border-left-color: var(--signal);
+  box-shadow: 0 0 22px rgba(207, 236, 230, 0.16);
+}
+
+.hud-node:hover .node-action-hint {
+  border-color: var(--phosphor);
+  background: rgba(207, 236, 230, 0.14);
+  box-shadow: 0 0 14px rgba(207, 236, 230, 0.32);
+}
