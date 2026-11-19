@@ -1,0 +1,252 @@
+---
+layout: layouts/base.njk
+isPortfolioLayout: true
+---
+{% set currentNode = node if node else null -%}
+  <!-- 1. 3D VIEWPORT (WebGL Z-Corridor + CSS3D HUD Nodes + Single-Pass Tether) -->
+  <main class="viewport" id="viewport">
+    <canvas id="webgl-layer"></canvas>
+    <div id="css3d-layer"></div>
+    <svg id="tether-svg" aria-hidden="true">
+      <defs>
+        <filter id="tether-glow-filter" x="-40%" y="-40%" width="180%" height="180%">
+          <feGaussianBlur stdDeviation="3.2" result="blur" />
+          <feMerge>
+            <feMergeNode in="blur" />
+            <feMergeNode in="SourceGraphic" />
+          </feMerge>
+        </filter>
+      </defs>
+      <g class="overview-wires-group" id="overview-wires-group"></g>
+      <path class="tether-path" id="tether-path" d="M0,0 L0,0"></path>
+      <circle class="tether-anchor" id="tether-anchor" cx="0" cy="0" r="4"></circle>
+      <circle class="tether-elbow" id="tether-elbow" cx="0" cy="0" r="3"></circle>
+      <g class="tether-capsule-group" id="tether-capsule-group" transform="translate(0,0) rotate(0) scale(1,1)">
+        <ellipse class="tether-packet-halo" id="tether-packet-halo" cx="0" cy="0" rx="7.5" ry="7.5"></ellipse>
+        <ellipse class="tether-packet-mid" id="tether-packet-mid" cx="0" cy="0" rx="4.8" ry="4.8"></ellipse>
+        <ellipse class="tether-packet" id="tether-packet" cx="0" cy="0" rx="3.1" ry="3.1"></ellipse>
+      </g>
+    </svg>
+    <div class="overview-labels-layer" id="overview-labels-layer" aria-hidden="true"></div>
+  </main>
+
+  <!-- 2. TOP HEADER BAR -->
+  <header class="chrome-top">
+    <a class="brand-block" id="brand-home-trigger" href="/" title="Về Bản đồ toàn cảnh" style="text-decoration:none">
+      <span class="brand-emblem" aria-hidden="true">⧙</span>
+      <span class="brand-name">{{ catalog.author.alternateName }} <em>{{ catalog.author.name }}</em></span>
+      <span class="brand-dob">{{ catalog.author.birthDate }}</span>
+    </a>
+
+    <ul class="header-titles-spread" aria-label="Chức danh chuyên môn">
+      {% for titleItem in catalog.author.titles %}
+      <li><span class="title-dot" aria-hidden="true"></span>{{ titleItem }}</li>
+      {% endfor %}
+    </ul>
+  </header>
+
+  <!-- 3. LEFT INDEX SCRUBBER (Crawlable Links + Station Selector) -->
+  <aside class="z-scrubber" aria-label="Danh sách tác phẩm">
+    <div class="z-scrubber-head">
+      <span>Tác phẩm</span>
+      <strong id="scrubber-readout">{{ ('Mục ' + currentNode.code + ' / 12') if currentNode else 'Bản đồ' }}</strong>
+    </div>
+    <nav class="z-stops-list" id="z-stops-list" aria-label="Danh sách 13 tác phẩm và hồ sơ">
+      <div class="z-progress-fill" id="z-progress-fill"></div>
+      {% for item in catalog.nodes %}
+      <a class="z-stop-btn{% if currentNode and currentNode.id == item.id %} is-current{% endif %}" href="{{ item.permalink }}" data-node-id="{{ item.id }}">
+        <span class="stop-idx">{{ item.code }}</span>
+        <span class="stop-name">{{ item.title }}</span>
+      </a>
+      {% endfor %}
+    </nav>
+  </aside>
+
+  <!-- 4. PERSISTENT WITNESS SUB-HUD -->
+  <section class="chat-dock" id="chat-dock" aria-label="Khung thuyết minh của Witness">
+    <div class="subhud-rig" id="subhud-rig">
+      <div class="subhud-main-wrap">
+        <div class="subhud-layer-back" aria-hidden="true"></div>
+
+        <div class="subhud-chassis" id="subhud-chassis">
+          <div class="subhud-content-inner">
+            <header class="chat-header">
+              <div class="chat-header-left">
+                <span class="chat-signal-glyph" aria-hidden="true">⧙</span>
+                <span id="chat-channel-title">{{ catalog.witness.channelTitle }}</span>
+                <span class="chat-online-dot" aria-hidden="true"></span>
+              </div>
+              <div class="chat-header-right">
+                <button class="chat-watch-btn" id="chat-action-btn" type="button" aria-pressed="false" style="{% if not currentNode %}display:none{% endif %}">{% if currentNode and currentNode.mediaType != 'sheet' %}Xem video{% else %}Mở hồ sơ{% endif %}</button>
+              </div>
+            </header>
+
+            <div class="chat-body-workspace">
+              <div class="chat-stream" id="chat-stream" role="log" aria-live="polite">
+                {% set dialogueExprs = catalog.witness.dialogueExpressions if catalog.witness.dialogueExpressions else null -%}
+                {% set nodeExprs = dialogueExprs.byNodeId[currentNode.id] if (currentNode and dialogueExprs and dialogueExprs.byNodeId) else null -%}
+                {% set initialBubbleText = currentNode.greeting if currentNode else catalog.witness.overviewGreeting -%}
+                {% set initialBubbleKaomoji = nodeExprs.greeting if (currentNode and nodeExprs) else (dialogueExprs.overview if (not currentNode and dialogueExprs) else '') -%}
+                <div class="chat-msg is-witness">
+                  <div class="chat-bubble">{{ initialBubbleText }}{% if initialBubbleKaomoji %}<span class="witness-kaomoji" aria-hidden="true">{{ initialBubbleKaomoji }}</span>{% endif %}</div>
+                </div>
+              </div>
+              <div class="chat-prompts" id="chat-prompts" aria-label="Lựa chọn tiếp theo"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="subhud-layer-frame" aria-hidden="true">
+          <span class="subhud-corner tl"></span>
+          <span class="subhud-corner tr"></span>
+          <span class="subhud-corner bl"></span>
+          <span class="subhud-corner br"></span>
+          <span class="subhud-edge top"></span>
+          <span class="subhud-edge bottom"></span>
+          <span class="subhud-edge left"></span>
+          <span class="subhud-edge right"></span>
+
+          <div class="chat-port-socket chat-port-left" id="chat-port-left">
+            <span class="socket-ring"><span class="socket-dot"></span></span>
+          </div>
+        </div>
+      </div>
+
+      <nav class="subhud-external-rail" aria-label="Điều hướng tác phẩm">
+        <button class="vn-nav-btn" id="btn-prev-node" type="button" title="Tác phẩm trước">
+          <span class="vn-btn-icon" aria-hidden="true">▲</span>
+          <span class="vn-btn-label">Trước</span>
+        </button>
+        <button class="vn-nav-btn is-overview-active" id="btn-overview-mode" type="button" title="Về Bản đồ toàn cảnh">
+          <span class="vn-btn-icon" aria-hidden="true">❖</span>
+          <span class="vn-btn-label">Bản đồ</span>
+        </button>
+        <button class="vn-nav-btn" id="btn-next-node" type="button" title="Tác phẩm tiếp theo">
+          <span class="vn-btn-icon" aria-hidden="true">▼</span>
+          <span class="vn-btn-label">Tiếp</span>
+        </button>
+      </nav>
+    </div>
+  </section>
+
+  <!-- 5. SEMANTIC HTML & NO-3D FALLBACK SHELL -->
+  <section class="seo-fallback-shell" id="seo-fallback-shell" aria-label="Nội dung tĩnh và danh mục portfolio">
+    {% if currentNode %}
+    <article class="seo-station-article">
+      <p class="seo-eyebrow">{{ currentNode.category }} · {{ currentNode.year }}</p>
+      <h1 class="seo-h1">{{ currentNode.title }}</h1>
+
+      <ul class="seo-meta-list">
+        <li><strong>Vai trò của Huy</strong>{{ currentNode.role }}</li>
+        <li><strong>Khách hàng / Đối tác</strong>{{ currentNode.client }}</li>
+        <li><strong>Năm thực hiện</strong>{{ currentNode.year }}</li>
+      </ul>
+
+      {% if currentNode.video %}
+      <div class="seo-player-box">
+        <div class="seo-player-frame">
+          <iframe data-fallback-player="true" src="{{ currentNode.video.embedUrl }}" title="{{ currentNode.title }}" allow="autoplay; encrypted-media; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>
+        </div>
+        <div class="seo-player-links">
+          {% if currentNode.video.thumbnailUrl %}
+          <img class="seo-thumb-preview" src="{{ currentNode.video.thumbnailUrl }}" alt="{{ currentNode.title }} — Thumbnail">
+          {% endif %}
+          <a class="seo-cta-link" href="{{ currentNode.video.sourceUrl }}" target="_blank" rel="noopener noreferrer">{% if currentNode.mediaType == 'youtube' %}Xem trên YouTube ↗{% else %}Xem trên Google Drive ↗{% endif %}</a>
+        </div>
+      </div>
+      {% endif %}
+
+      {% if currentNode.dossier %}
+      <div class="seo-dossier-box">
+        <h2>{{ currentNode.dossier.heading }}</h2>
+        {% if currentNode.dossier.kind == 'profile' %}
+        <p>{{ currentNode.dossier.quote }}</p>
+        <ul class="seo-dossier-grid">
+          {% for item in currentNode.dossier.timeline %}
+          <li><strong>{{ item.period }}</strong><br>{{ item.role }}</li>
+          {% endfor %}
+        </ul>
+        <ul class="seo-dossier-grid">
+          {% for skill in currentNode.dossier.skills %}
+          <li><strong>{{ skill.label }}</strong>: {{ skill.pct }}%</li>
+          {% endfor %}
+        </ul>
+        <ul class="seo-dossier-grid">
+          <li><strong>Email trực tiếp</strong><br><a href="mailto:{{ catalog.author.email }}">{{ catalog.author.email }}</a></li>
+          <li><strong>Điện thoại / Zalo</strong><br><a href="tel:{{ catalog.author.phoneE164 }}">{{ catalog.author.phoneDisplay }}</a></li>
+          {% for s in catalog.author.socials %}
+          <li><strong>{{ s.label }}</strong><br><a href="{{ s.url }}" target="_blank" rel="noopener noreferrer">{{ s.handle }}</a></li>
+          {% endfor %}
+        </ul>
+        {% elif currentNode.dossier.kind == 'roster' %}
+        <p><strong>{{ currentNode.dossier.leadLabel }}</strong> {{ currentNode.dossier.leadText }}</p>
+        <ul class="seo-dossier-grid">
+          {% for item in currentNode.dossier.roster %}
+          <li><strong>{{ item.brand }}</strong><br>{{ item.detail }}</li>
+          {% endfor %}
+        </ul>
+        <p><strong>{{ currentNode.dossier.scopeLabel }}</strong> {{ currentNode.dossier.scopeText }}</p>
+        {% endif %}
+      </div>
+      {% endif %}
+
+      <div class="seo-copy-block">
+        <p>{{ currentNode.greeting }}</p>
+        <p><strong>Vai trò của Huy:</strong> {{ currentNode.roleDetail }}</p>
+        <p><strong>Quy trình &amp; hậu kỳ:</strong> {{ currentNode.techDetail }}</p>
+      </div>
+
+      <div class="seo-inline-nav">
+        <a class="seo-cta-link" href="mailto:{{ catalog.author.email }}">Gửi email ({{ catalog.author.email }})</a>
+        <a class="seo-cta-link" href="tel:{{ catalog.author.phoneE164 }}">Gọi điện ({{ catalog.author.phoneDisplay }})</a>
+      </div>
+
+      <nav class="seo-inline-nav" aria-label="Điều hướng giữa các tác phẩm">
+        <a class="seo-cta-link" href="/">← Về Bản đồ tác phẩm</a>
+        {% for item in catalog.nodes %}
+        <a class="seo-cta-link" href="{{ item.permalink }}">{{ item.code }} · {{ item.title }}</a>
+        {% endfor %}
+      </nav>
+    </article>
+    {% else %}
+    <article class="seo-station-article">
+      <p class="seo-eyebrow">Portfolio · Lương Bảo Huy (Minato Makoto)</p>
+      <h1 class="seo-h1">{{ catalog.author.alternateName }} ({{ catalog.author.name }}) — Portfolio</h1>
+      <p class="seo-lead">{{ catalog.site.description }} {{ catalog.witness.overviewGreeting }}</p>
+
+      <div class="seo-inline-nav">
+        <a class="seo-cta-link" href="mailto:{{ catalog.author.email }}">Gửi email ({{ catalog.author.email }})</a>
+        <a class="seo-cta-link" href="tel:{{ catalog.author.phoneE164 }}">Gọi điện ({{ catalog.author.phoneDisplay }})</a>
+        {% for s in catalog.author.socials %}
+        <a class="seo-cta-link" href="{{ s.url }}" target="_blank" rel="noopener noreferrer">{{ s.label }}: {{ s.handle }}</a>
+        {% endfor %}
+      </div>
+
+      <ol class="seo-works-list">
+        {% for item in catalog.nodes %}
+        <li class="seo-work-card">
+          <span class="seo-eyebrow">{{ item.code }} · {{ item.year }} · {{ item.category }}</span>
+          <h2><a href="{{ item.permalink }}">{{ item.title }}</a></h2>
+          <p>{{ item.role }}</p>
+          <p>{{ item.client }}</p>
+          <p>{{ item.greeting }}</p>
+          {% if item.video %}
+          <a href="{{ item.video.sourceUrl }}" target="_blank" rel="noopener noreferrer">{% if item.mediaType == 'youtube' %}Xem trên YouTube ↗{% else %}Xem trên Google Drive ↗{% endif %}</a>
+          {% endif %}
+        </li>
+        {% endfor %}
+      </ol>
+    </article>
+    {% endif %}
+  </section>
+
+  <!-- Three.js r128 + CSS3DRenderer (Vendored Locally) -->
+  <script defer src="/assets/vendor/three-r128/three.min.js"></script>
+  <script defer src="/assets/vendor/three-r128/CSS3DRenderer.js"></script>
+
+  <!-- Catalog & Production Modular Scripts -->
+  <script defer src="/assets/js/catalog-data.js"></script>
+  <script defer src="/assets/js/nodes-data.js"></script>
+  <script defer src="/assets/js/text-fx.js"></script>
+  <script defer src="/assets/js/subhud-controller.js"></script>
+  <script defer src="/assets/js/scene-engine.js"></script>

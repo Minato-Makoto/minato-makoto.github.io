@@ -1,0 +1,7 @@
+---
+permalink: /assets/js/catalog-data.js
+layout: false
+eleventyExcludeFromCollections: true
+---
+/* Generated from _data/catalog.json during Eleventy build */
+window.PortfolioCatalog = {{ catalog | safeJson(2) | safe }};

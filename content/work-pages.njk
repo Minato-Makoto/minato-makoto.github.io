@@ -1,0 +1,18 @@
+---js
+// Adapted from 11ty/eleventy-base-blog (ae47fc5) content/tag-pages.njk (MIT)
+const pagination = {
+  data: "catalog.nodes",
+  size: 1,
+  alias: "node",
+  addAllPagesToCollections: false
+};
+
+const layout = "layouts/portfolio.njk";
+const eleventyExcludeFromCollections = true;
+
+const eleventyComputed = {
+  permalink: function (data) {
+    return `/work/${data.node.slug}/index.html`;
+  }
+};
+---

@@ -1,0 +1,613 @@
+{
+  "site": {
+    "url": "https://minato-makoto.github.io",
+    "lang": "vi",
+    "name": "Minato Makoto Portfolio",
+    "title": "Minato Makoto (Lương Bảo Huy) — Portfolio Sản Xuất Phim & Thiết Kế",
+    "description": "Portfolio tương tác của Lương Bảo Huy (Minato Makoto) — Senior Designer, Video Editor, Photographer, Video Producer với 13 tác phẩm và hồ sơ năng lực.",
+    "ogImage": "https://minato-makoto.github.io/assets/images/og-cover.png",
+    "favicon": "/assets/favicon.svg",
+    "gaMeasurementId": "G-7LSEN9HJPK"
+  },
+  "author": {
+    "name": "Lương Bảo Huy",
+    "alternateName": "Minato Makoto",
+    "birthDate": "29.03.1997",
+    "jobTitle": "Video Producer",
+    "titles": [
+      "Senior Designer",
+      "Video Editor",
+      "Photographer",
+      "Video Producer"
+    ],
+    "email": "minatokiva@gmail.com",
+    "phoneDisplay": "0704 5555 27",
+    "phoneE164": "+84704555527",
+    "github": "https://github.com/Minato-Makoto",
+    "sameAs": [
+      "https://www.linkedin.com/in/b%E1%BA%A3o-huy-l%C6%B0%C6%A1ng-1653a41a3",
+      "https://www.instagram.com/minatomakoto",
+      "https://www.facebook.com/MinatoMakoto/",
+      "https://www.youtube.com/@minatomakoto",
+      "https://www.tiktok.com/@minatomakoto"
+    ],
+    "socials": [
+      {
+        "label": "LinkedIn",
+        "handle": "Lương Bảo Huy",
+        "url": "https://www.linkedin.com/in/b%E1%BA%A3o-huy-l%C6%B0%C6%A1ng-1653a41a3"
+      },
+      {
+        "label": "Instagram",
+        "handle": "@minatomakoto",
+        "url": "https://www.instagram.com/minatomakoto"
+      },
+      {
+        "label": "Facebook",
+        "handle": "Minato Makoto",
+        "url": "https://www.facebook.com/MinatoMakoto/"
+      },
+      {
+        "label": "YouTube",
+        "handle": "@minatomakoto",
+        "url": "https://www.youtube.com/@minatomakoto"
+      },
+      {
+        "label": "TikTok",
+        "handle": "@minatomakoto",
+        "url": "https://www.tiktok.com/@minatomakoto"
+      },
+      {
+        "label": "GitHub",
+        "handle": "Minato-Makoto",
+        "url": "https://github.com/Minato-Makoto"
+      }
+    ]
+  },
+  "witness": {
+    "channelTitle": "Witness",
+    "overviewGreeting": "Mình là Witness — người dẫn đường của bạn tại đây. Bản đồ bên trái đang mở 13 điểm dừng: bạn muốn xem ngay một bộ phim tiêu biểu hay tìm hiểu người đứng sau những khung hình này trước?",
+    "overviewChoices": [
+      {
+        "label": "Hồ sơ của Huy",
+        "nodeId": "genesis-node"
+      },
+      {
+        "label": "Harmony 2025",
+        "nodeId": "harmony-card"
+      },
+      {
+        "label": "MV Hi Thế Giới",
+        "nodeId": "hithegioi-card"
+      },
+      {
+        "label": "Chiến dịch VIB & 2024",
+        "nodeId": "vib-itsher-node"
+      }
+    ],
+    "contactPromptReply": "Bạn có thể kết nối trực tiếp với Lương Bảo Huy (Minato Makoto) qua email minatokiva@gmail.com hoặc số điện thoại / Zalo 0704 5555 27. Chọn nút bên dưới để gửi thư hoặc gọi ngay nhé.",
+    "dialogueExpressions": {
+      "overview": "( ´ ▽ ` )ﾉ",
+      "contact": "(｡•̀ᴗ-)✧",
+      "byNodeId": {
+        "genesis-node": {
+          "greeting": "(・∀・)ノ",
+          "roleDetail": "(•̀ᴗ•́)و",
+          "techDetail": "(๑•̀ㅂ•́)✧"
+        },
+        "harmony-card": {
+          "greeting": "(✧ω✧)",
+          "roleDetail": "( •̀ ω •́ )y",
+          "techDetail": "(｀・ω・´)"
+        },
+        "daydream-card": {
+          "greeting": "٩(ˊᗜˋ*)و",
+          "roleDetail": "(ง •̀_•́)ง",
+          "techDetail": "(•̀ᴗ•́)✨"
+        },
+        "hithegioi-card": {
+          "greeting": "(ノ°▽°)ノ",
+          "roleDetail": "(￣^￣)ゞ",
+          "techDetail": "( •̀_•́ )✧"
+        },
+        "vib-itsher-node": {
+          "greeting": "(⌒‿⌒)",
+          "roleDetail": "(๑•̀ᴗ•́)و ̑̑",
+          "techDetail": "( ˘▽˘)っ"
+        },
+        "motor-fest-card": {
+          "greeting": "ヽ(•̀ω•́ )ゝ",
+          "roleDetail": "(ง •̀ω•́)ง",
+          "techDetail": "( •̀ ω •́ )✧"
+        },
+        "doraemon-tvc-card": {
+          "greeting": "(✿◠‿◠)",
+          "roleDetail": "(•̀ᴗ•́)ゞ",
+          "techDetail": "(｀・ω・´)b"
+        },
+        "mv-le-card": {
+          "greeting": "( • ̀ω•́ )✧",
+          "roleDetail": "(ง •̀_•́)ง✧",
+          "techDetail": "(๑˃̵ᴗ˂̵)و"
+        },
+        "dong-co-lau-card": {
+          "greeting": "( ˘ ³˘)♡",
+          "roleDetail": "(´ ∀ ` *)",
+          "techDetail": "( ◡‿◡ )"
+        },
+        "ThaiLong-card": {
+          "greeting": "(っ˘ڡ˘ς)",
+          "roleDetail": "(•̀ᴗ•́)و",
+          "techDetail": "(*´▽`*)"
+        },
+        "microlife-bts-card": {
+          "greeting": "( •̀ ω •́ )/",
+          "roleDetail": "(￣^￣)ゞ",
+          "techDetail": "(•̀⌄•́)"
+        },
+        "2ndchance-card": {
+          "greeting": "ヽ(・∀・)ﾉ",
+          "roleDetail": "(๑•̀ㅂ•́)و✧",
+          "techDetail": "(´• ω •`)ﾉ"
+        },
+        "PhongNguaDotQuy-card": {
+          "greeting": "(ﾉ◕ヮ◕)ﾉ*:･ﾟ✧",
+          "roleDetail": "( •̀ ω •́ )y",
+          "techDetail": "(◠‿◠✿)"
+        }
+      }
+    }
+  },
+  "nodes": [
+    {
+      "id": "genesis-node",
+      "code": "00",
+      "slug": "genesis-luong-bao-huy",
+      "permalink": "/work/genesis-luong-bao-huy/",
+      "year": "1997—2026",
+      "category": "HỒ SƠ NĂNG LỰC & LIÊN HỆ",
+      "title": "Lương Bảo Huy (Minato Makoto)",
+      "role": "Senior Designer · Video Editor · Photographer · Video Producer",
+      "client": "Medihub → Bee Nguyen → The Fool → Uplive → Masthead → Tebi",
+      "mediaType": "sheet",
+      "seoTitle": "Hồ sơ Lương Bảo Huy (Minato Makoto) — Full-Stack Designer & Video Producer",
+      "seoDescription": "Hồ sơ nghề nghiệp 2015–2026 và thông tin liên hệ trực tiếp của Lương Bảo Huy (Minato Makoto): từ Photographer đến Designer, Video Producer và Post-Production Supervisor.",
+      "dossier": {
+        "kind": "profile",
+        "heading": "Lương Bảo Huy (Minato Makoto) · 29.03.1997",
+        "quote": "“Work hard, play hard is my modus operandi. I immerse myself in my work with the same passion and dedication a child has for their toys and games.”",
+        "timeline": [
+          {
+            "period": "2015 – 2016 · Medihub",
+            "role": "Media Intern"
+          },
+          {
+            "period": "2016 – 2017 · bee nguyen",
+            "role": "Photographer"
+          },
+          {
+            "period": "2017 – Now · The Fool",
+            "role": "Freelance Photographer"
+          },
+          {
+            "period": "2018 – 2019 · Uplive",
+            "role": "Designer & Talent Manager"
+          },
+          {
+            "period": "2019 – 2022 · Masthead",
+            "role": "Video Producer Assistant"
+          },
+          {
+            "period": "2022 – 2024 · tebi",
+            "role": "Full-Stack Designer"
+          }
+        ],
+        "skills": [
+          {
+            "label": "Designer",
+            "pct": 98
+          },
+          {
+            "label": "Generalist",
+            "pct": 98
+          },
+          {
+            "label": "Photo",
+            "pct": 92
+          },
+          {
+            "label": "Post/VFX",
+            "pct": 88
+          },
+          {
+            "label": "Producer",
+            "pct": 82
+          }
+        ]
+      },
+      "greeting": "Đây là hồ sơ tổng hợp và thông tin liên hệ trực tiếp của Lương Bảo Huy (sinh ngày 29.03.1997). Từ đây bạn có thể mở bảng kinh nghiệm 2015–2026, xem kênh liên hệ hoặc rẽ vào từng dự án theo cột mốc.",
+      "roleDetail": "Huy khởi đầu từ nhiếp ảnh gia tại Medihub, Bee Nguyen và The Fool Photography, rồi mở rộng sang Graphic Designer & Talent Manager (Uplive), Video Producer Assistant (Masthead) và Full-Stack Designer (tebi).",
+      "techDetail": "Thế mạnh cốt lõi của Huy là ôm trọn cả tiền kỳ (concept, kịch bản, điều phối đoàn quay & thiết bị) lẫn hậu kỳ (Editing, Color Grading, VFX, Key Visual Manipulation)."
+    },
+    {
+      "id": "harmony-card",
+      "code": "01",
+      "slug": "harmony-2025",
+      "permalink": "/work/harmony-2025/",
+      "year": "2025",
+      "category": "PHIM THƯƠNG HIỆU · CHỦ ĐỘNG TRỌN GÓI",
+      "title": "Harmony 2025 – Better With You",
+      "role": "Producer · Project Owner · Post Supervisor",
+      "client": "Harmony VN",
+      "mediaType": "drive",
+      "seoTitle": "Harmony 2025 – Better With You | Minato Makoto (Producer · Post Supervisor)",
+      "seoDescription": "Harmony 2025 – Better With You cho Harmony VN: dự án Producer & Project Owner làm chủ từ ý tưởng tiền kỳ, on-set đến hậu kỳ và chỉnh màu.",
+      "video": {
+        "provider": "drive",
+        "videoId": "1X-_4rjqvc4X_ZVYo5BYFDoEBzp_DtkwZ",
+        "name": "Harmony 2025 – Better With You",
+        "description": "Highlight film và dự án flagship cho Harmony VN do Lương Bảo Huy (Minato Makoto) làm chủ xuyên suốt 3 giai đoạn Tiền kỳ, On-set và Hậu kỳ.",
+        "embedUrl": "https://drive.google.com/file/d/1X-_4rjqvc4X_ZVYo5BYFDoEBzp_DtkwZ/preview",
+        "sourceUrl": "https://drive.google.com/file/d/1X-_4rjqvc4X_ZVYo5BYFDoEBzp_DtkwZ/view",
+        "driveThumbnailCandidate": "https://drive.google.com/thumbnail?id=1X-_4rjqvc4X_ZVYo5BYFDoEBzp_DtkwZ&sz=w1000",
+        "candidateUploadDate": "2024-12-15",
+        "exportVideoObject": false,
+        "missingSeoFields": [
+          "Xác nhận với tư cách khách khả năng phát nhúng /preview và tải thumbnail Drive công khai ổn định",
+          "Xác nhận uploadDate thực tế (bản cũ ghi 2024-12-15 trong khi catalog ghi năm chiến dịch 2025)"
+        ]
+      },
+      "greeting": "Với Harmony 2025, Huy phụ trách trọn vẹn từ trang giấy trắng đến bản phim cuối cùng. Bạn có thể bấm Xem video để đánh giá nhịp dựng tổng thể.",
+      "roleDetail": "Huy trực tiếp nắm cả 3 giai đoạn: tiền kỳ (ý tưởng, kịch bản, chuẩn bị sản xuất), on-set (đạo diễn sản xuất, giám sát ghi hình) và hậu kỳ (dựng phim, chỉnh màu, hoàn thiện).",
+      "techDetail": "Vì một người kiểm soát xuyên suốt từ kịch bản đến bàn dựng, bộ phim giữ được nhịp thở và bảng màu thống nhất tuyệt đối với ý đồ ban đầu."
+    },
+    {
+      "id": "daydream-card",
+      "code": "02",
+      "slug": "recap-day-dreams-final-2024",
+      "permalink": "/work/recap-day-dreams-final-2024/",
+      "year": "2024",
+      "category": "SỰ KIỆN · QUY TRÌNH TỐI ƯU",
+      "title": "RECAP DAY DREAMS FINAL 2024!",
+      "role": "Producer · Project Manager · Editor",
+      "client": "Day Dreams · Trading Card Tournament",
+      "mediaType": "drive",
+      "seoTitle": "RECAP DAY DREAMS FINAL 2024! | Minato Makoto (Producer · Editor)",
+      "seoDescription": "RECAP DAY DREAMS FINAL 2024! cho Day Dreams Trading Card Tournament: tổ chức sản xuất, ghi hình giải đấu và dựng hậu kỳ tối ưu chi phí.",
+      "video": {
+        "provider": "drive",
+        "videoId": "1PsYIUeHpntiBvQT1aYqrY8rd0KGJlU4B",
+        "name": "RECAP DAY DREAMS FINAL 2024!",
+        "description": "Phim recap giải đấu Day Dreams Final 2024 do Lương Bảo Huy đảm nhiệm Producer, tổ chức ghi hình và dựng hậu kỳ.",
+        "embedUrl": "https://drive.google.com/file/d/1PsYIUeHpntiBvQT1aYqrY8rd0KGJlU4B/preview",
+        "sourceUrl": "https://drive.google.com/file/d/1PsYIUeHpntiBvQT1aYqrY8rd0KGJlU4B/view",
+        "driveThumbnailCandidate": "https://drive.google.com/thumbnail?id=1PsYIUeHpntiBvQT1aYqrY8rd0KGJlU4B&sz=w1000",
+        "candidateUploadDate": null,
+        "exportVideoObject": false,
+        "missingSeoFields": [
+          "Thiếu uploadDate thực tế của video (không dùng năm chiến dịch 2024 thay thế)",
+          "Xác nhận với tư cách khách khả năng phát nhúng /preview và tải thumbnail Drive công khai ổn định"
+        ]
+      },
+      "greeting": "Dự án này cho thấy cách Huy thích ứng và tối ưu quy trình sản xuất trong bối cảnh thị trường cuối năm 2024 thắt chặt ngân sách.",
+      "roleDetail": "Huy đảm nhận vai trò Producer xuyên suốt từ lên ý tưởng, tổ chức ghi hình trực tiếp tại giải đấu Day Dreams đến hoàn thiện hậu kỳ.",
+      "techDetail": "Quay lại với hệ thiết bị gọn nhẹ để tối ưu chi phí, Huy vẫn giữ được chất lượng hình ảnh và nhịp dựng bùng nổ làm hài lòng khách hàng."
+    },
+    {
+      "id": "hithegioi-card",
+      "code": "03",
+      "slug": "blacka-hi-the-gioi",
+      "permalink": "/work/blacka-hi-the-gioi/",
+      "year": "2023",
+      "category": "MUSIC VIDEO · HẬU KỲ ĐỘC LẬP",
+      "title": "BLACKA – Hi Thế Giới ft. ARTHUR",
+      "role": "Post-Production Supervisor",
+      "client": "BLACKA · VieNETWORK",
+      "mediaType": "youtube",
+      "seoTitle": "BLACKA – Hi Thế Giới ft. ARTHUR | Minato Makoto (Post-Production Supervisor)",
+      "seoDescription": "MV chính thức Hi Thế Giới | No No No (BLACKA ft. ARTHUR): hậu kỳ One-Man Army từ source raw, dựng offline/online, chỉnh màu và VFX.",
+      "video": {
+        "provider": "youtube",
+        "videoId": "wBWQsfxG4eE",
+        "name": "BLACKA - Hi Thế Giới | No No No (OFFICIAL MUSIC VIDEO) ft. ARTHUR (CROW ON HYENAS)",
+        "description": "MV chính thức Hi Thế Giới | No No No (BLACKA ft. ARTHUR) với toàn bộ khâu hậu kỳ dựng offline/online, chỉnh màu và VFX do Lương Bảo Huy (Minato Makoto) độc lập thực hiện.",
+        "embedUrl": "https://www.youtube.com/embed/wBWQsfxG4eE",
+        "sourceUrl": "https://www.youtube.com/watch?v=wBWQsfxG4eE",
+        "thumbnailUrl": "https://i.ytimg.com/vi/wBWQsfxG4eE/hqdefault.jpg",
+        "uploadDate": "2023-12-19T05:00:48-08:00",
+        "exportVideoObject": true,
+        "missingSeoFields": []
+      },
+      "greeting": "Sản phẩm âm nhạc của BLACKA ft. ARTHUR là ví dụ rõ nhất cho năng lực hậu kỳ độc lập trọn gói mà Huy từng đảm nhận.",
+      "roleDetail": "Toàn bộ khâu hậu kỳ do Huy tự tay thực hiện: nhận toàn bộ source raw sau khi quay, dựng offline/online, chỉnh màu và xử lý VFX.",
+      "techDetail": "Mọi hiệu ứng chuyển cảnh và nhịp cắt đều bám chặt vào flow của nghệ sĩ, hoàn thành đúng hạn 2–4 tuần và nhận đồng thuận tuyệt đối từ creative board."
+    },
+    {
+      "id": "vib-itsher-node",
+      "code": "04",
+      "slug": "vib-its-her-2024-brand-roster",
+      "permalink": "/work/vib-its-her-2024-brand-roster/",
+      "year": "2022—2024",
+      "category": "NGÂN HÀNG & ĐA THƯƠNG HIỆU",
+      "title": "VIB “It’s Her” & 2024 Brand Roster",
+      "role": "Producer Assistant · Manipulation Designer",
+      "client": "VIB · AIA Alpha · YBA · Nhạc Viện TP.HCM · VIFA",
+      "mediaType": "sheet",
+      "seoTitle": "VIB “It’s Her” & 2024 Brand Roster | Minato Makoto",
+      "seoDescription": "Hồ sơ chiến dịch ngân hàng VIB “It’s Her”, bộ Key Visual Manipulation và danh mục sản xuất 2024 cho AIA Alpha, Nhạc Viện TP.HCM, YBA, VIFA.",
+      "dossier": {
+        "kind": "roster",
+        "heading": "Vietnam International Bank (VIB) & 2024 Commercial Roster",
+        "leadLabel": "VIB — “It’s Her” (10-Event Series) & Key Visual Manipulation:",
+        "leadText": "Hỗ trợ Producer Director lập kế hoạch & phân bổ tác vụ toàn dự án; trực tiếp phỏng vấn Esther Nguyễn (POPS Worldwide), Hoàng Khánh (BLOOM), Đoàn Phương Ly (Thuyền Xưa) và thiết kế bộ KV Manipulation “Mở lối cho mọi thành công”.",
+        "roster": [
+          {
+            "brand": "ALPHA powered by AIA",
+            "detail": "Talking Stage Event & Post"
+          },
+          {
+            "brand": "Nhạc Viện TP.HCM",
+            "detail": "Pianoforte Opus 1: Through The Ages"
+          },
+          {
+            "brand": "YBA TP.HCM (Gia Định)",
+            "detail": "Event Production & Recap"
+          },
+          {
+            "brand": "VIFA EXPO · NORITER · BCVN",
+            "detail": "Multi-stage Pre & Post Production"
+          }
+        ],
+        "scopeLabel": "Phạm vi:",
+        "scopeText": "Producer Assistant · Key Visual Manipulation · Event & Institutional Video Production"
+      },
+      "greeting": "Hồ sơ này gom lại chiến dịch ngân hàng VIB (“It’s Her” & bộ KV “Mở lối cho mọi thành công”) cùng loạt dự án doanh nghiệp và học thuật năm 2024.",
+      "roleDetail": "Tại VIB, Huy vừa là Producer Assistant điều phối tiến độ chuỗi 10 sự kiện toàn quốc và phỏng vấn 3 nữ CEO, vừa là Manipulation Designer thực hiện bộ Key Visual chân dung.",
+      "techDetail": "Trong năm 2024, Huy còn phụ trách tiền kỳ & hậu kỳ cho ALPHA (AIA), Metro Group, YBA TP.HCM, Khoa Piano Nhạc Viện TP.HCM (Through The Ages), VIFA Expo và BCVN."
+    },
+    {
+      "id": "motor-fest-card",
+      "code": "05",
+      "slug": "motor-fest-2023",
+      "permalink": "/work/motor-fest-2023/",
+      "year": "2023",
+      "category": "RECAP TỐC ĐỘ CAO · HẬU KỲ ĐỘC LẬP",
+      "title": "Motor Fest 2023",
+      "role": "Post-Production Supervisor",
+      "client": "Motor Fest",
+      "mediaType": "drive",
+      "seoTitle": "Motor Fest 2023 | Minato Makoto (Post-Production Supervisor)",
+      "seoDescription": "Phim recap Motor Fest 2023: xử lý hậu kỳ độc lập toàn bộ dựng phim, hiệu ứng chuyển cảnh kinetic và âm thanh.",
+      "video": {
+        "provider": "drive",
+        "videoId": "1LHlJL_vV7l8I4_F-JIutWN8wlMhoGaEn",
+        "name": "Motor Fest 2023",
+        "description": "Phim recap lễ hội mô-tô Motor Fest 2023 với toàn bộ dựng phim, hiệu ứng chuyển cảnh và âm thanh do Lương Bảo Huy (Minato Makoto) xử lý độc lập.",
+        "embedUrl": "https://drive.google.com/file/d/1LHlJL_vV7l8I4_F-JIutWN8wlMhoGaEn/preview",
+        "sourceUrl": "https://drive.google.com/file/d/1LHlJL_vV7l8I4_F-JIutWN8wlMhoGaEn/view",
+        "driveThumbnailCandidate": "https://drive.google.com/thumbnail?id=1LHlJL_vV7l8I4_F-JIutWN8wlMhoGaEn&sz=w1000",
+        "candidateUploadDate": "2023-09-25",
+        "exportVideoObject": false,
+        "missingSeoFields": [
+          "Xác nhận với tư cách khách khả năng phát nhúng /preview và tải thumbnail Drive công khai ổn định",
+          "Xác nhận uploadDate thực tế (bản cũ ghi 2023-09-25)"
+        ]
+      },
+      "greeting": "Đây là bài kiểm tra khắc nghiệt về tốc độ xử lý hậu kỳ độc lập khi lịch trình công ty và các dự án freelance dồn dập cùng lúc.",
+      "roleDetail": "Huy một mình phụ trách toàn bộ dựng phim, hiệu ứng chuyển cảnh và xử lý âm thanh cho recap lễ hội mô-tô này.",
+      "techDetail": "Áp lực deadline được chuyển thành phản xạ dựng kinetic sắc gọn, giữ trọn nhịp độ sôi động của dàn xe phân khối lớn."
+    },
+    {
+      "id": "doraemon-tvc-card",
+      "code": "06",
+      "slug": "doraemon-lipice-sheer-color",
+      "permalink": "/work/doraemon-lipice-sheer-color/",
+      "year": "2021",
+      "category": "TVC THƯƠNG MẠI · BẢN QUYỀN & VFX",
+      "title": "Doraemon × LipIce Sheer Color",
+      "role": "Producer Assistant · VFX Editor",
+      "client": "ROHTO · Doraemon 50th Anniversary",
+      "mediaType": "youtube",
+      "seoTitle": "Doraemon × LipIce Sheer Color | Minato Makoto (Producer Assistant · VFX Editor)",
+      "seoDescription": "TVC thương mại Doraemon LipIce Sheer Color kỷ niệm 50 năm Doraemon cho ROHTO: Producer Assistant & VFX Editor theo chuẩn bản quyền quốc tế.",
+      "video": {
+        "provider": "youtube",
+        "videoId": "7w3royxjrtw",
+        "name": "DORAEMON LIPICE SHEER COLOR - Limited Collection - Yummy Dorayaki! (55s)",
+        "description": "TVC thương mại Doraemon LipIce Sheer Color kỷ niệm 50 năm Doraemon hợp tác cùng ROHTO, với vai trò Producer Assistant kiêm VFX Editor của Lương Bảo Huy (Minato Makoto).",
+        "embedUrl": "https://www.youtube.com/embed/7w3royxjrtw",
+        "sourceUrl": "https://www.youtube.com/watch?v=7w3royxjrtw",
+        "thumbnailUrl": "https://i.ytimg.com/vi/7w3royxjrtw/hqdefault.jpg",
+        "uploadDate": "2021-11-09T19:52:15-08:00",
+        "exportVideoObject": true,
+        "missingSeoFields": []
+      },
+      "greeting": "Một TVC thương mại mang tính kỷ niệm 50 năm xuất bản Doraemon, đòi hỏi kỷ luật quy trình bản quyền quốc tế rất khắt khe.",
+      "roleDetail": "Huy tham gia với vai trò Producer Assistant kiêm VFX Editor, phối hợp chặt chẽ cùng đơn vị quản lý hình ảnh bản quyền Doraemon và nhãn hàng Rohto.",
+      "techDetail": "Từng khung hình VFX, màu sắc sản phẩm và tạo hình nhân vật đều được kiểm soát sát sao để đạt chuẩn thương mại quốc tế."
+    },
+    {
+      "id": "mv-le-card",
+      "code": "07",
+      "slug": "mv-le-dr-roc",
+      "permalink": "/work/mv-le-dr-roc/",
+      "year": "2023",
+      "category": "MUSIC VIDEO · RAW ĐẾN MASTER",
+      "title": "MV Lé — Dr Roc",
+      "role": "Post-Production Supervisor",
+      "client": "Dr Roc",
+      "mediaType": "drive",
+      "seoTitle": "MV Lé — Dr Roc | Minato Makoto (Post-Production Supervisor)",
+      "seoDescription": "MV Lé – Dr Roc: hậu kỳ toàn diện từ raw footage đến bản hoàn thiện gồm Editing, Color Grading và VFX.",
+      "video": {
+        "provider": "drive",
+        "videoId": "1yeMXF7wVZBWE2W7VHUQvHY1k7gREsfjD",
+        "name": "MV Lé — Dr Roc",
+        "description": "Music Video Lé của Dr Roc do Lương Bảo Huy (Minato Makoto) độc lập đảm nhiệm Editing, Color Grading và VFX từ raw footage.",
+        "embedUrl": "https://drive.google.com/file/d/1yeMXF7wVZBWE2W7VHUQvHY1k7gREsfjD/preview",
+        "sourceUrl": "https://drive.google.com/file/d/1yeMXF7wVZBWE2W7VHUQvHY1k7gREsfjD/view",
+        "driveThumbnailCandidate": "https://drive.google.com/thumbnail?id=1yeMXF7wVZBWE2W7VHUQvHY1k7gREsfjD&sz=w1000",
+        "candidateUploadDate": null,
+        "exportVideoObject": false,
+        "missingSeoFields": [
+          "Thiếu uploadDate thực tế của video (không dùng năm chiến dịch 2023 thay thế)",
+          "Xác nhận với tư cách khách khả năng phát nhúng /preview và tải thumbnail Drive công khai ổn định"
+        ]
+      },
+      "greeting": "Một tác phẩm âm nhạc khác mà Huy xử lý toàn diện từ raw footage đến bản hoàn thiện cuối cùng không cần chia nhỏ quy trình.",
+      "roleDetail": "Huy độc lập đảm nhiệm cả 3 mảng cho MV của Dr Roc: Editing, Color Grading và Visual Effects (VFX).",
+      "techDetail": "Sự liền mạch giữa nhịp cắt, hiệu ứng thị giác và chất màu gai góc tạo nên cá tính thị giác thống nhất cho toàn bộ MV."
+    },
+    {
+      "id": "dong-co-lau-card",
+      "code": "08",
+      "slug": "dong-co-lau",
+      "permalink": "/work/dong-co-lau/",
+      "year": "2024",
+      "category": "PHIM THƯƠNG HIỆU · NHỊP CẢM XÚC",
+      "title": "ĐỒNG CỎ LAU – Từ Đất Trời Đến Tổ Ấm",
+      "role": "Post-Production Supervisor",
+      "client": "Đồng Cỏ Lau · AERO",
+      "mediaType": "drive",
+      "seoTitle": "ĐỒNG CỎ LAU – Từ Đất Trời Đến Tổ Ấm | Minato Makoto (Post-Production Supervisor)",
+      "seoDescription": "Phim thương hiệu ĐỒNG CỎ LAU cho Đồng Cỏ Lau · AERO: dựng nhịp cảm xúc trầm lắng và chỉnh màu ấm áp.",
+      "video": {
+        "provider": "drive",
+        "videoId": "1cN1AkKCYtoxowWyVDofOIZlX4cZnrhGS",
+        "name": "ĐỒNG CỎ LAU – Từ Đất Trời Đến Tổ Ấm",
+        "description": "Phim thương hiệu ĐỒNG CỎ LAU: Hành trình từ đất trời đến tổ ấm do Lương Bảo Huy (Minato Makoto) xử lý hậu kỳ trọn gói.",
+        "embedUrl": "https://drive.google.com/file/d/1cN1AkKCYtoxowWyVDofOIZlX4cZnrhGS/preview",
+        "sourceUrl": "https://drive.google.com/file/d/1cN1AkKCYtoxowWyVDofOIZlX4cZnrhGS/view",
+        "driveThumbnailCandidate": "https://drive.google.com/thumbnail?id=1cN1AkKCYtoxowWyVDofOIZlX4cZnrhGS&sz=w1000",
+        "candidateUploadDate": null,
+        "exportVideoObject": false,
+        "missingSeoFields": [
+          "Thiếu uploadDate thực tế của video (không dùng năm chiến dịch 2024 thay thế)",
+          "Xác nhận với tư cách khách khả năng phát nhúng /preview và tải thumbnail Drive công khai ổn định"
+        ]
+      },
+      "greeting": "Khác với nhịp dựng nhanh của event hay MV, bộ phim thương hiệu này đi theo mạch kể trầm lắng và giàu chất thơ.",
+      "roleDetail": "Huy một mình gánh trọn khâu hậu kỳ: kết nối những thước phim thu hoạch bông lau nơi vách núi Tây Bắc với câu chuyện bàn tay người thợ và tổ ấm.",
+      "techDetail": "Nhịp cắt tiết chế cùng bảng màu ấm áp giúp chạm đúng tinh thần mộc mạc mà thương hiệu Đồng Cỏ Lau hướng tới."
+    },
+    {
+      "id": "ThaiLong-card",
+      "code": "09",
+      "slug": "thai-long-yen-tiec",
+      "permalink": "/work/thai-long-yen-tiec/",
+      "year": "2023",
+      "category": "QUẢNG CÁO ẨM THỰC · HẬU KỲ ĐỘC LẬP",
+      "title": "Thái Long Yến Tiệc",
+      "role": "Post-Production Supervisor",
+      "client": "Nước Mắm Thái Long",
+      "mediaType": "drive",
+      "seoTitle": "Thái Long Yến Tiệc | Minato Makoto (Post-Production Supervisor)",
+      "seoDescription": "Phim quảng cáo ẩm thực Thái Long Yến Tiệc cho Nước Mắm Thái Long: hậu kỳ hình ảnh và âm thanh theo storyboard.",
+      "video": {
+        "provider": "drive",
+        "videoId": "1oFDR_ff0AHRXJuIFiQy8suxvZNKuA_Bg",
+        "name": "Thái Long Yến Tiệc",
+        "description": "Phim quảng cáo ẩm thực Thái Long Yến Tiệc với toàn bộ hậu kỳ hình ảnh và âm thanh do Lương Bảo Huy (Minato Makoto) thực hiện độc lập.",
+        "embedUrl": "https://drive.google.com/file/d/1oFDR_ff0AHRXJuIFiQy8suxvZNKuA_Bg/preview",
+        "sourceUrl": "https://drive.google.com/file/d/1oFDR_ff0AHRXJuIFiQy8suxvZNKuA_Bg/view",
+        "driveThumbnailCandidate": "https://drive.google.com/thumbnail?id=1oFDR_ff0AHRXJuIFiQy8suxvZNKuA_Bg&sz=w1000",
+        "candidateUploadDate": null,
+        "exportVideoObject": false,
+        "missingSeoFields": [
+          "Thiếu uploadDate thực tế của video (không dùng năm chiến dịch 2023 thay thế)",
+          "Xác nhận với tư cách khách khả năng phát nhúng /preview và tải thumbnail Drive công khai ổn định"
+        ]
+      },
+      "greeting": "Một dự án quảng cáo ẩm thực đòi hỏi sự tinh tế trong cả hình ảnh món ăn lẫn âm thanh bàn tiệc để khơi gợi cảm giác sum vầy.",
+      "roleDetail": "Huy độc lập đảm trách toàn bộ quá trình hậu kỳ hình ảnh và âm thanh theo sát storyboard đã thống nhất với Nước Mắm Thái Long.",
+      "techDetail": "Từng khung hình món ăn và lớp âm thanh yến tiệc đều được trau chuốt tỉ mỉ để giữ độ hấp dẫn và nhịp điệu ấm cúng."
+    },
+    {
+      "id": "microlife-bts-card",
+      "code": "10",
+      "slug": "microlife-talkshow-2021-bts",
+      "permalink": "/work/microlife-talkshow-2021-bts/",
+      "year": "2021",
+      "category": "VẬN HÀNH TRƯỜNG QUAY · TALKSHOW BTS",
+      "title": "Microlife Talkshow 2021 | BTS",
+      "role": "Producer Assistant · Post Supervisor",
+      "client": "Microlife · Masthead",
+      "mediaType": "youtube",
+      "seoTitle": "Microlife Talkshow 2021 | BTS | Minato Makoto (Producer Assistant · Post Supervisor)",
+      "seoDescription": "Microlife Talkshow 2021 Behind The Scenes cho Microlife · Masthead: điều phối tiền kỳ, vận hành trường quay và dựng phim BTS.",
+      "video": {
+        "provider": "youtube",
+        "videoId": "_V3pAcQBhPo",
+        "name": "Microlife Talkshow 2021 | Behind the scene",
+        "description": "Tư liệu hậu trường Microlife Talkshow 2021 ghi lại công tác điều phối tiền kỳ, tổ chức trường quay và dựng phim Behind The Scenes của Lương Bảo Huy (Minato Makoto).",
+        "embedUrl": "https://www.youtube.com/embed/_V3pAcQBhPo",
+        "sourceUrl": "https://www.youtube.com/watch?v=_V3pAcQBhPo",
+        "thumbnailUrl": "https://i.ytimg.com/vi/_V3pAcQBhPo/hqdefault.jpg",
+        "uploadDate": "2022-03-18T20:38:56-07:00",
+        "exportVideoObject": true,
+        "missingSeoFields": []
+      },
+      "greeting": "Thước phim hậu trường này cho thấy rõ cách Huy tổ chức trường quay và giữ nhịp phối hợp cho một buổi ghi hình talkshow nhiều bộ phận.",
+      "roleDetail": "Huy hỗ trợ Executive Producer điều phối tiền kỳ, quản lý tiến độ tại trường quay và trực tiếp ghi hình kiêm dựng phim Behind The Scenes.",
+      "techDetail": "Công việc tại hiện trường đòi hỏi xử lý chuẩn xác và linh hoạt khi điều phối song song đội ánh sáng, máy quay và khách mời chuyên gia."
+    },
+    {
+      "id": "2ndchance-card",
+      "code": "11",
+      "slug": "the-2nd-chance",
+      "permalink": "/work/the-2nd-chance/",
+      "year": "2021",
+      "category": "CHIẾN DỊCH Y TẾ · TVC MỞ MÀN",
+      "title": "The 2nd Chance – Hãy Thay Đổi Lối Sống",
+      "role": "Producer Assistant · BTS",
+      "client": "Microlife B3 AFIB",
+      "mediaType": "youtube",
+      "seoTitle": "The 2nd Chance – Hãy Thay Đổi Lối Sống | Minato Makoto (Producer Assistant · BTS)",
+      "seoDescription": "Chiến dịch The 2nd Chance cho Microlife B3 AFIB: điều phối tiền kỳ và hiện trường phim truyền thông y tế.",
+      "video": {
+        "provider": "youtube",
+        "videoId": "5RVfxLfCHwg",
+        "name": "The 2nd Chance - Hãy Thay Đổi Lối Sống, Yêu Thương & Lành Mạnh",
+        "description": "Phim ngắn thương hiệu mở màn chuỗi chiến dịch truyền thông y tế của Microlife B3 AFIB với vai trò Producer Assistant và BTS của Lương Bảo Huy (Minato Makoto).",
+        "embedUrl": "https://www.youtube.com/embed/5RVfxLfCHwg",
+        "sourceUrl": "https://www.youtube.com/watch?v=5RVfxLfCHwg",
+        "thumbnailUrl": "https://i.ytimg.com/vi/5RVfxLfCHwg/hqdefault.jpg",
+        "uploadDate": "2020-10-29T03:36:03-07:00",
+        "exportVideoObject": true,
+        "missingSeoFields": []
+      },
+      "greeting": "Đây là dự án mở màn cho chuỗi chiến dịch truyền thông y tế của Microlife mà Huy đồng hành từ những bước chuẩn bị đầu tiên.",
+      "roleDetail": "Tham gia từ tiền kỳ với vai trò Producer Assistant, Huy hỗ trợ Executive Producer giữ luồng vận hành hiện trường trơn tru và xử lý phát sinh.",
+      "techDetail": "Quy trình phối hợp gọn ghẽ hình thành từ dự án này đã trở thành nền tảng cho hàng loạt TVC và talkshow sức khỏe kế tiếp."
+    },
+    {
+      "id": "PhongNguaDotQuy-card",
+      "code": "12",
+      "slug": "phong-ngua-dot-quy",
+      "permalink": "/work/phong-ngua-dot-quy/",
+      "year": "2021",
+      "category": "TALKSHOW Y TẾ · MICROLIFE × BIOMEQ",
+      "title": "Microlife Talkshow – Phòng Ngừa Đột Quỵ",
+      "role": "Producer Assistant · BTS",
+      "client": "Microlife × BIOMEQ (NSƯT Thành Lộc)",
+      "mediaType": "youtube",
+      "seoTitle": "Microlife Talkshow – Bảo Vệ Gia Đình Phòng Ngừa Đột Quỵ | Minato Makoto",
+      "seoDescription": "Chương trình Microlife Talkshow: Bảo Vệ Gia Đình Phòng Ngừa Đột Quỵ (Microlife × BIOMEQ) cùng NSƯT Thành Lộc, MC Thanh Giang và ThS.BS Trần Công Duy — Lương Bảo Huy đảm nhiệm Producer Assistant và BTS.",
+      "video": {
+        "provider": "youtube",
+        "videoId": "PPNA0KnOrNg",
+        "name": "🔴 BẢO VỆ GIA ĐÌNH PHÒNG NGỪA ĐỘT QUỴ - NSƯT THÀNH LỘC, MC THANH GIANG, ThS.BS TRẦN CÔNG DUY 🔴",
+        "description": "Chương trình Microlife Talkshow: Bảo Vệ Gia Đình Phòng Ngừa Đột Quỵ (Microlife × BIOMEQ) cùng NSƯT Thành Lộc, MC Thanh Giang và ThS.BS Trần Công Duy, với công tác điều phối sản xuất và ghi hình BTS của Lương Bảo Huy (Minato Makoto).",
+        "embedUrl": "https://www.youtube.com/embed/PPNA0KnOrNg",
+        "sourceUrl": "https://www.youtube.com/watch?v=PPNA0KnOrNg",
+        "thumbnailUrl": "https://i.ytimg.com/vi/PPNA0KnOrNg/hqdefault.jpg",
+        "uploadDate": "2021-11-22T01:01:51-08:00",
+        "exportVideoObject": true,
+        "missingSeoFields": []
+      },
+      "greeting": "Đây là chương trình Microlife Talkshow “Bảo Vệ Gia Đình Phòng Ngừa Đột Quỵ” cùng NSƯT Thành Lộc, MC Thanh Giang và ThS.BS Trần Công Duy — bản phát sóng chính của buổi ghi hình hậu trường ở mục 10.",
+      "roleDetail": "Huy đảm nhận vai trò Producer Assistant kiêm ghi hình BTS cho buổi talkshow của Microlife × BIOMEQ, hỗ trợ điều phối tiền kỳ, khách mời nghệ sĩ và bác sĩ chuyên khoa tại trường quay.",
+      "techDetail": "Buổi ghi hình đa máy quay kết hợp dẫn chuyện trực tiếp giữa nghệ sĩ và chuyên gia y tế đòi hỏi kịch bản trường quay chặt chẽ, ánh sáng ổn định và nhịp phối hợp ăn ý xuyên suốt chương trình."
+    }
+  ]
+}

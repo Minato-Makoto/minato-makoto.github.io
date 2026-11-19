@@ -1,6 +1,5 @@
 /* =========================================================================
-   MINATO MAKOTO — PRODUCTION DESIGN TOKENS & BASE RESET
-   Architecture: Human-Crafted FUI × Spatial Z-Corridor × Visual Novel HUD
+   MINATO MAKOTO — DESIGN TOKENS, BASE TYPOGRAPHY & SHARED READING SHELL
    ========================================================================= */
 
 :root {
@@ -26,15 +25,15 @@
   --amber: #e2ab4b;
   --amber-soft: rgba(226, 171, 75, 0.12);
 
-  --font-display: 'Syne', sans-serif;
-  --font-serif: 'Instrument Serif', Georgia, serif;
-  --font-mono: 'IBM Plex Mono', monospace;
+  --font-sans: 'Be Vietnam Pro', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-display: 'Be Vietnam Pro', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-serif: 'Newsreader', Georgia, serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
 
-  /* Enlarged Commanding Main Node HUD Dimensions (690x444 — expanded rightward & taller) */
+  --hud-top-h: 58px;
   --node-w: 690px;
   --node-h: 444px;
 
-  /* Calibrated Optical Easing Curves */
   --ease-fluid: cubic-bezier(0.22, 1, 0.36, 1);
   --ease-soft: cubic-bezier(0.25, 0.8, 0.25, 1);
   --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
@@ -51,13 +50,15 @@
 
 html, body {
   width: 100%;
-  height: 100%;
-  overflow: hidden;
+  min-height: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
   background-color: var(--void);
   color: var(--ink);
-  font-family: var(--font-mono);
-  user-select: none;
-  -webkit-user-select: none;
+  font-family: var(--font-sans);
+  line-height: 1.6;
+  user-select: text;
+  -webkit-user-select: text;
   -webkit-font-smoothing: antialiased;
 }
 
@@ -66,16 +67,9 @@ button, a {
   color: inherit;
 }
 
-.sr-only {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border: 0;
+:focus-visible {
+  outline: 2px solid var(--phosphor);
+  outline-offset: 2px;
 }
 
 /* Reusable Multi-Preset FUI Text Animation Classes (window.TextFX) */
@@ -87,10 +81,10 @@ button, a {
 .fx-stagger-token {
   display: inline-block;
   opacity: 0;
-  transform: translateY(58%);
+  transform: translateY(24%);
   transition:
-    opacity 620ms var(--ease-fluid),
-    transform 680ms var(--ease-fluid);
+    opacity 420ms var(--ease-fluid),
+    transform 460ms var(--ease-fluid);
 }
 
 .fx-stagger-token.is-revealed {
@@ -104,9 +98,211 @@ button, a {
   margin-left: 2px;
 }
 
-@media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
-    animation-duration: 0.01ms !important;
-    transition-duration: 0.01ms !important;
-  }
+/* =========================================================================
+   SHARED READING & ARTICLE SHELL (Used by 404, Intro/Posts, and HTML Fallback)
+   ========================================================================= */
+.page-shell,
+.seo-fallback-shell {
+  position: relative;
+  z-index: 40;
+  max-width: 1040px;
+  margin: 0 auto;
+  padding: 64px 24px 72px;
+  color: var(--ink);
+  font-family: var(--font-sans);
+  line-height: 1.68;
+  user-select: text;
+  -webkit-user-select: text;
+}
+
+.seo-fallback-shell {
+  padding-top: 96px;
+}
+
+.seo-station-article {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.seo-eyebrow {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--amber);
+}
+
+.seo-h1 {
+  font-family: var(--font-serif);
+  font-size: clamp(28px, 4vw, 44px);
+  font-weight: 600;
+  line-height: 1.28;
+  color: var(--ink);
+}
+
+.seo-lead {
+  font-size: 15px;
+  line-height: 1.72;
+  color: var(--ink-soft);
+  max-width: 72ch;
+}
+
+.seo-meta-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 10px;
+  list-style: none;
+}
+
+.seo-meta-list li {
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.025);
+  font-size: 13px;
+}
+
+.seo-meta-list strong {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+  margin-bottom: 4px;
+}
+
+.seo-player-box {
+  border: 1px solid var(--phosphor-border);
+  background: #040403;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.seo-player-frame {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background: #070706;
+}
+
+.seo-player-frame iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+.seo-player-links {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.seo-thumb-preview {
+  width: 160px;
+  height: auto;
+  border: 1px solid var(--line);
+  display: block;
+}
+
+.seo-cta-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 13px;
+  border: 1px solid var(--phosphor-border);
+  color: var(--phosphor);
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.35;
+}
+
+.seo-cta-link:hover {
+  background: var(--phosphor);
+  color: var(--void);
+}
+
+.seo-dossier-box {
+  border: 1px solid var(--line-mid);
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.02);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.seo-dossier-box h2 {
+  font-family: var(--font-serif);
+  font-size: 22px;
+  font-weight: 600;
+  line-height: 1.32;
+}
+
+.seo-dossier-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 10px;
+  list-style: none;
+}
+
+.seo-dossier-grid li {
+  border: 1px solid var(--line);
+  padding: 8px 10px;
+  font-size: 13px;
+}
+
+.seo-copy-block {
+  display: grid;
+  gap: 12px;
+  font-size: 14.5px;
+  line-height: 1.72;
+  color: var(--ink-soft);
+}
+
+.seo-works-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 12px;
+  list-style: none;
+}
+
+.seo-work-card {
+  border: 1px solid var(--line);
+  padding: 14px 16px;
+  background: rgba(255, 255, 255, 0.02);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 13.5px;
+}
+
+.seo-work-card h2 {
+  font-family: var(--font-serif);
+  font-size: 19px;
+  line-height: 1.32;
+}
+
+.seo-work-card a {
+  color: var(--phosphor);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.seo-work-card a:hover {
+  text-decoration: underline;
+}
+
+.seo-inline-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
 }
